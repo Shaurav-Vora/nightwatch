@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NIGHTWATCH — heat maps measure the wrong thing</title>
+<script src="https://unpkg.com/deck.gl@8.9.35/dist.min.js"></script>
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<style>
+  :root{--bg:#0a0e14;--panel:#111721;--line:#1e2836;--ink:#e6eaf0;
+        --muted:#8792a5;--accent:#f97316;--good:#38bdf8}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font:14px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  #app{display:grid;grid-template-columns:1fr 360px;height:100vh}
+  #map{position:relative}
+  #side{background:var(--panel);border-left:1px solid var(--line);
+    overflow-y:auto;padding:18px 18px 48px}
+
+  h1{font-size:19px;letter-spacing:.15em;margin:0;font-weight:700}
+  .sub{color:var(--muted);font-size:12px;margin:2px 0 16px}
+  h2{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+     color:var(--muted);margin:22px 0 8px;font-weight:600}
+
+  .hero{background:#1a1207;border:1px solid #7c2d12;border-left:3px solid var(--accent);
+    padding:13px;border-radius:6px}
+  .hero .big{font-size:15px;color:#fdba74;line-height:1.35}
+  .hero .big b{color:var(--accent);font-size:23px;display:inline-block}
+  .hero .cap{font-size:11.5px;color:#c2703a;margin-top:7px}
+
+  .cities{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+  .cities button{text-align:center;padding:8px 4px;font-size:12.5px}
+  button{background:#0d1219;color:var(--ink);border:1px solid var(--line);
+    border-radius:5px;padding:9px 11px;margin-bottom:5px;cursor:pointer;
+    font-size:13px;width:100%;text-align:left;font-family:inherit}
+  button:hover{border-color:#37455a}
+  button.on{border-color:var(--accent);background:#1a1207;color:#fdba74}
+  button small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+  button.on small{color:#c2703a}
+
+  label.row{display:flex;justify-content:space-between;font-size:12px;
+    color:var(--muted);margin:12px 0 4px}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  .chk{display:flex;align-items:center;gap:8px;font-size:12.5px;
+    color:var(--muted);margin-top:9px;cursor:pointer}
+
+  #legend{display:flex;height:9px;border-radius:3px;overflow:hidden;margin-top:8px}
+  #legend div{flex:1}
+  .legrow{display:flex;justify-content:space-between;color:var(--muted);
+    font-size:10.5px;margin-top:3px}
+
+  table.cmp{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:6px}
+  table.cmp th{color:var(--muted);font-weight:600;text-align:right;
+    padding:5px 4px;border-bottom:1px solid var(--line);font-size:10px;
+    text-transform:uppercase;letter-spacing:.06em}
+  table.cmp th:first-child{text-align:left}
+  table.cmp td{padding:6px 4px;text-align:right;border-bottom:1px solid #182130;
+    font-variant-numeric:tabular-nums}
+  table.cmp td:first-child{text-align:left;color:var(--muted)}
+  table.cmp tr.sel td{color:#fdba74}
+  table.cmp tr.sel td:first-child{color:var(--accent)}
+
+  #tip{position:absolute;pointer-events:none;background:#0b1017f2;
+    border:1px solid var(--line);border-radius:6px;padding:9px 11px;
+    font-size:12px;display:none;z-index:5;min-width:170px}
+  .tiprow{display:flex;justify-content:space-between;gap:16px;color:var(--muted)}
+  .tiprow i{font-style:normal;color:var(--ink);font-variant-numeric:tabular-nums}
+  .tiprow.hi i{color:var(--accent);font-weight:700}
+
+  #loading{position:absolute;inset:0;display:flex;align-items:center;
+    justify-content:center;color:var(--muted);background:var(--bg);z-index:10}
+  .note{color:var(--muted);font-size:11.5px;line-height:1.5;margin-top:9px}
+  code{font-family:Consolas,monospace;font-size:11px;color:#c99a6a}
+
+  .twins{border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .twins .hd{background:#0d1219;padding:8px 11px;font-size:11.5px;
+    color:var(--muted);border-bottom:1px solid var(--line)}
+  .twins .hd b{color:var(--ink)}
+  .twin{display:flex;align-items:center;gap:10px;padding:9px 11px;
+    border-bottom:1px solid #182130}
+  .twin:last-child{border-bottom:none}
+  .twin .h{font-size:20px;font-variant-numeric:tabular-nums;min-width:62px}
+  .twin .d{font-size:11px;color:var(--muted);line-height:1.35}
+  .twin.hot .h{color:#ef4444}
+  .twin.cool .h{color:var(--good)}
+  .twins .ft{padding:9px 11px;font-size:11.5px;color:#fdba74;
+    background:#1a1207;border-top:1px solid #7c2d12}
+  #scatter{width:100%;height:auto;display:block;margin-top:4px;
+    border:1px solid var(--line);border-radius:5px;background:#0b1017}
+
+  table.rank{width:100%;border-collapse:collapse;font-size:11.5px}
+  table.rank td{padding:6px 4px;border-bottom:1px solid #182130;
+    font-variant-numeric:tabular-nums;cursor:pointer}
+  table.rank tr:hover td{background:#151d29}
+  table.rank td.n{color:var(--muted);width:20px}
+  table.rank td.h{color:#ef4444;font-weight:700;width:52px}
+  table.rank td.c{color:var(--muted);font-size:10.5px}
+  .dl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:9px}
+  .dl button{text-align:center;padding:8px 3px;font-size:11px;margin:0}
+  button.share{text-align:center;margin-top:6px;border-color:#334155;
+    background:#111c2b;color:#93c5fd}
+  button.share:hover{border-color:#3b82f6}
+  button.report{text-align:center;margin-top:9px;border-color:#7c2d12;
+    background:#1a1207;color:#fdba74;font-weight:600}
+  button.report:hover{border-color:var(--accent)}
+
+  #shareBg{position:fixed;inset:0;background:#04070ccc;z-index:50;
+    display:none;align-items:center;justify-content:center;padding:20px}
+  #shareBg.on{display:flex}
+  #shareBox{background:var(--panel);border:1px solid var(--line);
+    border-radius:9px;width:520px;max-width:100%;max-height:92vh;
+    display:flex;flex-direction:column;overflow:hidden}
+  .sh-hd{padding:14px 16px;border-bottom:1px solid var(--line);
+    font-size:15px;font-weight:600;display:flex;justify-content:space-between;
+    align-items:center}
+  .x{width:auto;background:none;border:none;color:var(--muted);
+    font-size:15px;padding:0 4px;margin:0;cursor:pointer}
+  .sh-body{padding:14px 16px;overflow-y:auto}
+  .sh-l{display:block;font-size:10.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);margin:14px 0 6px;font-weight:600}
+  .sh-l:first-child{margin-top:0}
+  .sh-l span{text-transform:none;letter-spacing:0;float:right;font-weight:400}
+  #shTo,#shBody{width:100%;background:#0b1017;border:1px solid var(--line);
+    border-radius:5px;color:var(--ink);padding:9px 10px;font-size:12.5px;
+    font-family:inherit;resize:vertical}
+  #shBody{font-family:Consolas,monospace;font-size:11.5px;line-height:1.5}
+  #shTo:focus,#shBody:focus{outline:none;border-color:var(--accent)}
+  .sh-c{display:flex;align-items:baseline;gap:8px;font-size:12.5px;
+    padding:5px 0;cursor:pointer}
+  .sh-c span{color:var(--muted);font-size:11px}
+  .sh-err{color:#f87171;font-size:11.5px;min-height:15px;padding-top:4px}
+  .sh-note{color:var(--muted);font-size:11px;line-height:1.5;margin-top:8px;
+    padding:9px 10px;background:#0b1017;border-radius:5px;
+    border-left:2px solid #334155}
+  .sh-ft{padding:12px 16px;border-top:1px solid var(--line);
+    display:flex;gap:8px;justify-content:flex-end}
+  .sh-ft button{width:auto;margin:0;padding:9px 16px}
+  .sh-ft button.primary{background:#7c2d12;border-color:var(--accent);
+    color:#fed7aa}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="map"><div id="loading">loading…</div><div id="tip"></div></div>
+  <div id="shareBg"><div id="shareBox">
+    <div class="sh-hd">Email this report
+      <button id="shClose" class="x">✕</button></div>
+    <div class="sh-body">
+      <label class="sh-l">To</label>
+      <input id="shTo" type="text" placeholder="heat.office@phoenix.gov, colleague@…">
+      <div class="sh-err" id="shErr"></div>
+
+      <label class="sh-l">Include in the message</label>
+      <label class="sh-c"><input type="checkbox" id="incSites" checked>
+        Ranked sites</label>
+      <label class="sh-c"><input type="checkbox" id="incMethod" checked>
+        Method &amp; caveats</label>
+      <label class="sh-c"><input type="checkbox" id="incLink" checked>
+        Link to the live map</label>
+
+      <label class="sh-l">Attach</label>
+      <label class="sh-c"><input type="checkbox" id="attSites">
+        Sites CSV</label>
+      <label class="sh-c"><input type="checkbox" id="attBlocks">
+        All blocks CSV <span id="attBlocksN">—</span></label>
+      <label class="sh-c"><input type="checkbox" id="attGeo">
+        GeoJSON <span>QGIS / ArcGIS</span></label>
+      <div class="sh-note">Browsers can't attach files to an email. Anything
+        ticked here downloads so you can attach it yourself.</div>
+
+      <label class="sh-l">Preview <span id="shLen"></span></label>
+      <textarea id="shBody" rows="9"></textarea>
+    </div>
+    <div class="sh-ft">
+      <button id="shCopy">Copy text</button>
+      <button id="shSend" class="primary">Open mail client</button>
+    </div>
+  </div></div>
+
+  <div id="side">
+    <h1>NIGHTWATCH</h1>
+    <div class="sub" id="subtitle">—</div>
+
+    <div class="hero">
+      <div class="big" id="heroBig">—</div>
+      <div class="cap" id="heroCap">—</div>
+    </div>
+
+    <h2>City</h2>
+    <div class="cities" id="cityBtns"></div>
+
+    <h2>Layer</h2>
+    <div id="layerBtns"></div>
+
+    <h2>Filter</h2>
+    <label class="row"><span id="thLabel">—</span><span id="thVal">—</span></label>
+    <input id="th" type="range" min="0" max="100" value="100">
+    <div class="note" id="thCount">—</div>
+    <label class="chk"><input type="checkbox" id="water"> show water tiles</label>
+    <label class="chk"><input type="checkbox" id="fahrenheit" checked> Fahrenheit</label>
+
+    <h2>Scale</h2>
+    <div id="legend"></div>
+    <div class="legrow"><span id="legLo">—</span><span id="legHi">—</span></div>
+    <div class="note" id="spanNote">—</div>
+
+    <h2>Two blocks, same afternoon</h2>
+    <div id="twins" class="twins">—</div>
+
+    <h2>Degrees in, hours out</h2>
+    <canvas id="scatter" width="324" height="200"></canvas>
+    <div class="legrow"><span id="scX0">—</span><span id="scX1">—</span></div>
+    <div class="note" id="scNote">—</div>
+
+    <h2>Worst blocks</h2>
+    <table class="rank" id="rank"></table>
+    <div class="dl">
+      <button id="dlSites">Sites CSV</button>
+      <button id="dlCsv">All blocks CSV</button>
+      <button id="dlGeo">GeoJSON</button>
+    </div>
+    <button id="genReport" class="report">Generate full report →</button>
+    <button id="openShare" class="share">Email this report →</button>
+    <div class="note" id="rankNote">—</div>
+
+    <h2>All three cities</h2>
+    <table class="cmp" id="cmp"></table>
+    <div class="note" id="cmpNote">—</div>
+
+    <h2>Method</h2>
+    <div class="note" id="method">—</div>
+  </div>
+</div>
+
+<script>
+const {DeckGL, PolygonLayer} = deck;
+
+const LAYERS = {
+  exposure:{i:2, label:'hours above threshold', unit:'h', rel:true,
+            title:'Exposure', sub:'hours above the danger threshold'},
+  day:     {i:3, label:'3pm temperature',       unit:'deg', rel:false,
+            title:'Afternoon heat', sub:'the map everyone already has'},
+  night:   {i:4, label:'3am temperature',       unit:'deg', rel:false,
+            title:'3am heat', sub:'raw night temperature'},
+  cooling: {i:-1,label:'overnight cooling',     unit:'deg', rel:true,
+            title:'Overnight cooling', sub:'degrees shed between 3pm and 3am'}
+};
+const RAMP=[[8,20,48],[20,60,110],[30,110,150],[90,160,140],
+            [200,180,90],[240,130,50],[220,60,40],[150,20,30]];
+
+let INDEX=null, CITY=null, DATA=null;
+let layerName='exposure', showWater=false, useF=true, thPct=100;
+let lo=0, hi=1, deckgl=null;
+// Controlled rather than initialViewState, so clicking a ranked block can
+// fly the camera there. Controlled means we must echo user pans back.
+let VIEW=null;
+
+const val=(c,name)=>{const L=LAYERS[name];return L.i<0 ? c[3]-c[4] : c[L.i];};
+const isWater=c=>c[5]===1;
+const vis=c=>showWater||!isWater(c);
+
+function conv(v){
+  const L=LAYERS[layerName];
+  if(L.unit==='h') return v;
+  return useF ? (L.rel ? v*9/5 : v*9/5+32) : v;
+}
+function unit(){
+  const L=LAYERS[layerName];
+  return L.unit==='h' ? 'h' : (useF?'°F':'°C');
+}
+
+function ramp(t){
+  t=Math.max(0,Math.min(1,t));
+  const x=t*(RAMP.length-1),i=Math.floor(x),f=x-i;
+  const a=RAMP[i],b=RAMP[Math.min(RAMP.length-1,i+1)];
+  return [a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f];
+}
+
+const shown=()=>DATA.cells.filter(vis).map(c=>val(c,layerName)).sort((a,b)=>a-b);
+
+function render(){
+  const v=shown();
+  lo=v[Math.floor(v.length*0.02)]; hi=v[Math.floor(v.length*0.98)];
+  if(hi===lo) hi=lo+1;
+  const cut=v[Math.min(v.length-1,Math.floor(v.length*(thPct/100)))];
+  const [dlon,dlat]=DATA.cell;
+
+  const layer=new PolygonLayer({
+    id:'tiles', data:DATA.cells, filled:true, stroked:false, pickable:true,
+    getPolygon:c=>[[c[0]-dlon/2,c[1]-dlat/2],[c[0]+dlon/2,c[1]-dlat/2],
+                   [c[0]+dlon/2,c[1]+dlat/2],[c[0]-dlon/2,c[1]+dlat/2]],
+    getFillColor:c=>{
+      if(!vis(c)) return [0,0,0,0];
+      const x=val(c,layerName);
+      if(x>cut) return [0,0,0,0];
+      const col=ramp((x-lo)/(hi-lo));
+      return [col[0],col[1],col[2],200];
+    },
+    updateTriggers:{getFillColor:[layerName,showWater,thPct,CITY]}
+  });
+
+  if(!deckgl){
+    deckgl=new DeckGL({
+      container:'map', map:maplibregl,
+      mapStyle:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+      viewState:VIEW, controller:true, layers:[layer],
+      onViewStateChange:({viewState})=>{
+        VIEW=viewState; deckgl.setProps({viewState:VIEW});
+      },
+      onHover:info=>{
+        const tip=document.getElementById('tip');
+        if(!info.object){tip.style.display='none';return;}
+        const c=info.object;
+        tip.style.display='block';
+        tip.style.left=(info.x+14)+'px'; tip.style.top=(info.y+14)+'px';
+        const F=t=>useF?(t*9/5+32).toFixed(1)+'°F':t.toFixed(1)+'°C';
+        const D=t=>useF?(t*9/5).toFixed(1)+'°F':t.toFixed(1)+'°C';
+        tip.innerHTML=
+          `<div class="tiprow hi"><span>above ${DATA.threshold_c}°C for</span>`+
+            `<i>${c[2].toFixed(1)} h</i></div>`+
+          `<div class="tiprow"><span>3pm</span><i>${F(c[3])}</i></div>`+
+          `<div class="tiprow"><span>3am</span><i>${F(c[4])}</i></div>`+
+          `<div class="tiprow"><span>cooled</span><i>${D(c[3]-c[4])}</i></div>`+
+          (isWater(c)?`<div class="tiprow"><span>— water</span></div>`:'');
+      }
+    });
+  } else {
+    deckgl.setProps({layers:[layer], viewState:VIEW});
+  }
+
+  const leg=document.getElementById('legend'); leg.innerHTML='';
+  for(let i=0;i<30;i++){const c=ramp(i/29);const d=document.createElement('div');
+    d.style.background=`rgb(${c[0]|0},${c[1]|0},${c[2]|0})`;leg.appendChild(d);}
+  document.getElementById('legLo').textContent=conv(lo).toFixed(1)+unit();
+  document.getElementById('legHi').textContent=conv(hi).toFixed(1)+unit();
+  document.getElementById('thVal').textContent=conv(cut).toFixed(1)+unit();
+  document.getElementById('thLabel').textContent=
+    layerName==='exposure'?'show blocks exposed less than':'show blocks below';
+
+  const span=(v[v.length-1]-v[0]);
+  document.getElementById('spanNote').textContent=
+    `Range ${conv0(span)}${unit()} across ${v.length.toLocaleString()} tiles.`;
+
+  const nv=DATA.cells.filter(c=>vis(c)&&val(c,layerName)<=cut).length;
+  document.getElementById('thCount').textContent=
+    `${nv.toLocaleString()} of ${v.length.toLocaleString()} tiles shown`;
+}
+function conv0(span){
+  const L=LAYERS[layerName];
+  if(L.unit==='h') return span.toFixed(1);
+  return (useF?span*9/5:span).toFixed(1);
+}
+
+function centreOn(d){
+  const lons=d.cells.map(c=>c[0]), lats=d.cells.map(c=>c[1]);
+  return {longitude:(Math.min(...lons)+Math.max(...lons))/2,
+          latitude:(Math.min(...lats)+Math.max(...lats))/2,
+          zoom:11.2, pitch:0};
+}
+
+function buildLayerButtons(){
+  const box=document.getElementById('layerBtns'); box.innerHTML='';
+  for(const [k,L] of Object.entries(LAYERS)){
+    const b=document.createElement('button');
+    b.innerHTML=`${L.title}<small>${L.sub}</small>`;
+    if(k===layerName) b.className='on';
+    b.onclick=()=>{layerName=k;thPct=100;
+      document.getElementById('th').value=100;
+      buildLayerButtons();render();};
+    box.appendChild(b);
+  }
+}
+
+function buildCityButtons(){
+  const box=document.getElementById('cityBtns'); box.innerHTML='';
+  for(const c of INDEX.cities){
+    const b=document.createElement('button');
+    b.textContent=c.short;
+    if(CITY&&c.city===CITY.city) b.className='on';
+    b.onclick=()=>loadCity(c.city);
+    box.appendChild(b);
+  }
+}
+
+function fillPanels(){
+  const s=CITY;
+  document.getElementById('subtitle').textContent=
+    `${s.label} · ${s.date} · ${s.aoi_sq_mi} mi² at ${s.granularity_m||100} m`;
+  document.getElementById('heroBig').innerHTML=
+    `<b>${s.temp_span_c}°C</b> of afternoon temperature across this city — `+
+    `and <b>${s.exposure_span_h} hours</b> of dangerous exposure.`;
+  document.getElementById('heroCap').textContent=
+    `Same tiles, same day. One of those looks uniform. `+
+    `The other is a public-health problem.`;
+
+  const t=document.getElementById('cmp');
+  t.innerHTML='<tr><th>city</th><th>°C span</th><th>hours span</th><th>R²</th></tr>'+
+    INDEX.cities.map(c=>
+      `<tr class="${CITY&&c.city===CITY.city?'sel':''}">`+
+      `<td>${c.short}</td><td>${c.temp_span_c}</td>`+
+      `<td>${c.exposure_span_h}</td><td>${c.r2}</td></tr>`).join('');
+
+  drawTwins();
+  drawScatter();
+  drawRanking();
+
+  const best=INDEX.cities[0];
+  document.getElementById('cmpNote').innerHTML=
+    `R² is how much of a block's night-time exposure is predictable from its `+
+    `afternoon temperature. In ${best.short} it is <b>${best.r2}</b>.`;
+
+  document.getElementById('method').innerHTML=
+    `Exposure is the longest <b>unbroken</b> run of hours above `+
+    `${s.threshold_c}°C — FortyGuard <code>/v1/heatmap</code>, `+
+    `<code>analytic_type: persistence</code>. Thresholds are set per city `+
+    `between its measured 3pm and 3am means. Temperatures are two `+
+    `<code>tcm</code> calls at ${s.day_hour||15}:00 and ${s.night_hour||3}:00 `+
+    `local time. `+
+    `${s.n_water?s.n_water.toLocaleString()+' water tiles are masked. ':''}`+
+    `Modelled field for a single day, not sensor measurement, and not `+
+    `weighted by population.`;
+}
+
+// The statistic, made concrete: two real blocks at the same afternoon
+// temperature whose exposure differs by hours. Nobody feels an R^2.
+function drawTwins(){
+  const box=document.getElementById('twins');
+  const t=DATA.twins;
+  if(!t){box.innerHTML='<div class="hd">no matched pair found</div>';return;}
+  const F=c=>useF?(c*9/5+32).toFixed(1)+'°F':c.toFixed(1)+'°C';
+  const row=(o,cls,lbl)=>
+    `<div class="twin ${cls}"><div class="h">${o.exposure_h.toFixed(1)}h</div>`+
+    `<div class="d"><b>${lbl}</b><br>${o.lat.toFixed(4)}, ${o.lon.toFixed(4)}`+
+    ` · 3am ${F(o.night_c)}</div></div>`;
+  box.innerHTML=
+    `<div class="hd">Both blocks read <b>${F(t.temp_c)}</b> at 3pm.</div>`+
+    row(t.low,'cool','shorter exposure')+
+    row(t.high,'hot','longer exposure')+
+    `<div class="ft">${t.gap_h.toFixed(1)} hours apart, `+
+    `above ${DATA.threshold_c}°C — from the same afternoon reading.</div>`;
+}
+
+// 2D density of exposure vs afternoon temperature. Vertical spread at a
+// fixed x is the whole point: same temperature, different exposure.
+function drawScatter(){
+  const s=DATA.scatter, cv=document.getElementById('scatter');
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if(!s) return;
+  let peak=0;
+  for(const row of s.grid) for(const v of row) if(v>peak) peak=v;
+  const cw=cv.width/s.nx, ch=cv.height/s.ny;
+  for(let gy=0;gy<s.ny;gy++){
+    for(let gx=0;gx<s.nx;gx++){
+      const v=s.grid[gy][gx];
+      if(!v) continue;
+      const t=Math.pow(v/peak,0.42);           // gamma, so sparse bins show
+      const c=ramp(t);
+      ctx.fillStyle=`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${0.25+0.75*t})`;
+      ctx.fillRect(gx*cw, cv.height-(gy+1)*ch, Math.ceil(cw), Math.ceil(ch));
+    }
+  }
+  // y-axis ticks in hours
+  ctx.fillStyle='#8792a5'; ctx.font='10px ui-sans-serif';
+  ctx.fillText(s.y1.toFixed(1)+'h', 4, 12);
+  ctx.fillText(s.y0.toFixed(1)+'h', 4, cv.height-5);
+  const F=c=>useF?(c*9/5+32).toFixed(1)+'°F':c.toFixed(1)+'°C';
+  document.getElementById('scX0').textContent=F(s.x0);
+  document.getElementById('scX1').textContent=F(s.x1);
+  document.getElementById('scNote').innerHTML=
+    `Each column is one afternoon temperature; height is hours of exposure. `+
+    `<b>The vertical spread within a column is the finding</b> — blocks that `+
+    `read the same at 3pm are not the same at night.`;
+}
+
+// ---------------------------------------------------------------------
+// The takeaway. A map persuades; a ranked file is what a heat office
+// actually opens on Monday. Land tiles only -- water is a different
+// thermal regime and would otherwise occupy the top of every ranking.
+// ---------------------------------------------------------------------
+function ranked(){
+  return DATA.cells.filter(c=>!isWater(c)).sort((a,b)=>b[2]-a[2]);
+}
+
+// ---------------------------------------------------------------------
+// Ranking individual tiles is useless: the field is spatially
+// autocorrelated, so the top ten are always ten neighbouring tiles of the
+// same patch. A heat office needs SITES, not pixels. So threshold the
+// field, find connected components, and rank those.
+// ---------------------------------------------------------------------
+let HOTSPOTS=null;
+// Exact block -> site membership, recorded during the flood fill. Keyed by
+// the cell array reference, so no geometry is re-derived later.
+let SITE_OF=new Map();
+const MARGIN_H=1.0;   // a site must average this many hours above the median
+
+function computeHotspots(pct=0.90, minTiles=8){
+  const land=DATA.cells.filter(c=>!isWater(c));
+  const asc=land.map(c=>c[2]).sort((a,b)=>a-b);
+  const median=asc[Math.floor(asc.length/2)];
+  // Select by RANK, not by value. Thresholding on the 90th-percentile
+  // value breaks whenever the field has a plateau: if 90% of tiles share
+  // that value, every one of them qualifies and the whole city becomes a
+  // single "hotspot". Taking the top N is exact regardless of ties.
+  const n=Math.max(minTiles, Math.round(land.length*(1-pct)));
+  const hot=[...land].sort((a,b)=>b[2]-a[2]).slice(0,n);
+  const cut=hot[hot.length-1][2];
+
+  const [dlon,dlat]=DATA.cell;
+  const lon0=Math.min(...hot.map(c=>c[0])), lat0=Math.min(...hot.map(c=>c[1]));
+  const key=c=>`${Math.round((c[0]-lon0)/dlon)},${Math.round((c[1]-lat0)/dlat)}`;
+  const grid=new Map();
+  hot.forEach(c=>grid.set(key(c),c));
+
+  const seen=new Set(), out=[];
+  for(const [k,seed] of grid){
+    if(seen.has(k)) continue;
+    const stack=[k], comp=[];
+    seen.add(k);
+    while(stack.length){                       // flood fill, 8-connected
+      const cur=stack.pop();
+      const c=grid.get(cur); comp.push(c);
+      const [ix,iy]=cur.split(',').map(Number);
+      for(let dx=-1;dx<=1;dx++) for(let dy=-1;dy<=1;dy++){
+        if(!dx&&!dy) continue;
+        const nk=`${ix+dx},${iy+dy}`;
+        if(grid.has(nk)&&!seen.has(nk)){seen.add(nk);stack.push(nk);}
+      }
+    }
+    if(comp.length<minTiles) continue;
+    const cmean=comp.reduce((s,c)=>s+c[2],0)/comp.length;
+    // A site must be meaningfully worse than the city, not merely in the
+    // arbitrary top 10%. Without this, a flat field still yields "hotspots"
+    // -- the top decile of a uniform surface is just wherever the sort
+    // happened to land. Nothing should be flagged in a city with no
+    // variation, and the UI says so when that happens.
+    if(cmean < median + MARGIN_H) continue;
+    const lat=comp.reduce((s,c)=>s+c[1],0)/comp.length;
+    const kmPerDegLon=111.32*Math.cos(lat*Math.PI/180);
+    out.push({
+      n:comp.length,
+      lon:comp.reduce((s,c)=>s+c[0],0)/comp.length,
+      lat,
+      area_km2:comp.length*(dlon*kmPerDegLon)*(dlat*111.32),
+      peak:Math.max(...comp.map(c=>c[2])),
+      mean:cmean,
+      excess:cmean-median,
+      day:comp.reduce((s,c)=>s+c[3],0)/comp.length,
+      night:comp.reduce((s,c)=>s+c[4],0)/comp.length,
+      members:comp
+    });
+  }
+  // severity: hours ABOVE the city median, weighted by how much ground it
+  // covers. Absolute hours would rank a whole hot city as one giant site.
+  out.forEach(h=>h.severity=h.excess*Math.sqrt(h.area_km2));
+  out.sort((a,b)=>b.severity-a.severity);
+
+  // Record exact membership only after the final ordering, so the ids in
+  // the two CSVs are the same ids. An earlier version reconstructed this
+  // from an equal-area circle plus slack and over-assigned by ~2x, which
+  // made the sites file and the blocks file disagree.
+  SITE_OF=new Map();
+  out.forEach((h,i)=>h.members.forEach(c=>SITE_OF.set(c,i+1)));
+  return {cut, median, hotspots:out};
+}
+
+function drawRanking(){
+  const {cut,median,hotspots}=computeHotspots();
+  HOTSPOTS=hotspots;
+  const F=c=>useF?(c*9/5+32).toFixed(0)+'°F':c.toFixed(1)+'°C';
+  const all=ranked();
+
+  document.getElementById('rank').innerHTML=hotspots.slice(0,8).map((h,i)=>
+    `<tr data-lon="${h.lon}" data-lat="${h.lat}" data-a="${h.area_km2}">`+
+    `<td class="n">${i+1}</td>`+
+    `<td class="h">+${h.excess.toFixed(1)}h</td>`+
+    `<td class="c">${h.mean.toFixed(1)} h total · ${h.area_km2.toFixed(2)} km²`+
+    ` · ${h.n} blocks<br>${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}`+
+    ` · 3am ${F(h.night)}</td></tr>`
+  ).join('') ||
+    `<tr><td class="c">No area averages ${MARGIN_H} h above the city median `+
+    `of ${median.toFixed(1)} h.</td></tr>`;
+
+  document.querySelectorAll('#rank tr').forEach(tr=>{
+    if(!tr.dataset.lon) return;
+    tr.onclick=()=>flyTo(+tr.dataset.lon,+tr.dataset.lat,+tr.dataset.a);
+  });
+
+  const tot=hotspots.reduce((s,h)=>s+h.area_km2,0);
+  document.getElementById('rankNote').innerHTML=
+    `<b>${hotspots.length}</b> sites, <b>${tot.toFixed(1)} km²</b>. `+
+    `Contiguous areas above <b>${cut.toFixed(1)} h</b> averaging at least `+
+    `${MARGIN_H} h beyond the city median of <b>${median.toFixed(1)} h</b>, `+
+    `ranked by excess hours × area. Click a row to locate it.`;
+}
+
+function flyTo(lon,lat,areaKm2){
+  // frame the whole site, not an arbitrary zoom
+  const z = areaKm2 ? Math.max(12, Math.min(15.5, 15.5-Math.log2(areaKm2+1))) : 14.5;
+  VIEW={...VIEW, longitude:lon, latitude:lat, zoom:z, transitionDuration:900};
+  deckgl.setProps({viewState:VIEW});
+  setTimeout(()=>{VIEW={...VIEW,transitionDuration:0};},1000);
+}
+
+function save(name, text, mime){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:mime}));
+  a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+
+// Exact, from the flood fill. Blank for the ~80% of blocks that are not in
+// any site -- that is correct, not missing data.
+const siteOf=c=>SITE_OF.get(c)||'';
+
+function downloadCSV(){
+  const rows=ranked();
+  const head=['rank','site_id','latitude','longitude',
+              'hours_above_threshold','threshold_c',
+              'temp_3pm_c','temp_3am_c','temp_3pm_f','temp_3am_f',
+              'city','date','granularity_m','source'];
+  const body=rows.map((c,i)=>[
+    i+1, siteOf(c), c[1], c[0], c[2].toFixed(2), DATA.threshold_c,
+    c[3].toFixed(2), c[4].toFixed(2),
+    (c[3]*9/5+32).toFixed(1), (c[4]*9/5+32).toFixed(1),
+    DATA.city, DATA.date, DATA.granularity_m,
+    'FortyGuard /v1/heatmap analytic_type=persistence'
+  ].join(','));
+  save(`nightwatch_${DATA.city}_${DATA.date}.csv`,
+       [head.join(','),...body].join('\n'), 'text/csv');
+}
+
+function downloadSites(){
+  if(!HOTSPOTS||!HOTSPOTS.length) return;
+  const head=['site_id','mean_hours','peak_hours','area_km2','blocks',
+              'latitude','longitude','mean_3pm_c','mean_3am_c',
+              'threshold_c','city','date'];
+  const body=HOTSPOTS.map((h,i)=>[
+    i+1, h.mean.toFixed(2), h.peak.toFixed(2), h.area_km2.toFixed(3), h.n,
+    h.lat.toFixed(5), h.lon.toFixed(5),
+    h.day.toFixed(2), h.night.toFixed(2),
+    DATA.threshold_c, DATA.city, DATA.date
+  ].join(','));
+  save(`nightwatch_sites_${DATA.city}_${DATA.date}.csv`,
+       [head.join(','),...body].join('\n'), 'text/csv');
+}
+
+function downloadGeoJSON(){
+  const [dlon,dlat]=DATA.cell;
+  const fc={type:'FeatureCollection',
+    properties:{city:DATA.city,date:DATA.date,
+      threshold_c:DATA.threshold_c,granularity_m:DATA.granularity_m,
+      analytic:'persistence — longest unbroken run of hours above threshold',
+      note:'water tiles excluded; local time, not UTC'},
+    features:ranked().map((c,i)=>({
+      type:'Feature',
+      geometry:{type:'Polygon',coordinates:[[
+        [c[0]-dlon/2,c[1]-dlat/2],[c[0]+dlon/2,c[1]-dlat/2],
+        [c[0]+dlon/2,c[1]+dlat/2],[c[0]-dlon/2,c[1]+dlat/2],
+        [c[0]-dlon/2,c[1]-dlat/2]]]},
+      properties:{rank:i+1, hours_above_threshold:+c[2].toFixed(2),
+        temp_3pm_c:c[3], temp_3am_c:c[4]}
+    }))};
+  save(`nightwatch_${DATA.city}_${DATA.date}.geojson`,
+       JSON.stringify(fc), 'application/geo+json');
+}
+
+document.getElementById('dlCsv').onclick=downloadCSV;
+document.getElementById('dlGeo').onclick=downloadGeoJSON;
+document.getElementById('dlSites').onclick=downloadSites;
+
+// =====================================================================
+// FULL REPORT — a self-contained HTML file. No libraries, opens offline,
+// and Ctrl+P produces a clean PDF via the print stylesheet. Charts are
+// inline SVG rather than a screenshot of the WebGL canvas: deck.gl and
+// MapLibre draw to separate canvases and compositing them reliably is
+// fiddly, whereas SVG prints as vector and cannot fail.
+// =====================================================================
+const RGB=c=>`rgb(${c[0]|0},${c[1]|0},${c[2]|0})`;
+const esc=s=>String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+
+// 21,453 rects would be a ~2 MB SVG. Aggregate onto a coarse grid first;
+// at report size the detail is invisible anyway.
+function reportMap(W=560,H=420,NX=132){
+  const land=DATA.cells;
+  const lons=land.map(c=>c[0]), lats=land.map(c=>c[1]);
+  const w=Math.min(...lons), e=Math.max(...lons);
+  const s=Math.min(...lats), n=Math.max(...lats);
+  const NY=Math.max(1,Math.round(NX*(n-s)/((e-w)||1)*Math.cos(s*Math.PI/180)));
+  const sum=Array.from({length:NY},()=>new Float64Array(NX));
+  const cnt=Array.from({length:NY},()=>new Uint32Array(NX));
+  for(const c of land){
+    if(isWater(c)) continue;
+    const gx=Math.min(NX-1,Math.floor((c[0]-w)/((e-w)||1)*NX));
+    const gy=Math.min(NY-1,Math.floor((n-c[1])/((n-s)||1)*NY));
+    sum[gy][gx]+=c[2]; cnt[gy][gx]++;
+  }
+  const vals=DATA.cells.filter(c=>!isWater(c)).map(c=>c[2]).sort((a,b)=>a-b);
+  const lo=vals[Math.floor(vals.length*0.02)], hi=vals[Math.floor(vals.length*0.98)];
+  const cw=W/NX, chh=H/NY;
+  let r='';
+  for(let gy=0;gy<NY;gy++) for(let gx=0;gx<NX;gx++){
+    if(!cnt[gy][gx]) continue;
+    const v=sum[gy][gx]/cnt[gy][gx];
+    r+=`<rect x="${(gx*cw).toFixed(2)}" y="${(gy*chh).toFixed(2)}" `+
+       `width="${(cw+.6).toFixed(2)}" height="${(chh+.6).toFixed(2)}" `+
+       `fill="${RGB(ramp((v-lo)/((hi-lo)||1)))}"/>`;
+  }
+  // site markers
+  HOTSPOTS.slice(0,8).forEach((h,i)=>{
+    const x=(h.lon-w)/((e-w)||1)*W, y=(n-h.lat)/((n-s)||1)*H;
+    r+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" `+
+       `fill="none" stroke="#fff" stroke-width="2"/>`+
+       `<text x="${x.toFixed(1)}" y="${(y+4).toFixed(1)}" fill="#fff" `+
+       `font-size="11" font-weight="700" text-anchor="middle">${i+1}</text>`;
+  });
+  return {svg:`<svg viewBox="0 0 ${W} ${H}" width="100%">${r}</svg>`, lo, hi};
+}
+
+function reportScatter(W=520,H=260){
+  const s=DATA.scatter; if(!s) return '';
+  const P=38, iw=W-P-12, ih=H-P-8;
+  let peak=0; for(const row of s.grid) for(const v of row) if(v>peak) peak=v;
+  const cw=iw/s.nx, chh=ih/s.ny;
+  let r=`<rect x="${P}" y="8" width="${iw}" height="${ih}" fill="#f8fafc" stroke="#cbd5e1"/>`;
+  for(let gy=0;gy<s.ny;gy++) for(let gx=0;gx<s.nx;gx++){
+    const v=s.grid[gy][gx]; if(!v) continue;
+    const t=Math.pow(v/peak,0.42), c=ramp(t);
+    r+=`<rect x="${(P+gx*cw).toFixed(2)}" y="${(8+ih-(gy+1)*chh).toFixed(2)}" `+
+       `width="${(cw+.6).toFixed(2)}" height="${(chh+.6).toFixed(2)}" `+
+       `fill="${RGB(c)}" opacity="${(0.3+0.7*t).toFixed(2)}"/>`;
+  }
+  const ax=(x,y,t,a='middle')=>`<text x="${x}" y="${y}" font-size="10" `+
+    `fill="#475569" text-anchor="${a}">${t}</text>`;
+  r+=ax(P+iw/2,H-6,'afternoon temperature (°C)');
+  r+=ax(P-6,14,s.y1.toFixed(0)+'h','end')+ax(P-6,8+ih,s.y0.toFixed(0)+'h','end');
+  r+=ax(P,H-20,s.x0.toFixed(1),'start')+ax(P+iw,H-20,s.x1.toFixed(1),'end');
+  r+=`<text x="12" y="${8+ih/2}" font-size="10" fill="#475569" `+
+     `text-anchor="middle" transform="rotate(-90 12 ${8+ih/2})">hours above threshold</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%">${r}</svg>`;
+}
+
+function reportHistogram(W=520,H=210,bins=34){
+  const v=DATA.cells.filter(c=>!isWater(c)).map(c=>c[2]).sort((a,b)=>a-b);
+  const lo=v[0], hi=v[v.length-1], med=v[Math.floor(v.length/2)];
+  const cnt=new Array(bins).fill(0);
+  v.forEach(x=>cnt[Math.min(bins-1,Math.floor((x-lo)/((hi-lo)||1)*bins))]++);
+  const peak=Math.max(...cnt);
+  const P=38, iw=W-P-12, ih=H-40, bw=iw/bins;
+  let r=`<rect x="${P}" y="8" width="${iw}" height="${ih}" fill="#f8fafc" stroke="#cbd5e1"/>`;
+  cnt.forEach((n,i)=>{
+    const h=ih*n/peak;
+    r+=`<rect x="${(P+i*bw).toFixed(2)}" y="${(8+ih-h).toFixed(2)}" `+
+       `width="${(bw-0.8).toFixed(2)}" height="${h.toFixed(2)}" `+
+       `fill="${RGB(ramp(i/(bins-1)))}"/>`;
+  });
+  const mx=P+(med-lo)/((hi-lo)||1)*iw;
+  r+=`<line x1="${mx.toFixed(1)}" y1="8" x2="${mx.toFixed(1)}" y2="${8+ih}" `+
+     `stroke="#0f172a" stroke-width="1.5" stroke-dasharray="4 3"/>`+
+     `<text x="${(mx+4).toFixed(1)}" y="20" font-size="10" fill="#0f172a">`+
+     `median ${med.toFixed(1)}h</text>`;
+  r+=`<text x="${P}" y="${H-8}" font-size="10" fill="#475569">${lo.toFixed(1)}h</text>`+
+     `<text x="${P+iw}" y="${H-8}" font-size="10" fill="#475569" text-anchor="end">${hi.toFixed(1)}h</text>`+
+     `<text x="${P+iw/2}" y="${H-8}" font-size="10" fill="#475569" text-anchor="middle">`+
+     `hours above ${DATA.threshold_c}°C</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%">${r}</svg>`;
+}
+
+// Degrees vs hours, all three cities, on a shared scale.
+function reportCityBars(W=520,H=190){
+  const cs=INDEX.cities, P=74, iw=W-P-92;
+  const maxT=Math.max(...cs.map(c=>c.temp_span_c));
+  const maxH=Math.max(...cs.map(c=>c.exposure_span_h));
+  let r='', y=14;
+  cs.forEach(c=>{
+    const sel=c.city===CITY.city;
+    r+=`<text x="${P-8}" y="${y+22}" font-size="11" text-anchor="end" `+
+       `fill="${sel?'#c2410c':'#334155'}" font-weight="${sel?700:400}">${esc(c.short)}</text>`;
+    const wT=iw*c.temp_span_c/maxT, wH=iw*c.exposure_span_h/maxH;
+    r+=`<rect x="${P}" y="${y+4}" width="${wT.toFixed(1)}" height="13" fill="#94a3b8"/>`+
+       `<text x="${P+wT+6}" y="${y+14}" font-size="10" fill="#475569">${c.temp_span_c}°C</text>`;
+    r+=`<rect x="${P}" y="${y+21}" width="${wH.toFixed(1)}" height="13" fill="#ea580c"/>`+
+       `<text x="${P+wH+6}" y="${y+31}" font-size="10" fill="#9a3412">${c.exposure_span_h} h</text>`;
+    y+=52;
+  });
+  r+=`<rect x="${P}" y="${y}" width="10" height="9" fill="#94a3b8"/>`+
+     `<text x="${P+15}" y="${y+8}" font-size="10" fill="#475569">temperature span</text>`+
+     `<rect x="${P+130}" y="${y}" width="10" height="9" fill="#ea580c"/>`+
+     `<text x="${P+145}" y="${y+8}" font-size="10" fill="#475569">exposure span</text>`;
+  return `<svg viewBox="0 0 ${W} ${Math.max(H,y+20)}" width="100%">${r}</svg>`;
+}
+
+function buildReportHTML(){
+  const s=CITY, m=reportMap(), med=medianHours();
+  const F=c=>(c*9/5+32).toFixed(1);
+  const t=DATA.twins;
+  const rows=HOTSPOTS.map((h,i)=>
+    `<tr><td class="r">${i+1}</td><td class="hh">+${h.excess.toFixed(1)} h</td>`+
+    `<td>${h.mean.toFixed(1)} h</td><td>${h.peak.toFixed(1)} h</td>`+
+    `<td>${h.area_km2.toFixed(2)}</td><td>${h.n}</td>`+
+    `<td class="mono">${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}</td></tr>`).join('');
+  const cityRows=INDEX.cities.map(c=>
+    `<tr${c.city===s.city?' class="sel"':''}><td>${esc(c.short)}</td>`+
+    `<td>${c.temp_span_c} °C</td><td>${c.exposure_span_h} h</td>`+
+    `<td>${c.r2}</td><td>${c.n.toLocaleString()}</td></tr>`).join('');
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<title>NIGHTWATCH — ${esc(s.short)}, ${esc(s.date)}</title><style>
+@page{margin:16mm}
+*{box-sizing:border-box}
+body{font:13px/1.6 -apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a;
+  max-width:820px;margin:0 auto;padding:34px 26px;background:#fff}
+h1{font-size:25px;margin:0;letter-spacing:.14em}
+.sub{color:#64748b;font-size:13px;margin:3px 0 22px}
+h2{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#64748b;
+  margin:30px 0 10px;padding-bottom:5px;border-bottom:1px solid #e2e8f0}
+.lede{font-size:17px;line-height:1.5;background:#fff7ed;border:1px solid #fed7aa;
+  border-left:4px solid #ea580c;padding:15px 17px;border-radius:5px}
+.lede b{color:#c2410c;font-size:21px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;
+  color:#64748b;border-bottom:1.5px solid #cbd5e1;padding:6px 7px}
+td{padding:7px;border-bottom:1px solid #f1f5f9}
+td.r{color:#94a3b8;width:24px}
+td.hh{color:#c2410c;font-weight:700;white-space:nowrap}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:#475569}
+tr.sel td{background:#fff7ed;font-weight:600}
+.fig{margin:14px 0 6px;border:1px solid #e2e8f0;border-radius:5px;overflow:hidden}
+.cap{font-size:11.5px;color:#64748b;margin:0 0 18px;line-height:1.5}
+.twin{display:flex;gap:14px;margin:12px 0}
+.tw{flex:1;border:1px solid #e2e8f0;border-radius:5px;padding:12px}
+.tw .n{font-size:26px;font-weight:700}
+.tw.a .n{color:#0284c7}.tw.b .n{color:#dc2626}
+.tw .l{font-size:11px;color:#64748b}
+.note{font-size:11.5px;color:#475569;line-height:1.6}
+.caveat{background:#f8fafc;border-left:3px solid #94a3b8;padding:11px 14px;
+  font-size:11.5px;color:#475569;line-height:1.6;border-radius:4px}
+footer{margin-top:34px;padding-top:14px;border-top:1px solid #e2e8f0;
+  font-size:10.5px;color:#94a3b8}
+.tb{position:sticky;top:0;background:#fffffff2;backdrop-filter:blur(6px);
+  border-bottom:1px solid #e2e8f0;margin:-34px -26px 20px;padding:11px 26px;
+  display:flex;gap:9px;align-items:center;z-index:9}
+.tb .sp{flex:1;font-size:11.5px;color:#94a3b8}
+.tb button{font:inherit;font-size:12.5px;padding:8px 15px;border-radius:5px;
+  border:1px solid #cbd5e1;background:#fff;color:#0f172a;cursor:pointer}
+.tb button:hover{border-color:#94a3b8}
+.tb button.p{background:#ea580c;border-color:#ea580c;color:#fff;font-weight:600}
+@media print{body{padding:0}h2{page-break-after:avoid}
+  .fig,.twin,table{page-break-inside:avoid}
+  .tb{display:none}}
+</style></head><body>
+
+<div class="tb">
+  <button class="p" onclick="window.print()">Save as PDF</button>
+  <button onclick="dlSelf()">Download HTML</button>
+  <span class="sp">Choose “Save as PDF” as the destination.</span>
+</div>
+<scr` + `ipt>
+function dlSelf(){
+  var h='<!DOCTYPE html>'+document.documentElement.outerHTML;
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));
+  a.download=${JSON.stringify(`nightwatch_report_${DATA.city}_${DATA.date}.html`)};
+  a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+}
+<\/scr` + `ipt>
+
+<h1>NIGHTWATCH</h1>
+<div class="sub">${esc(s.label)} · ${esc(s.date)} · ${s.aoi_sq_mi} mi²
+  at ${s.granularity_m} m · ${s.n.toLocaleString()} blocks</div>
+
+<div class="lede">Across this area the afternoon temperature spans
+<b>${s.temp_span_c}°C</b>. Expressed as hours above ${DATA.threshold_c}°C,
+the same blocks span <b>${s.exposure_span_h} hours</b>.
+A conventional heat map shows the first number.</div>
+
+<h2>Where the exposure is</h2>
+<div class="fig">${m.svg}</div>
+<p class="cap">Hours above ${DATA.threshold_c}°C on ${esc(s.date)}, local time.
+Blue ${m.lo.toFixed(1)} h to red ${m.hi.toFixed(1)} h. Numbered rings mark the
+ranked sites below.</p>
+
+${t?`<h2>Two blocks, the same afternoon</h2>
+<div class="twin">
+  <div class="tw a"><div class="n">${t.low.exposure_h.toFixed(1)} h</div>
+    <div class="l">above ${DATA.threshold_c}°C<br>
+    <span class="mono">${t.low.lat.toFixed(4)}, ${t.low.lon.toFixed(4)}</span></div></div>
+  <div class="tw b"><div class="n">${t.high.exposure_h.toFixed(1)} h</div>
+    <div class="l">above ${DATA.threshold_c}°C<br>
+    <span class="mono">${t.high.lat.toFixed(4)}, ${t.high.lon.toFixed(4)}</span></div></div>
+</div>
+<p class="cap">Both blocks read ${t.temp_c.toFixed(1)}°C (${F(t.temp_c)}°F) at 3pm —
+indistinguishable on a temperature map — yet differ by
+<b>${t.gap_h.toFixed(1)} hours</b> of exposure.</p>`:''}
+
+<h2>Degrees in, hours out</h2>
+<div class="fig">${reportScatter()}</div>
+<p class="cap">Each column is one afternoon temperature; height is hours of
+exposure. The vertical spread within a column is the finding — blocks that
+read the same at 3pm are not the same at night. R² = <b>${s.r2}</b>.</p>
+
+<h2>Distribution of exposure</h2>
+<div class="fig">${reportHistogram()}</div>
+<p class="cap">Median ${med.toFixed(1)} h. Sites below are contiguous areas
+averaging at least 1 h beyond it.</p>
+
+<h2>Ranked sites</h2>
+<table><tr><th></th><th>above median</th><th>mean</th><th>peak</th>
+<th>km²</th><th>blocks</th><th>centroid</th></tr>${rows}</table>
+<p class="cap">Contiguous areas in the worst 10% for exposure that also average
+at least 1 h above the city median, ranked by excess hours × area.</p>
+
+<h2>All three cities</h2>
+<div class="fig">${reportCityBars()}</div>
+<table><tr><th>city</th><th>temperature span</th><th>exposure span</th>
+<th>R²</th><th>blocks</th></tr>${cityRows}</table>
+<p class="cap">Where R² is low, afternoon temperature carries little
+information about night-time exposure; where it is high, it carries most
+of it.</p>
+
+<h2>Method</h2>
+<p class="note">Exposure is the longest <em>unbroken</em> run of hours above
+${DATA.threshold_c}°C — FortyGuard <code>/v1/heatmap</code>,
+<code>analytic_type: persistence</code> — rather than a scattered total.
+Eight consecutive dangerous hours is an event; eight scattered ones are not.
+Temperatures are two <code>tcm</code> calls at ${s.day_hour}:00 and
+${s.night_hour}:00 local time. Thresholds are set per city between its
+measured 3pm and 3am means. Water is excluded throughout.</p>
+
+<h2>Limitations</h2>
+<div class="caveat">
+Modelled temperature field for a single day, not sensor measurement.<br>
+The field is smooth. 60 m granularity returns 2.78× the tiles with identical
+standard deviation and range, so native resolution is coarser than 100 m and
+block-level detail should not be over-read.<br>
+No population weighting: sites are ranked by area, not by who lives there.
+A census tract overlay is the obvious next step.<br>
+Persistence and exceedance are identical wherever the temperature curve
+crosses the threshold only once, which is most of the day in most cities.
+</div>
+
+<footer>NIGHTWATCH · generated ${new Date().toISOString().slice(0,16).replace('T',' ')} ·
+data FortyGuard API · basemap © CARTO, © OpenStreetMap contributors</footer>
+</body></html>`;
+}
+
+// Open in a new tab rather than downloading. The report carries its own
+// Save-as-PDF button, and the browser takes the PDF filename from <title>,
+// so it saves as "NIGHTWATCH — Phoenix, 2025-07-22.pdf". Fully silent PDF
+// generation is blocked by every browser by design, so one click is the
+// floor without shipping a rasterising PDF library.
+function openReport(){
+  const url=URL.createObjectURL(
+    new Blob([buildReportHTML()],{type:'text/html'}));
+  const w=window.open(url,'_blank');
+  if(!w){
+    // popup blocked — fall back to a straight download
+    save(`nightwatch_report_${DATA.city}_${DATA.date}.html`,
+         buildReportHTML(),'text/html');
+  }
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+
+// ---------------------------------------------------------------------
+// Share. A static page cannot send mail, and mailto: cannot carry
+// attachments -- both are browser security rules, not gaps to engineer
+// around. So the email carries the FINDING as text (the sites table is
+// four rows; it fits), and the bulk files download separately for anyone
+// who wants the raw grid. The dialog says so plainly rather than
+// pretending an attachment will appear.
+// ---------------------------------------------------------------------
+const $=id=>document.getElementById(id);
+const MAILTO_MAX=1900;   // several clients truncate beyond ~2000 chars
+
+function subjectLine(){
+  return `Night-time heat exposure — ${CITY.short}, `+
+         `${HOTSPOTS.length} site${HOTSPOTS.length===1?'':'s'} above `+
+         `${DATA.threshold_c}°C`;
+}
+
+function buildBody(){
+  const s=CITY, L=[];
+  L.push(`${s.label}`);
+  L.push(`${s.date} · ${s.aoi_sq_mi} mi² at ${s.granularity_m} m`);
+  L.push('');
+  L.push(`Across this area the afternoon temperature spans just `+
+         `${s.temp_span_c}°C. Expressed as hours above `+
+         `${DATA.threshold_c}°C, the same blocks span `+
+         `${s.exposure_span_h} hours.`);
+  L.push('A conventional heat map shows the first number.');
+
+  if($('incSites').checked && HOTSPOTS.length){
+    L.push('');
+    L.push(`WORST SITES (hours above ${DATA.threshold_c}°C, `+
+           `vs a city median of ${medianHours().toFixed(1)} h)`);
+    HOTSPOTS.slice(0,8).forEach((h,i)=>{
+      L.push(` ${i+1}. +${h.excess.toFixed(1)} h above median  ·  `+
+             `${h.mean.toFixed(1)} h total  ·  ${h.area_km2.toFixed(2)} km²  `+
+             `·  ${h.n} blocks`);
+      L.push(`    ${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}`);
+    });
+  }
+
+  if($('incMethod').checked){
+    L.push('');
+    L.push('METHOD');
+    L.push(`Exposure is the longest unbroken run of hours above `+
+           `${DATA.threshold_c}°C (FortyGuard /v1/heatmap, `+
+           `analytic_type=persistence), not scattered totals.`);
+    L.push(`Temperatures are 3pm and 3am local time, verified local rather `+
+           `than UTC by sweeping all 24 hours and locating the pre-dawn `+
+           `minimum.`);
+    L.push(`Sites are contiguous areas in the worst 10% that also average `+
+           `at least 1 h above the city median; single tiles are not `+
+           `ranked, because neighbouring tiles are near-identical.`);
+    L.push(`Caveat: this is a modelled temperature field on one day, not `+
+           `sensor measurements, and it carries no population weighting.`);
+  }
+
+  if($('incLink').checked){
+    L.push('');
+    L.push(`Live map: ${location.href.split('#')[0]}`);
+  }
+  return L.join('\n');
+}
+
+function medianHours(){
+  const a=DATA.cells.filter(c=>!isWater(c)).map(c=>c[2]).sort((x,y)=>x-y);
+  return a[Math.floor(a.length/2)];
+}
+
+function refreshPreview(){
+  const b=buildBody();
+  $('shBody').value=b;
+  const over=b.length>MAILTO_MAX;
+  $('shLen').textContent=`${b.length} chars`+(over?' — too long for mail client':'');
+  $('shLen').style.color=over?'#f87171':'';
+  $('shSend').textContent=over?'Open mail client (trimmed)':'Open mail client';
+}
+
+function validEmails(raw){
+  const parts=raw.split(/[,;\s]+/).filter(Boolean);
+  const bad=parts.filter(p=>!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(p));
+  return {parts, bad};
+}
+
+function openShare(){
+  $('attBlocksN').textContent=
+    `${DATA.cells.filter(c=>!isWater(c)).length.toLocaleString()} rows`;
+  $('shErr').textContent='';
+  refreshPreview();
+  $('shareBg').classList.add('on');
+  $('shTo').focus();
+}
+function closeShare(){ $('shareBg').classList.remove('on'); }
+
+$('genReport').onclick=openReport;
+$('openShare').onclick=openShare;
+$('shClose').onclick=closeShare;
+$('shareBg').onclick=e=>{ if(e.target===$('shareBg')) closeShare(); };
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && $('shareBg').classList.contains('on')) closeShare();
+});
+['incSites','incMethod','incLink'].forEach(id=>$(id).onchange=refreshPreview);
+
+$('shCopy').onclick=async()=>{
+  try{
+    await navigator.clipboard.writeText($('shBody').value);
+    $('shCopy').textContent='Copied';
+    setTimeout(()=>$('shCopy').textContent='Copy text',1400);
+  }catch(err){
+    $('shBody').select();       // clipboard API needs https or localhost
+    $('shErr').textContent='Clipboard blocked — text selected, press Ctrl+C.';
+  }
+};
+
+$('shSend').onclick=()=>{
+  const {parts,bad}=validEmails($('shTo').value);
+  if(!parts.length){ $('shErr').textContent='Add at least one recipient.'; return; }
+  if(bad.length){ $('shErr').textContent=`Not a valid address: ${bad[0]}`; return; }
+  $('shErr').textContent='';
+
+  const wanted=[['attSites',downloadSites],['attBlocks',downloadCSV],
+                ['attGeo',downloadGeoJSON]].filter(([id])=>$(id).checked);
+  wanted.forEach(([,fn],i)=>setTimeout(fn,i*350));  // stagger: browsers
+                                                    // drop rapid downloads
+
+  let body=$('shBody').value;
+  if(body.length>MAILTO_MAX){
+    body=body.slice(0,MAILTO_MAX-90).replace(/\n[^\n]*$/,'')+
+         '\n\n[trimmed — full detail in the attached CSV]';
+  }
+  const url=`mailto:${encodeURIComponent(parts.join(','))}`+
+            `?subject=${encodeURIComponent(subjectLine())}`+
+            `&body=${encodeURIComponent(body)}`;
+  window.location.href=url;
+
+  if(wanted.length){
+    $('shErr').style.color='#93c5fd';
+    $('shErr').textContent=
+      `${wanted.length} file${wanted.length===1?'':'s'} downloading — attach from your Downloads folder.`;
+  } else {
+    setTimeout(closeShare,600);
+  }
+};
+
+function loadCity(name){
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('loading').textContent='loading '+name+'…';
+  fetch(`data/${name}.json`).then(r=>r.json()).then(d=>{
+    DATA=d;
+    CITY=INDEX.cities.find(c=>c.city===name);
+    CITY.granularity_m=d.granularity_m; CITY.threshold_c=d.threshold_c;
+    CITY.day_hour=d.day_hour; CITY.night_hour=d.night_hour;
+    document.getElementById('loading').style.display='none';
+    VIEW=centreOn(d);
+    buildCityButtons(); buildLayerButtons(); fillPanels();
+    render();
+  }).catch(e=>{
+    document.getElementById('loading').textContent=
+      'could not load data/'+name+'.json — run: python export_cities.py';
+    console.error(e);
+  });
+}
+
+document.getElementById('th').oninput=e=>{thPct=+e.target.value;render();};
+document.getElementById('water').onchange=e=>{showWater=e.target.checked;render();};
+document.getElementById('fahrenheit').onchange=e=>{
+  useF=e.target.checked; render(); drawTwins(); drawScatter();};
+
+fetch('data/cities.json').then(r=>r.json()).then(idx=>{
+  INDEX=idx;
+  if(!idx.cities.length) throw new Error('no cities');
+  loadCity(idx.cities[0].city);      // lowest R² first: the strongest case
+}).catch(e=>{
+  document.getElementById('loading').textContent=
+    'could not load data/cities.json — run: python export_cities.py, then serve this folder';
+  console.error(e);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+{
+  "run_at": "2026-08-18T18:20:28",
+  "probe_date": "2025-07-22",
+  "using_official_client": false,
+  "tests": {
+    "tcm_g100": {
+      "label": "tcm g100 filter3",
+      "ok": true,
+      "error": null,
+      "latency_s": 20.48,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0,
+      "result_keys": [
+        "map_data",
+        "stats_data"
+      ]
+    },
+    "tcm_g60": {
+      "label": "tcm g60 filter3",
+      "ok": true,
+      "error": null,
+      "latency_s": 21.28,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0,
+      "result_keys": [
+        "map_data",
+        "stats_data"
+      ]
+    },
+    "tom_filter3": {
+      "label": "time_of_measure filter_type=3",
+      "ok": true,
+      "error": null,
+      "latency_s": 20.38,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0,
+      "result_keys": [
+        "map_data",
+        "stats_data"
+      ]
+    },
+    "tom_filter2": {
+      "label": "time_of_measure filter_type=2",
+      "ok": true,
+      "error": null,
+      "latency_s": 31.33,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0,
+      "result_keys": [
+        "map_data",
+        "stats_data"
+      ]
+    },
+    "persistence": {
+      "label": "persistence t=26 above",
+      "ok": true,
+      "error": null,
+      "latency_s": 21.23,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0,
+      "result_keys": [
+        "map_data",
+        "stats_data"
+      ]
+    },
+    "aoi_9": {
+      "label": "aoi 9 mi^2",
+      "ok": true,
+      "error": null,
+      "latency_s": 24.42,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0
+    },
+    "aoi_12": {
+      "label": "aoi 12 mi^2",
+      "ok": true,
+      "error": null,
+      "latency_s": 22.47,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0
+    },
+    "aoi_30": {
+      "label": "aoi 30 mi^2",
+      "ok": true,
+      "error": null,
+      "latency_s": 21.97,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0
+    },
+    "aoi_48": {
+      "label": "aoi 48 mi^2",
+      "ok": true,
+      "error": null,
+      "latency_s": 28.8,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0
+    },
+    "aoi_60": {
+      "label": "aoi 60 mi^2",
+      "ok": true,
+      "error": null,
+      "latency_s": 22.8,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0
+    },
+    "env_params_3": {
+      "label": "env_params 3 params",
+      "ok": true,
+      "error": null,
+      "latency_s": 4.48,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0,
+      "result_keys": [
+        "locations",
+        "metadata"
+      ]
+    },
+    "env_params_4": {
+      "label": "env_params 4 params",
+      "ok": true,
+      "error": null,
+      "latency_s": 5.2,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0,
+      "result_keys": [
+        "locations",
+        "metadata"
+      ]
+    },
+    "satellite": {
+      "label": "satellite",
+      "ok": true,
+      "error": null,
+      "latency_s": 4.56,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0
+    },
+    "streetview": {
+      "label": "streetview",
+      "ok": true,
+      "error": null,
+      "latency_s": 5.45,
+      "credit_delta": 0.0,
+      "credits_before": 2000000.0,
+      "credits_after": 2000000.0
+    }
+  },
+  "usage_raw": {
+    "api_key": null,
+    "subscription_id": "sub_1nm2o8tizc",
+    "plan_details": {
+      "plan_type": "Hackathon",
+      "cycle_type": "Hackathon",
+      "subscription_start_date": "Aug 18, 2026",
+      "billing_period": "Aug 18, 2026 \u2013 Sep 22, 2026",
+      "active": true,
+      "credits_reset_date": "Sep 22, 2026"
+    },
+    "api_key_details": {
+      "status": "active",
+      "valid": true,
+      "expiry_date": "2026-09-22T12:32:57.128018Z",
+      "api_access_available": true
+    },
+    "credit_summary": {
+      "total_available_credits": 2000000,
+      "cycle_credits_used": 16880,
+      "cycle_remaining_credits": 1983120,
+      "cycle_usage_percentage": 0.8,
+      "total_credits_used": 16880,
+      "total_remaining_credits": 1983120
+    },
+    "activity_breakdown": [
+      {
+        "name": "Heatmap Generation",
+        "credits": 16880,
+        "count": 4,
+        "percentage": 0.84
+      },
+      {
+        "name": "Unused Credits",
+        "credits": 1983120,
+        "count": 0,
+        "percentage": 99.16
+      }
+    ],
+    "total_credits_used": 16880,
+    "billing_cycle": {
+      "start_date": "2026-08-18T12:32:57.128285+00:00",
+      "end_date": "2026-09-22T12:32:57.128018+00:00",
+      "credits_reset_date": "2026-09-22T12:32:57.128018+00:00"
+    }
+  },
+  "balance_field": "credit_summary.total_available_credits",
+  "balance_start": 2000000.0,
+  "schema_tcm": {
+    "top_level_keys": [
+      "map_data",
+      "stats_data"
+    ],
+    "n_features": 108,
+    "stats_data_keys": [
+      "normal_temperature_distribution",
+      "overall_temperature_distribution",
+      "temperature_frequency",
+      "temperature_stats"
+    ],
+    "first_feature_property_keys": [
+      "average_temperature",
+      "max_temperature",
+      "min_temperature",
+      "tile_id"
+    ],
+    "first_feature_properties": {
+      "tile_id": 0,
+      "average_temperature": 25.6704,
+      "min_temperature": 20.7683,
+      "max_temperature": 30.0357
+    },
+    "uncertainty_like_fields": []
+  },
+  "tom_filter3_values": {
+    "n": 108,
+    "min": 2.0,
+    "max": 15.0,
+    "median": 2.0,
+    "units_from_stats": "hour"
+  },
+  "schema_time_of_measure": {
+    "top_level_keys": [
+      "map_data",
+      "stats_data"
+    ],
+    "n_features": 108,
+    "stats_data_keys": [
+      "activity_id",
+      "analytic_type",
+      "max",
+      "mean",
+      "min",
+      "n_cells",
+      "units"
+    ],
+    "first_feature_property_keys": [
+      "tile_id",
+      "value"
+    ],
+    "first_feature_properties": {
+      "tile_id": 0,
+      "value": 2.0
+    },
+    "uncertainty_like_fields": []
+  },
+  "tom_filter2_values": {
+    "n": 108,
+    "min": 2.0,
+    "max": 15.0,
+    "median": 2.0,
+    "units_from_stats": "hour"
+  },
+  "persistence_values": {
+    "n": 108,
+    "min": 1.7137,
+    "max": 11.1015,
+    "median": 6.193,
+    "units_from_stats": "hour"
+  },
+  "aoi_ceiling_confirmed_at_least": 60.0,
+  "env_params_cap_is_3": false,
+  "satellite_segment_classes": [
+    "building"
+  ],
+  "satellite_image_year": 2026,
+  "streetview_segment_classes": [
+    "building",
+    "road",
+    "sidewalk",
+    "car",
+    "others"
+  ],
+  "streetview_image_date": "2021-08-01",
+  "balance_end": 2000000.0,
+  "probe_total_cost": 0.0
+}

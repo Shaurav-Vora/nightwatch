@@ -1,0 +1,34 @@
+# secrets -- never commit
+.env
+
+# virtualenv
+.venv/
+venv/
+
+# API response cache — regenerable, and large.
+# Leading slash matters: a bare "data/" would also match web/data/, which
+# holds the baked datasets the site has to ship.
+/data/
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# files produced by the app's own download buttons
+Outputs/
+
+# superseded by web/data/<city>.json (compact centroid format)
+web/data/*.geojson
+
+# NOTE: web/data/*.json IS committed. It is the baked dataset the site
+# serves, so the deployment needs it and the results stay reproducible.
+
+# python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# os
+.DS_Store
+Thumbs.db

@@ -1,0 +1,47 @@
+{
+  "phoenix": {
+    "label": "Phoenix, AZ \u2014 arid, no water, extreme UHI",
+    "threshold_c": 35.0,
+    "n": 21453,
+    "temp_span_c": 1.814,
+    "temp_sd_c": 0.365,
+    "exposure_span_h": 9.07,
+    "exposure_sd_h": 1.74,
+    "exposure_mean_h": 10.91,
+    "slope_h_per_c": 1.553,
+    "r2": 0.106,
+    "rho": 0.269,
+    "top20_overlap": 0,
+    "clamped_zero": 0
+  },
+  "houston": {
+    "label": "Houston, TX \u2014 humid, sprawling, no lake",
+    "threshold_c": 32.0,
+    "n": 22333,
+    "temp_span_c": 4.199,
+    "temp_sd_c": 1.023,
+    "exposure_span_h": 5.565,
+    "exposure_sd_h": 1.162,
+    "exposure_mean_h": 11.02,
+    "slope_h_per_c": 1.018,
+    "r2": 0.802,
+    "rho": 0.89,
+    "top20_overlap": 11,
+    "clamped_zero": 0
+  },
+  "chicago": {
+    "label": "Chicago, IL \u2014 baseline, lake-dominated",
+    "threshold_c": 25.0,
+    "n": 9606,
+    "temp_span_c": 8.037,
+    "temp_sd_c": 2.071,
+    "exposure_span_h": 15.77,
+    "exposure_sd_h": 3.16,
+    "exposure_mean_h": 13.09,
+    "slope_h_per_c": 1.358,
+    "r2": 0.792,
+    "rho": 0.83,
+    "top20_overlap": 0,
+    "clamped_zero": 85
+  }
+}

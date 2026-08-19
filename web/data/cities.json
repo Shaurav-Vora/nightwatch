@@ -1,0 +1,56 @@
+{
+  "cities": [
+    {
+      "city": "phoenix",
+      "label": "Phoenix, AZ \u2014 arid, no water, extreme UHI",
+      "short": "Phoenix",
+      "date": "2025-07-22",
+      "threshold_c": 35.0,
+      "aoi_sq_mi": 82.8,
+      "n": 21453,
+      "n_water": 0,
+      "temp_span_c": 1.81,
+      "temp_sd_c": 0.365,
+      "exposure_span_h": 9.07,
+      "exposure_sd_h": 1.74,
+      "exposure_mean_h": 10.91,
+      "slope_h_per_c": 1.55,
+      "r2": 0.106
+    },
+    {
+      "city": "chicago",
+      "label": "Chicago, IL \u2014 baseline, lake-dominated",
+      "short": "Chicago",
+      "date": "2025-07-22",
+      "threshold_c": 25.0,
+      "aoi_sq_mi": 37.3,
+      "n": 9606,
+      "n_water": 1430,
+      "temp_span_c": 5.56,
+      "temp_sd_c": 0.849,
+      "exposure_span_h": 11.56,
+      "exposure_sd_h": 1.285,
+      "exposure_mean_h": 14.13,
+      "slope_h_per_c": 1.34,
+      "r2": 0.783
+    },
+    {
+      "city": "houston",
+      "label": "Houston, TX \u2014 humid, sprawling, no lake",
+      "short": "Houston",
+      "date": "2025-07-22",
+      "threshold_c": 32.0,
+      "aoi_sq_mi": 86.2,
+      "n": 22333,
+      "n_water": 0,
+      "temp_span_c": 4.19,
+      "temp_sd_c": 1.023,
+      "exposure_span_h": 5.56,
+      "exposure_sd_h": 1.162,
+      "exposure_mean_h": 11.02,
+      "slope_h_per_c": 1.02,
+      "r2": 0.802
+    }
+  ],
+  "generated": null
+}
