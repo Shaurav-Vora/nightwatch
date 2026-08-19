@@ -129,6 +129,7 @@
   table.rank td{padding:6px 4px;border-bottom:1px solid #182130;
     font-variant-numeric:tabular-nums;cursor:pointer}
   table.rank tr:hover td{background:#151d29}
+  table.rank tr.sel td{background:#1a1207;border-color:#7c2d12}
   table.rank td.n{color:var(--muted);width:20px}
   table.rank td.h{color:#ef4444;font-weight:700;width:52px}
   table.rank td.c{color:var(--muted);font-size:10.5px}
@@ -293,7 +294,8 @@
 </div>
 
 <script>
-const {DeckGL, PolygonLayer} = deck;
+const {DeckGL, PolygonLayer, ScatterplotLayer} = deck;
+let SELECTED=null;   // the site the map was last flown to
 
 const LAYERS = {
   // Strongest layer in the project: not "hot on the day we looked" but
@@ -398,11 +400,27 @@ function render(){
     updateTriggers:{getFillColor:[layerName,showWater,thPct,CITY]}
   });
 
+  // Ring the site you flew to, plus a centre dot. Without it you land on a
+  // patch of colour with no idea which part was meant.
+  const marks=SELECTED?[
+    new ScatterplotLayer({id:'sel-ring', data:[SELECTED],
+      getPosition:d=>[d.lon,d.lat],
+      getRadius:d=>Math.max(180,Math.sqrt((d.area_km2||0.1)/Math.PI)*1000),
+      radiusUnits:'meters', stroked:true, filled:false,
+      getLineColor:[255,255,255,235], lineWidthMinPixels:2.5,
+      updateTriggers:{getPosition:[SELECTED]}}),
+    new ScatterplotLayer({id:'sel-dot', data:[SELECTED],
+      getPosition:d=>[d.lon,d.lat], getRadius:5, radiusUnits:'pixels',
+      filled:true, getFillColor:[255,255,255,255], stroked:true,
+      getLineColor:[10,14,20,255], lineWidthMinPixels:2,
+      updateTriggers:{getPosition:[SELECTED]}})
+  ]:[];
+
   if(!deckgl){
     deckgl=new DeckGL({
       container:'map', map:maplibregl,
       mapStyle:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
-      viewState:VIEW, controller:true, layers:[layer],
+      viewState:VIEW, controller:true, layers:[layer,...marks],
       onViewStateChange:({viewState})=>{
         VIEW=viewState; deckgl.setProps({viewState:VIEW});
       },
@@ -424,7 +442,7 @@ function render(){
       }
     });
   } else {
-    deckgl.setProps({layers:[layer], viewState:VIEW});
+    deckgl.setProps({layers:[layer,...marks], viewState:VIEW});
   }
 
   const leg=document.getElementById('legend'); leg.innerHTML='';
@@ -792,9 +810,25 @@ function drawRanking(){
       :`No area averages ${MARGIN_H} h above the city median of `+
        `${median.toFixed(1)} h.`)+`</td></tr>`;
 
-  document.querySelectorAll('#rank tr').forEach(tr=>{
+  document.querySelectorAll('#rank tr').forEach((tr,i)=>{
     if(!tr.dataset.lon) return;
-    tr.onclick=()=>flyTo(+tr.dataset.lon,+tr.dataset.lat,+tr.dataset.a);
+    tr.onclick=()=>{
+      SELECTED={lon:+tr.dataset.lon, lat:+tr.dataset.lat,
+                area_km2:+tr.dataset.a, rank:i+1};
+      // Sites are flagged on persistence, so show the layer that flags
+      // them. Landing on a blue patch of the 3pm map looks like a bug,
+      // when it is actually the finding: in Phoenix an afternoon reading
+      // barely predicts the night (R2 0.106).
+      if(P && layerName!=='persistent'){
+        layerName='persistent'; thPct=100;
+        document.getElementById('th').value=100;
+        buildLayerButtons();
+      }
+      flyTo(SELECTED.lon, SELECTED.lat, SELECTED.area_km2);
+      document.querySelectorAll('#rank tr').forEach(r=>r.classList.remove('sel'));
+      tr.classList.add('sel');
+      drawRanking._keep=true;
+    };
   });
 
   const tot=hotspots.reduce((s,h)=>s+h.area_km2,0);
@@ -817,6 +851,7 @@ function flyTo(lon,lat,areaKm2){
   // frame the whole site, not an arbitrary zoom
   const z = areaKm2 ? Math.max(12, Math.min(15.5, 15.5-Math.log2(areaKm2+1))) : 14.5;
   VIEW={...VIEW, longitude:lon, latitude:lat, zoom:z, transitionDuration:900};
+  render();                       // repaint so the marker appears
   deckgl.setProps({viewState:VIEW});
   setTimeout(()=>{VIEW={...VIEW,transitionDuration:0};},1000);
 }
