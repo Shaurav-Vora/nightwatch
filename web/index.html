@@ -65,6 +65,12 @@
   input[type=range]{width:100%;accent-color:var(--accent)}
   .chk{display:flex;align-items:center;gap:8px;font-size:12.5px;
     color:var(--muted);margin-top:9px;cursor:pointer}
+  .units{display:inline-flex;margin-top:11px;border:1px solid var(--line);
+    border-radius:6px;overflow:hidden}
+  .units button{width:auto;margin:0;border:none;border-radius:0;
+    padding:6px 16px;font-size:12.5px;background:#0d1219;color:var(--muted)}
+  .units button.on{background:var(--accent);color:#170a02;font-weight:700}
+  .units button:not(.on):hover{background:#151d29;color:var(--ink)}
 
   #legend{display:flex;height:9px;border-radius:3px;overflow:hidden;margin-top:8px}
   #legend div{flex:1}
@@ -328,7 +334,10 @@
       <input id="th" type="range" min="0" max="100" value="100">
       <div class="note" id="thCount">—</div>
       <label class="chk"><input type="checkbox" id="water"> show water tiles</label>
-      <label class="chk"><input type="checkbox" id="fahrenheit" checked> Fahrenheit</label>
+      <div class="units">
+        <button id="unitC" type="button">°C</button>
+        <button id="unitF" type="button" class="on">°F</button>
+      </div>
     </div>
 
     <h2>Scale</h2>
@@ -491,21 +500,29 @@ function render(){
     updateTriggers:{getFillColor:[layerName,showWater,thPct,CITY]}
   });
 
-  // Ring the site you flew to, plus a centre dot. Without it you land on a
-  // patch of colour with no idea which part was meant.
-  const marks=SELECTED?[
-    new ScatterplotLayer({id:'sel-ring', data:[SELECTED],
-      getPosition:d=>[d.lon,d.lat],
-      getRadius:d=>Math.max(180,Math.sqrt((d.area_km2||0.1)/Math.PI)*1000),
-      radiusUnits:'meters', stroked:true, filled:false,
-      getLineColor:[255,255,255,235], lineWidthMinPixels:2.5,
-      updateTriggers:{getPosition:[SELECTED]}}),
-    new ScatterplotLayer({id:'sel-dot', data:[SELECTED],
+  // Outline the ACTUAL blocks in the selected area. An earlier version drew
+  // a circle at the centroid sized to the area's total km2, which implied a
+  // round patch — these are irregular, and the red band routinely ran well
+  // past the circle on both sides. A planner acting on this needs the real
+  // footprint, not an approximation of its size.
+  const marks=[];
+  if(SELECTED && SELECTED.members && SELECTED.members.length){
+    marks.push(new PolygonLayer({
+      id:'sel-blocks', data:SELECTED.members,
+      getPolygon:c=>[[c[0]-dlon/2,c[1]-dlat/2],[c[0]+dlon/2,c[1]-dlat/2],
+                     [c[0]+dlon/2,c[1]+dlat/2],[c[0]-dlon/2,c[1]+dlat/2]],
+      filled:true, getFillColor:[255,255,255,38],
+      stroked:true, getLineColor:[255,255,255,150], lineWidthMinPixels:0.6,
+      updateTriggers:{getPolygon:[SELECTED]}
+    }));
+    marks.push(new ScatterplotLayer({
+      id:'sel-dot', data:[SELECTED],
       getPosition:d=>[d.lon,d.lat], getRadius:5, radiusUnits:'pixels',
       filled:true, getFillColor:[255,255,255,255], stroked:true,
       getLineColor:[10,14,20,255], lineWidthMinPixels:2,
-      updateTriggers:{getPosition:[SELECTED]}})
-  ]:[];
+      updateTriggers:{getPosition:[SELECTED]}
+    }));
+  }
 
   if(!deckgl){
     deckgl=new DeckGL({
@@ -523,9 +540,11 @@ function render(){
         tip.style.left=(info.x+14)+'px'; tip.style.top=(info.y+14)+'px';
         const F=t=>useF?(t*9/5+32).toFixed(1)+'°F':t.toFixed(1)+'°C';
         const D=t=>useF?(t*9/5).toFixed(1)+'°F':t.toFixed(1)+'°C';
+        const thr=useF?`${(DATA.threshold_c*9/5+32).toFixed(0)}°F`
+                      :`${DATA.threshold_c}°C`;
         tip.innerHTML=
-          `<div class="tiprow hi"><span>above ${DATA.threshold_c}°C for</span>`+
-            `<i>${c[2].toFixed(1)} h</i></div>`+
+          `<div class="tiprow hi"><span>above ${thr} for</span>`+
+            `<i>${c[2].toFixed(1)} hours</i></div>`+
           `<div class="tiprow"><span>3pm</span><i>${F(c[3])}</i></div>`+
           `<div class="tiprow"><span>3am</span><i>${F(c[4])}</i></div>`+
           `<div class="tiprow"><span>cooled</span><i>${D(c[3]-c[4])}</i></div>`+
@@ -708,7 +727,7 @@ function drawTwins(){
   if(!t){box.innerHTML='<div class="hd">no matched pair found</div>';return;}
   const F=c=>useF?(c*9/5+32).toFixed(1)+'°F':c.toFixed(1)+'°C';
   const row=(o,cls,lbl)=>
-    `<div class="twin ${cls}"><div class="h">${o.exposure_h.toFixed(1)}h</div>`+
+    `<div class="twin ${cls}"><div class="h">${o.exposure_h.toFixed(1)}<span style="font-size:12px;font-weight:400"> hours</span></div>`+
     `<div class="d"><b>${lbl}</b><br>${o.lat.toFixed(4)}, ${o.lon.toFixed(4)}`+
     ` · 3am ${F(o.night_c)}</div></div>`;
   box.innerHTML=
@@ -972,26 +991,27 @@ function drawRanking(){
       ? `<td class="h">${Math.round(h.people).toLocaleString()}`+
         `<span style="font-size:10px"> people</span></td>`+
         `<td class="c">${h.area_km2.toFixed(1)} km² · ${h.n.toLocaleString()} `+
-        `blocks · ${h.mean.toFixed(1)} h above the threshold<br>`+
+        `blocks · ${h.mean.toFixed(1)} hours above the threshold<br>`+
         `${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}`+
         (h.areaRank!==i+1?` · <span style="color:#8792a5">#${h.areaRank} by `+
           `size</span>`:'')+`</td>`
       : `<td class="h">${h.area_km2.toFixed(1)}<span style="font-size:10px"> km²</span></td>`+
         `<td class="c">${h.n.toLocaleString()} blocks · typically `+
-        `${h.mean.toFixed(1)} h above the threshold<br>`+
+        `${h.mean.toFixed(1)} hours above the threshold<br>`+
         `${h.lat.toFixed(4)}, ${h.lon.toFixed(4)} · 3am ${F(h.night)}</td>`)+
     `</tr>`
   ).join('') ||
     `<tr><td class="c">No area large enough to list. `+
     (P?`Persistently bad blocks exist but none form a patch of 8 or more.`
-      :`No area averages ${MARGIN_H} h above the city median of `+
-       `${median.toFixed(1)} h.`)+`</td></tr>`;
+      :`No area averages ${MARGIN_H} hour above the city median of `+
+       `${median.toFixed(1)} hours.`)+`</td></tr>`;
 
   document.querySelectorAll('#rank tr').forEach((tr,i)=>{
     if(!tr.dataset.lon) return;
     tr.onclick=()=>{
-      SELECTED={lon:+tr.dataset.lon, lat:+tr.dataset.lat,
-                area_km2:+tr.dataset.a, rank:i+1};
+      const site=hotspots[i];
+      SELECTED={lon:site.lon, lat:site.lat, area_km2:site.area_km2,
+                rank:i+1, members:site.members};
       // Sites are flagged on persistence, so show the layer that flags
       // them. Landing on a blue patch of the 3pm map looks like a bug,
       // when it is actually the finding: in Phoenix an afternoon reading
@@ -1026,9 +1046,9 @@ function drawRanking(){
         `hot days measured — ${n_pool.toLocaleString()} blocks in all. `+
         `Not one bad afternoon.`
       : `Based on a single day, because this city has no multi-date data yet: `+
-        `joined-up areas above <b>${cut.toFixed(1)} h</b> that also run at `+
-        `least ${MARGIN_H} h beyond the city median of `+
-        `<b>${median.toFixed(1)} h</b>.`)+
+        `joined-up areas above <b>${cut.toFixed(1)} hours</b> that also run at `+
+        `least ${MARGIN_H} hour beyond the city median of `+
+        `<b>${median.toFixed(1)} hours</b>.`)+
     ` Click a row to fly there.`;
 }
 
@@ -1615,8 +1635,14 @@ function loadCity(name){
 
 document.getElementById('th').oninput=e=>{thPct=+e.target.value;render();};
 document.getElementById('water').onchange=e=>{showWater=e.target.checked;render();};
-document.getElementById('fahrenheit').onchange=e=>{
-  useF=e.target.checked; render(); drawTwins(); drawScatter();};
+function setUnits(f){
+  useF=f;
+  $('unitF').classList.toggle('on',f);
+  $('unitC').classList.toggle('on',!f);
+  render(); drawTwins(); drawScatter(); drawRanking();
+}
+$('unitF').onclick=()=>setUnits(true);
+$('unitC').onclick=()=>setUnits(false);
 
 // =====================================================================
 // GUIDED TOUR
