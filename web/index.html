@@ -319,7 +319,15 @@ function render(){
   const v=shown();
   lo=v[Math.floor(v.length*0.02)]; hi=v[Math.floor(v.length*0.98)];
   if(hi===lo) hi=lo+1;
-  const cut=v[Math.min(v.length-1,Math.floor(v.length*(thPct/100)))];
+  // The slider keeps the WORST blocks. 100% shows everything; dragging left
+  // narrows to the worst 50%, 20%, 5%. It used to cut from the other end,
+  // which hid the problem and left the healthy blocks on screen — backwards
+  // for someone trying to find where to intervene.
+  const frac=thPct/100;
+  const ci=cfg.flip ? Math.floor((v.length-1)*frac)
+                    : Math.floor((v.length-1)*(1-frac));
+  const cut=v[Math.max(0,Math.min(v.length-1,ci))];
+  const keeps=x=>cfg.flip ? x<=cut : x>=cut;
   const [dlon,dlat]=DATA.cell;
 
   const layer=new PolygonLayer({
@@ -329,7 +337,7 @@ function render(){
     getFillColor:c=>{
       if(!vis(c)) return [0,0,0,0];
       const x=val(c,layerName);
-      if(x>cut) return [0,0,0,0];
+      if(!keeps(x)) return [0,0,0,0];
       let t=(x-lo)/(hi-lo);
       if(cfg.flip) t=1-t;          // keep red = bad on every layer
       const col=ramp(t);
@@ -376,7 +384,7 @@ function render(){
   document.getElementById('legHi').textContent=say(hi);
   document.getElementById('thVal').textContent=say(cut);
   document.getElementById('thLabel').textContent=
-    'show only blocks that '+(cfg.filter||'are below');
+    thPct>=100 ? 'showing every block' : `showing the worst ${thPct}%`;
 
   // Say what the number IS, every time. Without the noun, "6.3°C" on the
   // cooling layer reads as a temperature when it is a temperature DROP.
@@ -384,9 +392,10 @@ function render(){
     `Colours run from <b>${say(lo)}</b> to <b>${say(hi)}</b> `+
     `${cfg.noun||''}, across ${v.length.toLocaleString()} blocks.`;
 
-  const nv=DATA.cells.filter(c=>vis(c)&&val(c,layerName)<=cut).length;
-  document.getElementById('thCount').textContent=
-    `${nv.toLocaleString()} of ${v.length.toLocaleString()} tiles shown`;
+  const nv=DATA.cells.filter(c=>vis(c)&&keeps(val(c,layerName))).length;
+  document.getElementById('thCount').innerHTML=
+    `<b>${nv.toLocaleString()}</b> of ${v.length.toLocaleString()} blocks, `+
+    `those ${cfg.flip?'at or below':'at or above'} <b>${say(cut)}</b>.`;
 }
 function _unusedConv0(span){
   const L=LAYERS[layerName];
