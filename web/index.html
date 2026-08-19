@@ -984,7 +984,12 @@ function drawRanking(){
   const F=c=>useF?(c*9/5+32).toFixed(0)+'°F':c.toFixed(1)+'°C';
   const P=basis==='persistent';
 
-  document.getElementById('rank').innerHTML=hotspots.slice(0,8).map((h,i)=>
+  // Show every area unless the list is unreasonable. It used to cut at 8
+  // while the note underneath reported the true count, so "9 areas" sat
+  // above 8 rows with nothing saying why.
+  const LIMIT=14;
+  const shownRows=hotspots.slice(0,LIMIT);
+  document.getElementById('rank').innerHTML=shownRows.map((h,i)=>
     `<tr data-lon="${h.lon}" data-lat="${h.lat}" data-a="${h.area_km2}">`+
     `<td class="n">${i+1}</td>`+
     (havePeople
@@ -1031,6 +1036,7 @@ function drawRanking(){
   const tot=hotspots.reduce((s,h)=>s+h.area_km2,0);
   const ppl=hotspots.reduce((s,h)=>s+(h.people||0),0);
   const reordered=hotspots.filter((h,i)=>h.areaRank!==i+1).length;
+  const hidden=hotspots.length-shownRows.length;
   document.getElementById('rankNote').innerHTML=
     `<b>${hotspots.length}</b> area${hotspots.length===1?'':'s'}, `+
     (havePeople
@@ -1041,7 +1047,9 @@ function drawRanking(){
                   :`which happens to give the same order here. `)
       : `<b>${tot.toFixed(1)} km²</b> in total, largest first. `)+
     (P
-      ? `These are joined-up patches of blocks that were among the hottest `+
+      ? (hidden?`Showing the top ${shownRows.length}; the other ${hidden} `+
+                `${hidden===1?'is':'are'} in the downloads. `:'')+
+        `These are joined-up patches of blocks that were among the hottest `+
         `quarter of the city on <b>every one</b> of the ${CONS.dates.length} `+
         `hot days measured — ${n_pool.toLocaleString()} blocks in all. `+
         `Not one bad afternoon.`
