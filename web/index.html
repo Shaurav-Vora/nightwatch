@@ -369,6 +369,11 @@
       <div class="note" id="consNote">—</div>
     </div>
 
+    <h2>Who lives there</h2>
+    <div class="stat"><b id="sPeople">—</b><span id="sPeopleL">—</span></div>
+    <div class="stat"><b id="sDensity">—</b><span>the density there, against the area average</span></div>
+    <div class="note" id="popNote">—</div>
+
     <h2>All three cities</h2>
     <table class="cmp" id="cmp"></table>
     <div class="note" id="cmpNote">—</div>
@@ -390,7 +395,7 @@ const LAYERS = {
   // `noun` completes the sentence "6.3°C ___", so a reader can never mistake
   // a temperature DROP for a temperature. `filter` completes "show blocks
   // that ___".
-  persistent:{i:6, unit:'pct', rel:false,
+  persistent:{i:7, unit:'pct', rel:false,
             title:'Hottest every time',
             sub:'how many hot days it was in the city’s hottest quarter',
             noun:'of the hot days we checked',
@@ -429,7 +434,7 @@ let VIEW=null;
 const val=(c,name)=>{const L=LAYERS[name];return L.i<0 ? c[3]-c[4] : c[L.i];};
 const isWater=c=>c[5]===1;
 const vis=c=>(showWater||!isWater(c)) &&
-             !(layerName==='persistent' && (c[6]===null||c[6]===undefined));
+             !(layerName==='persistent' && (c[7]===null||c[7]===undefined));
 
 function conv(v){
   const L=LAYERS[layerName];
@@ -676,6 +681,7 @@ function fillPanels(){
   drawScatter();
   drawRanking();
   drawConsistency();
+  drawPopulation();
 
   const best=INDEX.cities[0];
   document.getElementById('cmpNote').innerHTML=
@@ -801,7 +807,7 @@ function computeHotspots(pct=0.90, minTiles=8){
   // 14.7h and nothing clears "1h above median" — the panel reported zero
   // sites while the evidence panel beside it reported 1,298 persistently
   // worst blocks at 10.2x chance. Two contradictory answers on one screen.
-  const persistent=land.filter(c=>c[6]!==null&&c[6]!==undefined&&c[6]>=0.999);
+  const persistent=land.filter(c=>c[7]!==null&&c[7]!==undefined&&c[7]>=0.999);
   const usePersistent=persistent.length>=minTiles;
 
   let hot, cut, basis;
@@ -855,16 +861,24 @@ function computeHotspots(pct=0.90, minTiles=8){
       excess:cmean-median,
       day:comp.reduce((s,c)=>s+c[3],0)/comp.length,
       night:comp.reduce((s,c)=>s+c[4],0)/comp.length,
+      people:comp.reduce((s,c)=>s+(c[6]||0),0),
       members:comp
     });
   }
-  // When every site already passed the same persistence test, size is what
-  // separates them: how much ground is reliably bad. Otherwise fall back to
-  // excess hours weighted by area.
-  out.forEach(h=>h.severity=usePersistent
-    ? h.area_km2
-    : h.excess*Math.sqrt(h.area_km2));
+  // Rank by PEOPLE where we know them. A city officer has a population to
+  // protect, not a square-kilometre budget: a 22 km2 industrial zone with
+  // 800 residents is not the priority a 3 km2 neighbourhood with 15,000 is.
+  // Census data shows the persistently hottest ground runs 0.6-0.8x the
+  // city's average density, so area and population genuinely disagree —
+  // ranking by area sends you to the wrong place.
+  const havePeople=out.some(h=>h.people>0);
+  out.forEach(h=>h.severity = havePeople ? h.people
+                            : usePersistent ? h.area_km2
+                            : h.excess*Math.sqrt(h.area_km2));
   out.sort((a,b)=>b.severity-a.severity);
+  // keep the area ordering so the two can be compared
+  const byArea=[...out].sort((a,b)=>b.area_km2-a.area_km2);
+  out.forEach(h=>h.areaRank=byArea.indexOf(h)+1);
 
   // Record exact membership only after the final ordering, so the ids in
   // the two CSVs are the same ids. An earlier version reconstructed this
@@ -872,7 +886,7 @@ function computeHotspots(pct=0.90, minTiles=8){
   // made the sites file and the blocks file disagree.
   SITE_OF=new Map();
   out.forEach((h,i)=>h.members.forEach(c=>SITE_OF.set(c,i+1)));
-  return {cut, median, hotspots:out, basis, n_pool:hot.length};
+  return {cut, median, hotspots:out, basis, n_pool:hot.length, havePeople};
 }
 
 function drawConsistency(){
@@ -905,8 +919,48 @@ function drawConsistency(){
     (ex?` Dates excluded: ${ex}.`:'');
 }
 
+function drawPopulation(){
+  const p=DATA.population;
+  const a=$('sPeople'), l=$('sPeopleL'), d=$('sDensity'), n=$('popNote');
+  if(!p||p.in_persistent==null){
+    a.textContent='—'; d.textContent='—';
+    l.textContent='no census data for this city';
+    n.textContent='Run population.py to add it.';
+    return;
+  }
+  const shareP=p.in_persistent/p.total;
+  const nBlocks=DATA.cells.filter(c=>c[7]>=0.999).length;
+  const shareB=nBlocks/DATA.cells.length;
+  const dens=shareB?shareP/shareB:0;
+
+  a.textContent=Math.round(p.in_persistent).toLocaleString();
+  l.innerHTML=`people live in the blocks that are hottest <b>every time</b>`;
+  d.textContent=dens.toFixed(2)+'×';
+  d.style.color = dens>=1 ? '#f97316' : '#8792a5';
+
+  // The honest reading: in all three cities this came out BELOW 1. The
+  // ground that is reliably hottest is largely industrial and commercial,
+  // so heat and residents only partly overlap. Saying so is the point of
+  // ranking by people rather than by area.
+  n.innerHTML=
+    `Out of <b>${p.total.toLocaleString()}</b> residents in this area. `+
+    (dens<0.95
+      ? `The hottest ground is <b>less</b> densely populated than the city `+
+        `around it — much of it is industrial or commercial. Heat and people `+
+        `only partly overlap, which is exactly why ranking by area sends you `+
+        `to the wrong place.`
+      : dens>1.05
+      ? `The hottest ground is <b>more</b> densely populated than average, so `+
+        `heat and people coincide here.`
+      : `Roughly the same density as the rest of the area.`)+
+    `<br><br><span style="color:#6b7787">Census ACS 2022. Each block is `+
+    `matched to its nearest tract centroid and the tract's population split `+
+    `evenly, so these figures are reliable for whole areas and only `+
+    `indicative for a single block.</span>`;
+}
+
 function drawRanking(){
-  const {cut,median,hotspots,basis,n_pool}=computeHotspots();
+  const {cut,median,hotspots,basis,n_pool,havePeople}=computeHotspots();
   HOTSPOTS=hotspots;
   const F=c=>useF?(c*9/5+32).toFixed(0)+'°F':c.toFixed(1)+'°C';
   const P=basis==='persistent';
@@ -914,10 +968,19 @@ function drawRanking(){
   document.getElementById('rank').innerHTML=hotspots.slice(0,8).map((h,i)=>
     `<tr data-lon="${h.lon}" data-lat="${h.lat}" data-a="${h.area_km2}">`+
     `<td class="n">${i+1}</td>`+
-    `<td class="h">${h.area_km2.toFixed(1)}<span style="font-size:10px"> km²</span></td>`+
-    `<td class="c">${h.n.toLocaleString()} blocks · typically `+
-    `${h.mean.toFixed(1)} h above the threshold<br>`+
-    `${h.lat.toFixed(4)}, ${h.lon.toFixed(4)} · 3am ${F(h.night)}</td></tr>`
+    (havePeople
+      ? `<td class="h">${Math.round(h.people).toLocaleString()}`+
+        `<span style="font-size:10px"> people</span></td>`+
+        `<td class="c">${h.area_km2.toFixed(1)} km² · ${h.n.toLocaleString()} `+
+        `blocks · ${h.mean.toFixed(1)} h above the threshold<br>`+
+        `${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}`+
+        (h.areaRank!==i+1?` · <span style="color:#8792a5">#${h.areaRank} by `+
+          `size</span>`:'')+`</td>`
+      : `<td class="h">${h.area_km2.toFixed(1)}<span style="font-size:10px"> km²</span></td>`+
+        `<td class="c">${h.n.toLocaleString()} blocks · typically `+
+        `${h.mean.toFixed(1)} h above the threshold<br>`+
+        `${h.lat.toFixed(4)}, ${h.lon.toFixed(4)} · 3am ${F(h.night)}</td>`)+
+    `</tr>`
   ).join('') ||
     `<tr><td class="c">No area large enough to list. `+
     (P?`Persistently bad blocks exist but none form a patch of 8 or more.`
@@ -946,9 +1009,17 @@ function drawRanking(){
   });
 
   const tot=hotspots.reduce((s,h)=>s+h.area_km2,0);
+  const ppl=hotspots.reduce((s,h)=>s+(h.people||0),0);
+  const reordered=hotspots.filter((h,i)=>h.areaRank!==i+1).length;
   document.getElementById('rankNote').innerHTML=
     `<b>${hotspots.length}</b> area${hotspots.length===1?'':'s'}, `+
-    `<b>${tot.toFixed(1)} km²</b> in total, largest first. `+
+    (havePeople
+      ? `<b>${Math.round(ppl).toLocaleString()} residents</b> across `+
+        `${tot.toFixed(1)} km². Ordered by <b>how many people live there</b>, `+
+        `not by size — `+
+        (reordered?`${reordered} of them change position when you do that. `
+                  :`which happens to give the same order here. `)
+      : `<b>${tot.toFixed(1)} km²</b> in total, largest first. `)+
     (P
       ? `These are joined-up patches of blocks that were among the hottest `+
         `quarter of the city on <b>every one</b> of the ${CONS.dates.length} `+
@@ -983,12 +1054,13 @@ const siteOf=c=>SITE_OF.get(c)||'';
 
 function downloadCSV(){
   const rows=ranked();
-  const head=['rank','site_id','latitude','longitude',
+  const head=['rank','site_id','residents_est','latitude','longitude',
               'hours_above_threshold','threshold_c',
               'temp_3pm_c','temp_3am_c','temp_3pm_f','temp_3am_f',
               'city','date','granularity_m','source'];
   const body=rows.map((c,i)=>[
-    i+1, siteOf(c), c[1], c[0], c[2].toFixed(2), DATA.threshold_c,
+    i+1, siteOf(c), (c[6]||0).toFixed(1), c[1], c[0],
+    c[2].toFixed(2), DATA.threshold_c,
     c[3].toFixed(2), c[4].toFixed(2),
     (c[3]*9/5+32).toFixed(1), (c[4]*9/5+32).toFixed(1),
     DATA.city, DATA.date, DATA.granularity_m,
@@ -1000,11 +1072,12 @@ function downloadCSV(){
 
 function downloadSites(){
   if(!HOTSPOTS||!HOTSPOTS.length) return;
-  const head=['site_id','mean_hours','peak_hours','area_km2','blocks',
-              'latitude','longitude','mean_3pm_c','mean_3am_c',
+  const head=['site_id','residents','mean_hours','peak_hours','area_km2',
+              'blocks','latitude','longitude','mean_3pm_c','mean_3am_c',
               'threshold_c','city','date'];
   const body=HOTSPOTS.map((h,i)=>[
-    i+1, h.mean.toFixed(2), h.peak.toFixed(2), h.area_km2.toFixed(3), h.n,
+    i+1, Math.round(h.people||0), h.mean.toFixed(2), h.peak.toFixed(2),
+    h.area_km2.toFixed(3), h.n,
     h.lat.toFixed(5), h.lon.toFixed(5),
     h.day.toFixed(2), h.night.toFixed(2),
     DATA.threshold_c, DATA.city, DATA.date
@@ -1505,7 +1578,9 @@ function mergeConsistency(d, cons){
   let matched=0;
   d.cells.forEach(c=>{
     const v=by.get(c[0]+','+c[1]);
-    c[6] = v===undefined ? null : v;
+    // index 6 is population (written by population.py); consistency
+    // goes to 7. Writing it to 6 silently destroyed the population data.
+    c[7] = v===undefined ? null : v;
     if(v!==undefined) matched++;
   });
   if(cons) console.log(`consistency joined: ${matched}/${d.cells.length} cells`);
