@@ -41,6 +41,9 @@
   h2{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
      color:var(--muted);margin:22px 0 8px;font-weight:600}
 
+  .intro{font-size:12.5px;line-height:1.6;color:#b3bdcc;margin:0 0 14px;
+    padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .intro b{color:var(--ink)}
   .hero{background:#1a1207;border:1px solid #7c2d12;border-left:3px solid var(--accent);
     padding:13px;border-radius:6px}
   .hero .big{font-size:15px;color:#fdba74;line-height:1.35}
@@ -205,13 +208,21 @@
     <h1>NIGHTWATCH</h1>
     <div class="sub" id="subtitle">—</div>
 
+    <p class="intro">Cities decide where to plant trees and open cooling
+      centres using maps of <b>how hot</b> it gets. Across a whole city that
+      barely changes. <b>How long</b> it stays dangerous changes enormously —
+      and the same neighbourhoods lose every time. This maps that.</p>
+
     <div class="hero">
       <div class="big" id="heroBig">—</div>
       <div class="cap" id="heroCap">—</div>
     </div>
+    <div class="note" id="dateNote">—</div>
 
     <h2>City</h2>
     <div class="cities" id="cityBtns"></div>
+    <div class="note">Works for any US city. These three are pre-loaded
+      because each one costs API credits to measure.</div>
 
     <h2>Layer</h2>
     <div id="layerBtns"></div>
@@ -301,7 +312,10 @@ const RAMP=[[8,20,48],[20,60,110],[30,110,150],[90,160,140],
             [200,180,90],[240,130,50],[220,60,40],[150,20,30]];
 
 let INDEX=null, CITY=null, DATA=null, CONS=null;
-let layerName='exposure', showWater=false, useF=true, thPct=100;
+// Open on the layer listed first, so the highlighted button and the top of
+// the list agree. "Always worst" is also the strongest thing here: it spans
+// several heat events rather than one day.
+let layerName='persistent', showWater=false, useF=true, thPct=100;
 let lo=0, hi=1, deckgl=null;
 // Controlled rather than initialViewState, so clicking a ranked block can
 // fly the camera there. Controlled means we must echo user pans back.
@@ -463,8 +477,21 @@ function fillPanels(){
     `<b>${s.temp_span_c}°C</b> of afternoon temperature across this city — `+
     `and <b>${s.exposure_span_h} hours</b> of dangerous exposure.`;
   document.getElementById('heroCap').textContent=
-    `Same tiles, same day. One of those looks uniform. `+
+    `Same blocks, same day. One of those looks uniform. `+
     `The other is a public-health problem.`;
+
+  // Be explicit about which day is on screen. Four of the five layers show
+  // a single date; only "Always worst" spans several, and a reader who
+  // assumes the map is an average would draw the wrong conclusion.
+  const nd=document.getElementById('dateNote');
+  const nDates=CONS?CONS.dates.length:0;
+  nd.innerHTML=
+    `The map shows <b>${new Date(s.date+'T12:00:00').toLocaleDateString(
+      'en-GB',{day:'numeric',month:'long',year:'numeric'})}</b>, `+
+    `one hot day. Each square is a ${s.granularity_m||100} m block. `+
+    (nDates?`Only the <b>Always worst</b> layer spans several — `+
+            `${nDates} separate heat events.`
+           :`Multi-date data has not been generated for this city.`);
 
   const t=document.getElementById('cmp');
   t.innerHTML='<tr><th>city</th><th>°C span</th><th>hours span</th><th>R²</th></tr>'+
@@ -1037,6 +1064,29 @@ averaging at least 1 h beyond it.</p>
 <th>km²</th><th>blocks</th><th>centroid</th></tr>${rows}</table>
 <p class="cap">Contiguous areas in the worst 10% for exposure that also average
 at least 1 h above the city median, ranked by excess hours × area.</p>
+
+${CONS?`<h2>Does it repeat, or was it one bad day?</h2>
+<div class="lede" style="font-size:15px">
+<b>${CONS.n_always.toLocaleString()}</b> blocks were among the worst quarter
+of the city on <b>all ${CONS.dates.length}</b> heat events measured
+(${CONS.dates.join(', ')}).
+Chance alone would produce about ${CONS.expected_by_chance}, so this is
+<b>${(CONS.n_always/Math.max(CONS.expected_by_chance,1e-9)).toFixed(1)}×</b>
+what you would expect if the worst blocks moved around at random.
+</div>
+<p class="cap">Blocks are ranked <em>within</em> each date, so a hot day and a
+mild one count equally and the absolute threshold cancels out.
+${(CONS.dates_excluded||[]).length?`Dates excluded: `+
+  CONS.dates_excluded.map(d=>`${d[0]} (${d[1]})`).join(', ')+`. `:''}
+${CONS.n_always/Math.max(CONS.expected_by_chance,1e-9) >= 8
+  ? `A core this far above chance means the worst blocks are a property of
+     the built environment rather than of one day's weather, which is what
+     makes the site list below worth acting on.`
+  : CONS.n_always/Math.max(CONS.expected_by_chance,1e-9) >= 3
+  ? `Above chance, though a good deal of the ranking still turns over
+     between dates.`
+  : `Only slightly above chance. The ranking here is largely weather-driven
+     and the site list should not be treated as fixed.`}</p>`:''}
 
 <h2>All three cities</h2>
 <div class="fig">${reportCityBars()}</div>
