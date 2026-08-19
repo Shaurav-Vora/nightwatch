@@ -41,6 +41,11 @@
   h2{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
      color:var(--muted);margin:22px 0 8px;font-weight:600}
 
+    .oneday{font-style:normal;font-size:9.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:#6b7787;border:1px solid #2b3849;
+    border-radius:4px;padding:2px 6px;margin-left:7px;vertical-align:2px}
+  .oneday-hero{font-size:11px;color:#c2703a;margin-top:8px;
+    padding-top:8px;border-top:1px solid #7c2d1266}
   .intro{font-size:12.5px;line-height:1.6;color:#b3bdcc;margin:0 0 14px;
     padding-bottom:14px;border-bottom:1px solid var(--line)}
   .intro b{color:var(--ink)}
@@ -317,6 +322,7 @@
     <div class="hero">
       <div class="big" id="heroBig">—</div>
       <div class="cap" id="heroCap">—</div>
+      <div class="oneday-hero" id="heroDay">—</div>
     </div>
     <div class="note" id="dateNote">—</div>
 
@@ -348,10 +354,10 @@
   </div>
 
   <div id="right">
-    <h2>Two blocks, same afternoon</h2>
+    <h2>Two blocks, same afternoon <i class="oneday">one day</i></h2>
     <div id="twins" class="twins">—</div>
 
-    <h2>Same afternoon, different night</h2>
+    <h2>Same afternoon, different night <i class="oneday">one day</i></h2>
     <canvas id="scatter" width="352" height="230"></canvas>
     <div class="legrow"><span id="scX0">—</span><span id="scX1">—</span></div>
     <div class="note" id="scNote">—</div>
@@ -379,9 +385,11 @@
     </div>
 
     <h2>Who lives there</h2>
-    <div class="stat"><b id="sPeople">—</b><span id="sPeopleL">—</span></div>
-    <div class="stat"><b id="sDensity">—</b><span>the density there, against the area average</span></div>
-    <div class="note" id="popNote">—</div>
+    <div id="popBox">
+      <div class="stat"><b id="sPeople">—</b><span id="sPeopleL">—</span></div>
+      <div class="stat"><b id="sDensity">—</b><span>the density there, against the area average</span></div>
+      <div class="note" id="popNote">—</div>
+    </div>
 
     <h2>All three cities</h2>
     <table class="cmp" id="cmp"></table>
@@ -688,6 +696,14 @@ function fillPanels(){
   // The date lives on the map now (see drawStamp), not buried here.
   document.getElementById('dateNote').textContent=
     `Each square is a ${s.granularity_m||100} m block — roughly one city block.`;
+
+  // The hero, the twin blocks and the chart all describe ONE afternoon,
+  // while the map opens on several. Nothing said so, and reading top to
+  // bottom you would assume they matched.
+  document.getElementById('heroDay').textContent=
+    `Measured on ${new Date(s.date+'T12:00:00').toLocaleDateString('en-GB',
+      {day:'numeric',month:'long',year:'numeric'})} — one afternoon. `+
+    (CONS?`The map and the rankings use all ${CONS.dates.length}.`:'');
 
   const t=document.getElementById('cmp');
   t.innerHTML='<tr><th>city</th><th>°C span</th><th>hours span</th><th>R²</th></tr>'+
@@ -1263,10 +1279,18 @@ function buildReportHTML(){
   const s=CITY, m=reportMap(), med=medianHours();
   const F=c=>(c*9/5+32).toFixed(1);
   const t=DATA.twins;
+  const pop=DATA.population;
+  // both must be present: the per-site totals AND the city-level block the
+  // section quotes. Deriving this from the hotspots alone crashed the whole
+  // report when one existed without the other.
+  const havePeople=!!(pop && pop.in_persistent!=null)
+                   && HOTSPOTS.some(h=>h.people>0);
   const rows=HOTSPOTS.map((h,i)=>
-    `<tr><td class="r">${i+1}</td><td class="hh">+${h.excess.toFixed(1)} h</td>`+
+    `<tr><td class="r">${i+1}</td>`+
+    (havePeople?`<td class="hh">${Math.round(h.people).toLocaleString()}</td>`:'')+
     `<td>${h.mean.toFixed(1)} h</td><td>${h.peak.toFixed(1)} h</td>`+
     `<td>${h.area_km2.toFixed(2)}</td><td>${h.n}</td>`+
+    (havePeople?`<td>${h.areaRank}</td>`:'')+
     `<td class="mono">${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}</td></tr>`).join('');
   const cityRows=INDEX.cities.map(c=>
     `<tr${c.city===s.city?' class="sel"':''}><td>${esc(c.short)}</td>`+
@@ -1373,11 +1397,26 @@ read the same at 3pm are not the same at night. R² = <b>${s.r2}</b>.</p>
 <p class="cap">Median ${med.toFixed(1)} h. Sites below are contiguous areas
 averaging at least 1 h beyond it.</p>
 
-<h2>Ranked sites</h2>
-<table><tr><th></th><th>above median</th><th>mean</th><th>peak</th>
-<th>km²</th><th>blocks</th><th>centroid</th></tr>${rows}</table>
-<p class="cap">Contiguous areas in the hottest 10% for exposure that also average
-at least 1 h above the city median, ranked by excess hours × area.</p>
+${havePeople?`<h2>Who is affected</h2>
+<div class="lede" style="font-size:15px">
+<b>${Math.round(pop.in_persistent).toLocaleString()}</b> people live in the
+blocks that are hottest on every heat event measured, out of
+${pop.total.toLocaleString()} in this area.
+</div>
+<p class="cap">Population is from the US Census (ACS 2022 5-year). Each block
+is matched to its nearest tract centroid and the tract's population divided
+evenly across it, so these figures are dependable for whole areas and
+indicative only for a single block. Ranking below is by residents, not by
+size — the two disagree, and area alone would send a budget to the wrong
+place.</p>`:''}
+
+<h2>Ranked areas</h2>
+<table><tr><th></th>${havePeople?'<th>residents</th>':''}<th>mean</th><th>peak</th>
+<th>km²</th><th>blocks</th>${havePeople?'<th>rank by size</th>':''}
+<th>centroid</th></tr>${rows}</table>
+<p class="cap">Joined-up patches of blocks that were among the hottest quarter
+of the city on every heat event measured${havePeople?', ordered by how many '+
+'people live in them':', ranked by excess hours × area'}.</p>
 
 ${CONS?`<h2>Does it repeat, or was it one bad day?</h2>
 <div class="lede" style="font-size:15px">
@@ -1425,8 +1464,14 @@ Modelled temperature field for a single day, not sensor measurement.<br>
 The field is smooth. 60 m granularity returns 2.78× the tiles with identical
 standard deviation and range, so native resolution is coarser than 100 m and
 block-level detail should not be over-read.<br>
-No population weighting: sites are ranked by area, not by who lives there.
-A census tract overlay is the obvious next step.<br>
+${havePeople?`Population comes from census tracts matched by nearest centroid,
+not by polygon intersection, and is assumed even within a tract. Dependable
+for whole areas, indicative only for one block.<br>
+The persistently hottest ground runs below the area's average density — much
+of it is industrial or commercial — so heat and residents only partly
+overlap.<br>`
+:`No population weighting: areas are ranked by size, not by who lives there.
+Run population.py to add it.<br>`}
 Persistence and exceedance are identical wherever the temperature curve
 crosses the threshold only once, which is most of the day in most cities.
 </div>
@@ -1481,14 +1526,27 @@ function buildBody(){
          `${s.exposure_span_h} hours.`);
   L.push('A conventional heat map shows the first number.');
 
+  const pop=DATA.population;
+  if(pop && pop.in_persistent!=null){
+    L.push('');
+    L.push(`${Math.round(pop.in_persistent).toLocaleString()} people live in `+
+           `the blocks that are hottest on every heat event measured, out of `+
+           `${pop.total.toLocaleString()} in this area.`);
+  }
+
   if($('incSites').checked && HOTSPOTS.length){
+    const havePeople=HOTSPOTS.some(h=>h.people>0);
     L.push('');
     L.push(`AREAS THAT STAY HOT LONGEST (hours above ${DATA.threshold_c}°C, `+
            `vs a city median of ${medianHours().toFixed(1)} h)`);
+    if(havePeople)
+      L.push(`Ordered by residents, not by size — the two disagree.`);
     HOTSPOTS.slice(0,8).forEach((h,i)=>{
-      L.push(` ${i+1}. +${h.excess.toFixed(1)} h above median  ·  `+
-             `${h.mean.toFixed(1)} h total  ·  ${h.area_km2.toFixed(2)} km²  `+
-             `·  ${h.n} blocks`);
+      L.push(` ${i+1}. `+
+             (havePeople?`${Math.round(h.people).toLocaleString()} residents  ·  `:'')+
+             `${h.mean.toFixed(1)} h above ${DATA.threshold_c}°C  ·  `+
+             `${h.area_km2.toFixed(2)} km²  ·  ${h.n} blocks`+
+             (havePeople?`  ·  #${h.areaRank} by size`:''));
       L.push(`    ${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}`);
     });
   }
@@ -1696,6 +1754,12 @@ const TOUR=[
         `<b>every single time</b>.<br><br>`+
         `Houston: 65× more than chance would give you. Phoenix: only 2.4× — `+
         `and we say so.`},
+  {el:'#popBox', title:'And who lives there', pos:'left',
+   body:`Census population, so the list above is ordered by <b>people</b>, `+
+        `not by square kilometres.<br><br>`+
+        `In Phoenix the biggest area holds 797 residents and the fourth `+
+        `biggest holds 3,404. Rank by size and you send the money to the `+
+        `wrong place.`},
 ];
 let TI=0;
 
