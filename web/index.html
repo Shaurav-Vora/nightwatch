@@ -13,10 +13,28 @@
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
     font:14px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-  #app{display:grid;grid-template-columns:1fr 360px;height:100vh}
-  #map{position:relative}
-  #side{background:var(--panel);border-left:1px solid var(--line);
-    overflow-y:auto;padding:18px 18px 48px}
+  /* controls left, map centre, evidence right. One tall scrolling strip
+     beside an empty map wasted the width and buried everything below the
+     fold. */
+  #app{display:grid;grid-template-columns:290px minmax(340px,1fr) 390px;
+    height:100vh}
+  /* the map element comes first in the DOM (deck.gl mounts into it), so
+     place the columns explicitly rather than relying on source order */
+  #map{position:relative;grid-column:2}
+  #left,#right{background:var(--panel);overflow-y:auto;padding:18px 18px 48px}
+  #left{border-right:1px solid var(--line);grid-column:1;grid-row:1}
+  #right{border-left:1px solid var(--line);grid-column:3;grid-row:1}
+
+  /* below this the three columns stop fitting, so stack and let the page
+     scroll rather than squeezing the map into nothing */
+  @media(max-width:1180px){
+    #app{grid-template-columns:1fr;grid-template-rows:auto 62vh auto;
+      height:auto}
+    #left {grid-column:1;grid-row:1}
+    #map  {grid-column:1;grid-row:2}
+    #right{grid-column:1;grid-row:3}
+    #left,#right{border:none;border-top:1px solid var(--line)}
+  }
 
   h1{font-size:19px;letter-spacing:.15em;margin:0;font-weight:700}
   .sub{color:var(--muted);font-size:12px;margin:2px 0 16px}
@@ -183,7 +201,7 @@
     </div>
   </div></div>
 
-  <div id="side">
+  <div id="left">
     <h1>NIGHTWATCH</h1>
     <div class="sub" id="subtitle">—</div>
 
@@ -210,11 +228,14 @@
     <div class="legrow"><span id="legLo">—</span><span id="legHi">—</span></div>
     <div class="note" id="spanNote">—</div>
 
+  </div>
+
+  <div id="right">
     <h2>Two blocks, same afternoon</h2>
     <div id="twins" class="twins">—</div>
 
-    <h2>Degrees in, hours out</h2>
-    <canvas id="scatter" width="324" height="200"></canvas>
+    <h2>Same afternoon, different night</h2>
+    <canvas id="scatter" width="352" height="230"></canvas>
     <div class="legrow"><span id="scX0">—</span><span id="scX1">—</span></div>
     <div class="note" id="scNote">—</div>
 
@@ -493,37 +514,60 @@ function drawTwins(){
     `above ${DATA.threshold_c}°C — from the same afternoon reading.</div>`;
 }
 
-// 2D density of exposure vs afternoon temperature. Vertical spread at a
-// fixed x is the whole point: same temperature, different exposure.
+// A CHART, not a map. It previously used the map's colour ramp and had no
+// axis titles, so people read it as a picture of the city. Now: single hue,
+// axes named on the canvas, plotted inside a margin so the labels have room.
 function drawScatter(){
   const s=DATA.scatter, cv=document.getElementById('scatter');
   const ctx=cv.getContext('2d');
   ctx.clearRect(0,0,cv.width,cv.height);
   if(!s) return;
+
+  const L=46, R=8, T=10, B=40;              // margins for the axis labels
+  const iw=cv.width-L-R, ih=cv.height-T-B;
+
+  ctx.fillStyle='#0b1017'; ctx.fillRect(L,T,iw,ih);
+  ctx.strokeStyle='#1e2836'; ctx.strokeRect(L,T,iw,ih);
+
   let peak=0;
   for(const row of s.grid) for(const v of row) if(v>peak) peak=v;
-  const cw=cv.width/s.nx, ch=cv.height/s.ny;
+  const cw=iw/s.nx, ch=ih/s.ny;
   for(let gy=0;gy<s.ny;gy++){
     for(let gx=0;gx<s.nx;gx++){
       const v=s.grid[gy][gx];
       if(!v) continue;
-      const t=Math.pow(v/peak,0.42);           // gamma, so sparse bins show
-      const c=ramp(t);
-      ctx.fillStyle=`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${0.25+0.75*t})`;
-      ctx.fillRect(gx*cw, cv.height-(gy+1)*ch, Math.ceil(cw), Math.ceil(ch));
+      const t=Math.pow(v/peak,0.42);        // gamma so sparse bins stay visible
+      // one hue, deliberately unlike the map's blue-to-red
+      ctx.fillStyle=`rgba(125,211,252,${(0.10+0.90*t).toFixed(3)})`;
+      ctx.fillRect(L+gx*cw, T+ih-(gy+1)*ch, Math.ceil(cw), Math.ceil(ch));
     }
   }
-  // y-axis ticks in hours
+
+  const F=c=>useF?(c*9/5+32).toFixed(0)+'°F':c.toFixed(1)+'°C';
   ctx.fillStyle='#8792a5'; ctx.font='10px ui-sans-serif';
-  ctx.fillText(s.y1.toFixed(1)+'h', 4, 12);
-  ctx.fillText(s.y0.toFixed(1)+'h', 4, cv.height-5);
-  const F=c=>useF?(c*9/5+32).toFixed(1)+'°F':c.toFixed(1)+'°C';
-  document.getElementById('scX0').textContent=F(s.x0);
-  document.getElementById('scX1').textContent=F(s.x1);
+  ctx.textAlign='right';
+  ctx.fillText(s.y1.toFixed(0)+'h', L-5, T+9);
+  ctx.fillText(s.y0.toFixed(0)+'h', L-5, T+ih);
+  ctx.textAlign='left';   ctx.fillText(F(s.x0), L, T+ih+15);
+  ctx.textAlign='right';  ctx.fillText(F(s.x1), L+iw, T+ih+15);
+
+  ctx.fillStyle='#c3ccda'; ctx.font='600 10px ui-sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('how hot it was at 3pm  →', L+iw/2, cv.height-6);
+  ctx.save();
+  ctx.translate(11, T+ih/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('hours dangerously hot  →', 0, 0);
+  ctx.restore();
+  ctx.textAlign='left';
+
+  document.getElementById('scX0').textContent='';
+  document.getElementById('scX1').textContent='';
   document.getElementById('scNote').innerHTML=
-    `Each column is one afternoon temperature; height is hours of exposure. `+
-    `<b>The vertical spread within a column is the finding</b> — blocks that `+
-    `read the same at 3pm are not the same at night.`;
+    `This is a chart, not a map. Every small square counts how many blocks `+
+    `had that combination — brighter means more blocks. `+
+    `<b>Look at any single column:</b> those blocks were all the same `+
+    `temperature at 3pm, yet they spread up and down by hours. That spread `+
+    `is what a temperature map throws away.`;
 }
 
 // ---------------------------------------------------------------------
