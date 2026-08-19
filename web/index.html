@@ -662,13 +662,26 @@ function computeHotspots(pct=0.90, minTiles=8){
   const land=DATA.cells.filter(c=>!isWater(c));
   const asc=land.map(c=>c[2]).sort((a,b)=>a-b);
   const median=asc[Math.floor(asc.length/2)];
-  // Select by RANK, not by value. Thresholding on the 90th-percentile
-  // value breaks whenever the field has a plateau: if 90% of tiles share
-  // that value, every one of them qualifies and the whole city becomes a
-  // single "hotspot". Taking the top N is exact regardless of ties.
-  const n=Math.max(minTiles, Math.round(land.length*(1-pct)));
-  const hot=[...land].sort((a,b)=>b[2]-a[2]).slice(0,n);
-  const cut=hot[hot.length-1][2];
+
+  // Prefer blocks that were worst on EVERY measured heat event. That is a
+  // far stronger test than one day's top decile, and it fixes a case that
+  // was plainly broken: Chicago is uniformly hot, so its median exposure is
+  // 14.7h and nothing clears "1h above median" — the panel reported zero
+  // sites while the evidence panel beside it reported 1,298 persistently
+  // worst blocks at 10.2x chance. Two contradictory answers on one screen.
+  const persistent=land.filter(c=>c[6]!==null&&c[6]!==undefined&&c[6]>=0.999);
+  const usePersistent=persistent.length>=minTiles;
+
+  let hot, cut, basis;
+  if(usePersistent){
+    hot=persistent; cut=null; basis='persistent';
+  } else {
+    // no multi-date data: fall back to one day's worst decile, selected by
+    // RANK not value, since a plateau would otherwise qualify the whole city
+    const n=Math.max(minTiles, Math.round(land.length*(1-pct)));
+    hot=[...land].sort((a,b)=>b[2]-a[2]).slice(0,n);
+    cut=hot[hot.length-1][2]; basis='single-day';
+  }
 
   const [dlon,dlat]=DATA.cell;
   const lon0=Math.min(...hot.map(c=>c[0])), lat0=Math.min(...hot.map(c=>c[1]));
@@ -693,12 +706,11 @@ function computeHotspots(pct=0.90, minTiles=8){
     }
     if(comp.length<minTiles) continue;
     const cmean=comp.reduce((s,c)=>s+c[2],0)/comp.length;
-    // A site must be meaningfully worse than the city, not merely in the
-    // arbitrary top 10%. Without this, a flat field still yields "hotspots"
-    // -- the top decile of a uniform surface is just wherever the sort
-    // happened to land. Nothing should be flagged in a city with no
-    // variation, and the UI says so when that happens.
-    if(cmean < median + MARGIN_H) continue;
+    // The margin rule only applies to the single-day fallback, where the
+    // top decile of a uniform surface is just wherever the sort landed.
+    // Blocks that were worst on every heat event have already passed a
+    // stricter test and do not need it.
+    if(!usePersistent && cmean < median + MARGIN_H) continue;
     const lat=comp.reduce((s,c)=>s+c[1],0)/comp.length;
     const kmPerDegLon=111.32*Math.cos(lat*Math.PI/180);
     out.push({
@@ -714,9 +726,12 @@ function computeHotspots(pct=0.90, minTiles=8){
       members:comp
     });
   }
-  // severity: hours ABOVE the city median, weighted by how much ground it
-  // covers. Absolute hours would rank a whole hot city as one giant site.
-  out.forEach(h=>h.severity=h.excess*Math.sqrt(h.area_km2));
+  // When every site already passed the same persistence test, size is what
+  // separates them: how much ground is reliably bad. Otherwise fall back to
+  // excess hours weighted by area.
+  out.forEach(h=>h.severity=usePersistent
+    ? h.area_km2
+    : h.excess*Math.sqrt(h.area_km2));
   out.sort((a,b)=>b.severity-a.severity);
 
   // Record exact membership only after the final ordering, so the ids in
@@ -725,7 +740,7 @@ function computeHotspots(pct=0.90, minTiles=8){
   // made the sites file and the blocks file disagree.
   SITE_OF=new Map();
   out.forEach((h,i)=>h.members.forEach(c=>SITE_OF.set(c,i+1)));
-  return {cut, median, hotspots:out};
+  return {cut, median, hotspots:out, basis, n_pool:hot.length};
 }
 
 function drawConsistency(){
@@ -759,21 +774,23 @@ function drawConsistency(){
 }
 
 function drawRanking(){
-  const {cut,median,hotspots}=computeHotspots();
+  const {cut,median,hotspots,basis,n_pool}=computeHotspots();
   HOTSPOTS=hotspots;
   const F=c=>useF?(c*9/5+32).toFixed(0)+'°F':c.toFixed(1)+'°C';
-  const all=ranked();
+  const P=basis==='persistent';
 
   document.getElementById('rank').innerHTML=hotspots.slice(0,8).map((h,i)=>
     `<tr data-lon="${h.lon}" data-lat="${h.lat}" data-a="${h.area_km2}">`+
     `<td class="n">${i+1}</td>`+
-    `<td class="h">+${h.excess.toFixed(1)}h</td>`+
-    `<td class="c">${h.mean.toFixed(1)} h total · ${h.area_km2.toFixed(2)} km²`+
-    ` · ${h.n} blocks<br>${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}`+
-    ` · 3am ${F(h.night)}</td></tr>`
+    `<td class="h">${h.area_km2.toFixed(1)}<span style="font-size:10px"> km²</span></td>`+
+    `<td class="c">${h.n.toLocaleString()} blocks · typically `+
+    `${h.mean.toFixed(1)} h above the threshold<br>`+
+    `${h.lat.toFixed(4)}, ${h.lon.toFixed(4)} · 3am ${F(h.night)}</td></tr>`
   ).join('') ||
-    `<tr><td class="c">No area averages ${MARGIN_H} h above the city median `+
-    `of ${median.toFixed(1)} h.</td></tr>`;
+    `<tr><td class="c">No area large enough to list. `+
+    (P?`Persistently bad blocks exist but none form a patch of 8 or more.`
+      :`No area averages ${MARGIN_H} h above the city median of `+
+       `${median.toFixed(1)} h.`)+`</td></tr>`;
 
   document.querySelectorAll('#rank tr').forEach(tr=>{
     if(!tr.dataset.lon) return;
@@ -782,11 +799,18 @@ function drawRanking(){
 
   const tot=hotspots.reduce((s,h)=>s+h.area_km2,0);
   document.getElementById('rankNote').innerHTML=
-    `<b>${hotspots.length}</b> site${hotspots.length===1?'':'s'}, `+
-    `<b>${tot.toFixed(1)} km²</b>. `+
-    `Contiguous areas above <b>${cut.toFixed(1)} h</b> averaging at least `+
-    `${MARGIN_H} h beyond the city median of <b>${median.toFixed(1)} h</b>, `+
-    `ranked by excess hours × area. Click a row to locate it.`;
+    `<b>${hotspots.length}</b> area${hotspots.length===1?'':'s'}, `+
+    `<b>${tot.toFixed(1)} km²</b> in total, largest first. `+
+    (P
+      ? `These are joined-up patches of blocks that were among the worst `+
+        `quarter of the city on <b>every one</b> of the ${CONS.dates.length} `+
+        `hot days measured — ${n_pool.toLocaleString()} blocks in all. `+
+        `Not one bad afternoon.`
+      : `Based on a single day, because this city has no multi-date data yet: `+
+        `joined-up areas above <b>${cut.toFixed(1)} h</b> that also run at `+
+        `least ${MARGIN_H} h beyond the city median of `+
+        `<b>${median.toFixed(1)} h</b>.`)+
+    ` Click a row to fly there.`;
 }
 
 function flyTo(lon,lat,areaKm2){
