@@ -349,13 +349,15 @@
 
     <h2>Hottest areas, for longest</h2>
     <table class="rank" id="rank"></table>
-    <div class="dl">
-      <button id="dlSites">Sites CSV</button>
-      <button id="dlCsv">All blocks CSV</button>
-      <button id="dlGeo">GeoJSON</button>
+    <div id="exportBox">
+      <div class="dl">
+        <button id="dlSites">Sites CSV</button>
+        <button id="dlCsv">All blocks CSV</button>
+        <button id="dlGeo">GeoJSON</button>
+      </div>
+      <button id="genReport" class="report">Generate full report →</button>
+      <button id="openShare" class="share">Email this report →</button>
     </div>
-    <button id="genReport" class="report">Generate full report →</button>
-    <button id="openShare" class="share">Email this report →</button>
     <div class="note" id="rankNote">—</div>
 
     <h2>Does it repeat?</h2>
@@ -1572,9 +1574,10 @@ const TOUR=[
   {el:'#rank', title:'The list you came for', pos:'left',
    body:`Areas that stayed hot longest, on <b>every</b> hot day. Biggest first.`+
         `<br><br>Click one — the map flies there and rings it.`},
-  {el:'#dlSites', title:'Take it with you', pos:'left',
-   body:`Spreadsheet, GeoJSON for mapping software, a printable report, or `+
-        `email it to someone.`},
+  {el:'#exportBox', title:'Take it with you', pos:'left',
+   body:`The areas as a spreadsheet, or GeoJSON for mapping software.<br><br>`+
+        `<b>Generate full report</b> makes something printable, with the maps `+
+        `and the method. <b>Email</b> sends the findings as text.`},
   {el:'#sAlways', title:'Was it just one bad day?', pos:'left',
    body:`Fair question. These blocks were in the city's hottest quarter `+
         `<b>every single time</b>.<br><br>`+
