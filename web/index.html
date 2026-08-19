@@ -348,7 +348,10 @@
     <div class="note" id="scNote">—</div>
 
     <h2>Hottest areas, for longest</h2>
-    <table class="rank" id="rank"></table>
+    <div id="rankBox">
+      <table class="rank" id="rank"></table>
+      <div class="note" id="rankNote">—</div>
+    </div>
     <div id="exportBox">
       <div class="dl">
         <button id="dlSites">Sites CSV</button>
@@ -358,12 +361,13 @@
       <button id="genReport" class="report">Generate full report →</button>
       <button id="openShare" class="share">Email this report →</button>
     </div>
-    <div class="note" id="rankNote">—</div>
 
     <h2>Does it repeat?</h2>
-    <div class="stat"><b id="sAlways">—</b><span id="sAlwaysL">—</span></div>
-    <div class="stat"><b id="sChance">—</b><span>times what chance alone would produce</span></div>
-    <div class="note" id="consNote">—</div>
+    <div id="repeatBox">
+      <div class="stat"><b id="sAlways">—</b><span id="sAlwaysL">—</span></div>
+      <div class="stat"><b id="sChance">—</b><span>times what chance alone would produce</span></div>
+      <div class="note" id="consNote">—</div>
+    </div>
 
     <h2>All three cities</h2>
     <table class="cmp" id="cmp"></table>
@@ -1571,14 +1575,14 @@ const TOUR=[
    body:`Both the same temperature at 3pm.<br><br>`+
         `One stayed dangerous for hours longer than the other. A temperature `+
         `map can't tell them apart.`},
-  {el:'#rank', title:'The list you came for', pos:'left',
+  {el:'#rankBox', title:'The list you came for', pos:'left',
    body:`Areas that stayed hot longest, on <b>every</b> hot day. Biggest first.`+
         `<br><br>Click one — the map flies there and rings it.`},
   {el:'#exportBox', title:'Take it with you', pos:'left',
    body:`The areas as a spreadsheet, or GeoJSON for mapping software.<br><br>`+
         `<b>Generate full report</b> makes something printable, with the maps `+
         `and the method. <b>Email</b> sends the findings as text.`},
-  {el:'#sAlways', title:'Was it just one bad day?', pos:'left',
+  {el:'#repeatBox', title:'Was it just one bad day?', pos:'left',
    body:`Fair question. These blocks were in the city's hottest quarter `+
         `<b>every single time</b>.<br><br>`+
         `Houston: 65× more than chance would give you. Phoenix: only 2.4× — `+
