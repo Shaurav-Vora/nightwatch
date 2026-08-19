@@ -109,6 +109,51 @@
   .tiprow i{font-style:normal;color:var(--ink);font-variant-numeric:tabular-nums}
   .tiprow.hi i{color:var(--accent);font-weight:700}
 
+  /* --- guided tour -------------------------------------------------- */
+  #tourWrap{position:fixed;inset:0;z-index:60;display:none}
+  #tourWrap.on{display:block}
+  /* four panels rather than one dark sheet with a hole, so the highlighted
+     element stays fully interactive and crisp */
+  /* Only used on the opening slide, which highlights nothing. On every
+     other step the ring's huge outward box-shadow does the dimming and
+     leaves the spotlit element at full brightness — a full-screen dim on
+     top of that was washing out the very thing being pointed at. */
+  #tourDim{position:absolute;inset:0;background:#04070cd6;display:none}
+  #tourDim.on{display:block}
+  #tourRing{position:absolute;border:3px solid #ff8c2e;border-radius:9px;
+    box-shadow:0 0 0 9999px #04070cd6, 0 0 0 1px #ffb066,
+               0 0 28px 6px #f9731688;
+    transition:all .28s ease;pointer-events:none}
+  #tourCard{position:absolute;width:330px;background:#0d131c;
+    border:1px solid #2b3849;border-radius:10px;padding:16px 18px 14px;
+    box-shadow:0 18px 50px #000a;transition:all .28s ease}
+  .tc-step{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--accent);font-weight:700}
+  .tc-title{font-size:16.5px;font-weight:700;margin:5px 0 7px;line-height:1.3}
+  .tc-body{font-size:13.5px;line-height:1.6;color:#b9c3d1}
+  .tc-body b{color:#fff}
+  .tc-foot{display:flex;align-items:center;gap:8px;margin-top:15px}
+  .tc-sp{flex:1}
+  #tourCard button{width:auto;margin:0;padding:8px 15px;font-size:13px;
+    border-radius:6px;background:#131c28;border:1px solid #2b3849;color:var(--ink)}
+  #tourCard button:hover{border-color:#3d4d63}
+  #tourCard button.tc-primary{background:var(--accent);border-color:var(--accent);
+    color:#170a02;font-weight:700}
+  #tourCard button.tc-skip{background:none;border:none;color:var(--muted);
+    padding-left:0}
+  #tourCard button.tc-skip:hover{color:var(--ink)}
+  /* mirrors the date stamp on the opposite corner, so it reads as part of
+     the map furniture rather than a stray icon in the title */
+  #tourBtn{position:absolute;top:14px;right:14px;z-index:5;width:auto;margin:0;
+    background:#070b11e8;border:1px solid #2b3849;color:var(--ink);
+    padding:9px 15px;border-radius:7px;font-size:13px;font-weight:600;
+    cursor:pointer}
+  #tourBtn:hover{border-color:var(--accent);color:#fdba74}
+  #tourBtn::before{content:'?';display:inline-block;width:16px;height:16px;
+    line-height:16px;text-align:center;border-radius:50%;background:var(--accent);
+    color:#170a02;font-size:11px;font-weight:800;margin-right:8px;
+    vertical-align:-2px}
+
   #loading{position:absolute;inset:0;display:flex;align-items:center;
     justify-content:center;color:var(--muted);background:var(--bg);z-index:10}
   .note{color:var(--muted);font-size:11.5px;line-height:1.5;margin-top:9px}
@@ -195,6 +240,7 @@
       <div class="s2" id="stampWhen">—</div>
       <div class="s3" id="stampWhat">—</div>
     </div>
+    <button id="tourBtn">How to read this map</button>
     <div id="key">
       <div class="kt" id="keyTitle">—</div>
       <div class="kb" id="keyBar"></div>
@@ -237,6 +283,22 @@
     </div>
   </div></div>
 
+  <div id="tourWrap">
+    <div id="tourDim"></div>
+    <div id="tourRing"></div>
+    <div id="tourCard">
+      <div class="tc-step" id="tcStep">—</div>
+      <div class="tc-title" id="tcTitle">—</div>
+      <div class="tc-body" id="tcBody">—</div>
+      <div class="tc-foot">
+        <button id="tcSkip" class="tc-skip">Skip</button>
+        <span class="tc-sp"></span>
+        <button id="tcPrev">Back</button>
+        <button id="tcNext" class="tc-primary">Next</button>
+      </div>
+    </div>
+  </div>
+
   <div id="left">
     <h1>NIGHTWATCH</h1>
     <div class="sub" id="subtitle">—</div>
@@ -261,11 +323,13 @@
     <div id="layerBtns"></div>
 
     <h2>Filter</h2>
-    <label class="row"><span id="thLabel">—</span><span id="thVal">—</span></label>
-    <input id="th" type="range" min="0" max="100" value="100">
-    <div class="note" id="thCount">—</div>
-    <label class="chk"><input type="checkbox" id="water"> show water tiles</label>
-    <label class="chk"><input type="checkbox" id="fahrenheit" checked> Fahrenheit</label>
+    <div id="filterBox">
+      <label class="row"><span id="thLabel">—</span><span id="thVal">—</span></label>
+      <input id="th" type="range" min="0" max="100" value="100">
+      <div class="note" id="thCount">—</div>
+      <label class="chk"><input type="checkbox" id="water"> show water tiles</label>
+      <label class="chk"><input type="checkbox" id="fahrenheit" checked> Fahrenheit</label>
+    </div>
 
     <h2>Scale</h2>
     <div id="legend"></div>
@@ -321,11 +385,12 @@ const LAYERS = {
   // a temperature DROP for a temperature. `filter` completes "show blocks
   // that ___".
   persistent:{i:6, unit:'pct', rel:false,
-            title:'Always worst', sub:'how often this block is among the worst',
+            title:'Hottest every time',
+            sub:'how many hot days it was in the city’s hottest quarter',
             noun:'of the hot days we checked',
             filter:'were bad on fewer days than'},
   exposure:{i:2, unit:'h', rel:true,
-            title:'Exposure', sub:'hours spent dangerously hot',
+            title:'Hours dangerously hot', sub:'on one single day',
             noun:'above the danger temperature',
             filter:'were hot for less than'},
   day:     {i:3, unit:'deg', rel:false,
@@ -469,7 +534,7 @@ function render(){
   document.getElementById('legHi').textContent=say(hi);
   document.getElementById('thVal').textContent=say(cut);
   document.getElementById('thLabel').textContent=
-    thPct>=100 ? 'showing every block' : `showing the worst ${thPct}%`;
+    thPct>=100 ? 'showing every block' : `showing the hottest ${thPct}%`;
 
   // Say what the number IS, every time. Without the noun, "6.3°C" on the
   // cooling layer reads as a temperature when it is a temperature DROP.
@@ -538,7 +603,7 @@ function drawStamp(cfg){
       cooling:`How far the temperature fell between 3pm and 3am.`
     };
     what.innerHTML=(bits[layerName]||'')+
-      `<br>One day only — switch to <b>Always worst</b> for several.`;
+      `<br>One day only — switch to <b>Hottest every time</b> for several.`;
   }
 }
 
@@ -815,7 +880,7 @@ function drawConsistency(){
   const ratio=CONS.n_always/Math.max(CONS.expected_by_chance,1e-9);
   a.textContent=CONS.n_always.toLocaleString();
   a.style.color = ratio>=8 ? '#f97316' : ratio>=3 ? '#fbbf24' : '#8792a5';
-  l.innerHTML=`blocks in the worst quartile on <b>all ${CONS.dates.length}</b> `+
+  l.innerHTML=`blocks in the city’s hottest quarter on <b>all ${CONS.dates.length}</b> `+
     `heat events measured`;
   ch.textContent=ratio.toFixed(1)+'×';
   ch.style.color=a.style.color;
@@ -825,7 +890,7 @@ function drawConsistency(){
     `Blocks are ranked <b>within</b> each date, so the absolute threshold `+
     `cancels out and a hot day counts the same as a mild one. `+
     (ratio>=8
-      ? `A persistent core this far above chance means the worst blocks are `+
+      ? `A core this far above chance means these blocks are `+
         `a property of the built environment, not of one day's weather.`
       : ratio>=3
       ? `Above chance, but most of the ranking turns over between dates.`
@@ -879,7 +944,7 @@ function drawRanking(){
     `<b>${hotspots.length}</b> area${hotspots.length===1?'':'s'}, `+
     `<b>${tot.toFixed(1)} km²</b> in total, largest first. `+
     (P
-      ? `These are joined-up patches of blocks that were among the worst `+
+      ? `These are joined-up patches of blocks that were among the hottest `+
         `quarter of the city on <b>every one</b> of the ${CONS.dates.length} `+
         `hot days measured — ${n_pool.toLocaleString()} blocks in all. `+
         `Not one bad afternoon.`
@@ -1204,7 +1269,7 @@ averaging at least 1 h beyond it.</p>
 <h2>Ranked sites</h2>
 <table><tr><th></th><th>above median</th><th>mean</th><th>peak</th>
 <th>km²</th><th>blocks</th><th>centroid</th></tr>${rows}</table>
-<p class="cap">Contiguous areas in the worst 10% for exposure that also average
+<p class="cap">Contiguous areas in the hottest 10% for exposure that also average
 at least 1 h above the city median, ranked by excess hours × area.</p>
 
 ${CONS?`<h2>Does it repeat, or was it one bad day?</h2>
@@ -1214,14 +1279,14 @@ of the city on <b>all ${CONS.dates.length}</b> heat events measured
 (${CONS.dates.join(', ')}).
 Chance alone would produce about ${CONS.expected_by_chance}, so this is
 <b>${(CONS.n_always/Math.max(CONS.expected_by_chance,1e-9)).toFixed(1)}×</b>
-what you would expect if the worst blocks moved around at random.
+what you would expect if the hottest blocks moved around at random.
 </div>
 <p class="cap">Blocks are ranked <em>within</em> each date, so a hot day and a
 mild one count equally and the absolute threshold cancels out.
 ${(CONS.dates_excluded||[]).length?`Dates excluded: `+
   CONS.dates_excluded.map(d=>`${d[0]} (${d[1]})`).join(', ')+`. `:''}
 ${CONS.n_always/Math.max(CONS.expected_by_chance,1e-9) >= 8
-  ? `A core this far above chance means the worst blocks are a property of
+  ? `A core this far above chance means these blocks are a property of
      the built environment rather than of one day's weather, which is what
      makes the site list below worth acting on.`
   : CONS.n_always/Math.max(CONS.expected_by_chance,1e-9) >= 3
@@ -1311,7 +1376,7 @@ function buildBody(){
 
   if($('incSites').checked && HOTSPOTS.length){
     L.push('');
-    L.push(`WORST SITES (hours above ${DATA.threshold_c}°C, `+
+    L.push(`AREAS THAT STAY HOT LONGEST (hours above ${DATA.threshold_c}°C, `+
            `vs a city median of ${medianHours().toFixed(1)} h)`);
     HOTSPOTS.slice(0,8).forEach((h,i)=>{
       L.push(` ${i+1}. +${h.excess.toFixed(1)} h above median  ·  `+
@@ -1330,7 +1395,7 @@ function buildBody(){
     L.push(`Temperatures are 3pm and 3am local time, verified local rather `+
            `than UTC by sweeping all 24 hours and locating the pre-dawn `+
            `minimum.`);
-    L.push(`Sites are contiguous areas in the worst 10% that also average `+
+    L.push(`Sites are contiguous areas in the hottest 10% that also average `+
            `at least 1 h above the city median; single tiles are not `+
            `ranked, because neighbouring tiles are near-identical.`);
     L.push(`Caveat: this is a modelled temperature field on one day, not `+
@@ -1458,6 +1523,8 @@ function loadCity(name){
     VIEW=centreOn(d);
     buildCityButtons(); buildLayerButtons(); fillPanels();
     render();
+    // only on the first city load, not when switching cities
+    if(!window.__toured){ window.__toured=true; setTimeout(tourOpen,450); }
   }).catch(e=>{
     document.getElementById('loading').textContent=
       'could not load data/'+name+'.json — run: python export_cities.py';
@@ -1469,6 +1536,111 @@ document.getElementById('th').oninput=e=>{thPct=+e.target.value;render();};
 document.getElementById('water').onchange=e=>{showWater=e.target.checked;render();};
 document.getElementById('fahrenheit').onchange=e=>{
   useF=e.target.checked; render(); drawTwins(); drawScatter();};
+
+// =====================================================================
+// GUIDED TOUR
+// Runs on every load, as asked — a judge arriving cold gets the
+// explanation without having to look for it, and Skip closes it in one
+// click for anyone who already understands. The ? beside the title
+// replays it at any point.
+// =====================================================================
+const TOUR=[
+  {el:null, title:'One minute, and this will all make sense',
+   body:`Heat maps show temperature. Across a whole city that's often under `+
+        `two degrees — nothing you'd act on.<br><br>`+
+        `This map shows <b>how many hours each block stays dangerously hot</b>. `+
+        `That varies by nine.`},
+  {el:'#stamp', title:'Start here', pos:'right',
+   body:`The city, and which day the colours come from.<br><br>`+
+        `Most views show one afternoon. The first one covers several hot days.`},
+  {el:'#layerBtns', title:'Five views of the same blocks', pos:'right',
+   body:`The top one counts how many hot days each block spent in the city's `+
+        `hottest quarter.<br><br>`+
+        `The rest show a single day. Try <b>Afternoon heat</b> — that's the map `+
+        `cities use today.`},
+  {el:'#key', title:'Red is bad. Always.', pos:'right',
+   body:`The line above the bar tells you what's being measured — it changes `+
+        `with the view.<br><br>Hover any block on the map for its numbers.`},
+  {el:'#filterBox', title:'Too much red? Drag this left.', pos:'right',
+   body:`It hides everything except the hardest-hit blocks. Top 20%, then top `+
+        `5%.`},
+  {el:'#twins', title:'Two real blocks', pos:'left',
+   body:`Both the same temperature at 3pm.<br><br>`+
+        `One stayed dangerous for hours longer than the other. A temperature `+
+        `map can't tell them apart.`},
+  {el:'#rank', title:'The list you came for', pos:'left',
+   body:`Areas that stayed hot longest, on <b>every</b> hot day. Biggest first.`+
+        `<br><br>Click one — the map flies there and rings it.`},
+  {el:'#dlSites', title:'Take it with you', pos:'left',
+   body:`Spreadsheet, GeoJSON for mapping software, a printable report, or `+
+        `email it to someone.`},
+  {el:'#sAlways', title:'Was it just one bad day?', pos:'left',
+   body:`Fair question. These blocks were in the city's hottest quarter `+
+        `<b>every single time</b>.<br><br>`+
+        `Houston: 65× more than chance would give you. Phoenix: only 2.4× — `+
+        `and we say so.`},
+];
+let TI=0;
+
+function tourAt(i){
+  TI=Math.max(0,Math.min(TOUR.length-1,i));
+  const s=TOUR[TI];
+  document.getElementById('tcStep').textContent=`Step ${TI+1} of ${TOUR.length}`;
+  document.getElementById('tcTitle').textContent=s.title;
+  document.getElementById('tcBody').innerHTML=s.body;
+  document.getElementById('tcPrev').style.visibility=TI?'visible':'hidden';
+  document.getElementById('tcNext').textContent=
+    TI===TOUR.length-1?'Done':'Next';
+
+  const ring=document.getElementById('tourRing');
+  const card=document.getElementById('tourCard');
+  const el=s.el?document.querySelector(s.el):null;
+
+  const dim=document.getElementById('tourDim');
+  if(!el){                      // opening slide: dim everything, no ring
+    ring.style.opacity='0';
+    dim.classList.add('on');
+    card.style.left='50%'; card.style.top='50%';
+    card.style.transform='translate(-50%,-50%)'; card.style.width='400px';
+    return;
+  }
+  dim.classList.remove('on');   // let the ring's shadow do the dimming
+  el.scrollIntoView({block:'center',behavior:'smooth'});
+  // measure after the scroll settles, or the ring lands where it used to be
+  setTimeout(()=>{
+    const r=el.getBoundingClientRect(), pad=7;
+    ring.style.opacity='1';
+    ring.style.left=(r.left-pad)+'px';  ring.style.top=(r.top-pad)+'px';
+    ring.style.width=(r.width+pad*2)+'px';
+    ring.style.height=(r.height+pad*2)+'px';
+
+    card.style.transform='none'; card.style.width='330px';
+    const gap=18, cw=330, ch=card.offsetHeight||190;
+    let left = s.pos==='left' ? r.left-cw-gap : r.right+gap;
+    if(left<12) left=r.right+gap;
+    if(left+cw>innerWidth-12) left=Math.max(12,r.left-cw-gap);
+    card.style.left=left+'px';
+    card.style.top=Math.max(12,Math.min(innerHeight-ch-12,
+                    r.top+r.height/2-ch/2))+'px';
+  },260);
+}
+const tourOpen=()=>{document.getElementById('tourWrap').classList.add('on');tourAt(0);};
+const tourClose=()=>document.getElementById('tourWrap').classList.remove('on');
+
+document.getElementById('tcNext').onclick=()=>
+  TI===TOUR.length-1?tourClose():tourAt(TI+1);
+document.getElementById('tcPrev').onclick=()=>tourAt(TI-1);
+document.getElementById('tcSkip').onclick=tourClose;
+document.getElementById('tourBtn').onclick=tourOpen;
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('tourWrap').classList.contains('on')) return;
+  if(e.key==='Escape') tourClose();
+  if(e.key==='ArrowRight') TI===TOUR.length-1?tourClose():tourAt(TI+1);
+  if(e.key==='ArrowLeft') tourAt(TI-1);
+});
+addEventListener('resize',()=>{
+  if(document.getElementById('tourWrap').classList.contains('on')) tourAt(TI);
+});
 
 fetch('data/cities.json').then(r=>r.json()).then(idx=>{
   INDEX=idx;

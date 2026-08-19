@@ -1,8 +1,193 @@
-<!DOCTYPE html><html><head><meta charset="utf-8">
-<title>NIGHTWATCH</title>
-<meta http-equiv="refresh" content="0; url=web/">
-<link rel="canonical" href="web/">
-</head><body style="background:#0a0e14;color:#8792a5;font-family:system-ui;
-padding:40px">
-Redirecting to <a href="web/" style="color:#f97316">the map</a>…
-</body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NIGHTWATCH — heat maps measure the wrong thing</title>
+<meta name="description" content="Cities pick where to cool using maps of how hot it gets. That barely varies. How long it stays dangerous varies by hours — and the same neighbourhoods lose every time.">
+<style>
+  :root{--bg:#0a0e14;--panel:#111721;--line:#1e2836;--ink:#e6eaf0;
+        --muted:#8792a5;--accent:#f97316;--cool:#38bdf8}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.65 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:0 26px}
+  section{padding:70px 0;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:none}
+
+  h1{font-size:clamp(38px,7vw,62px);letter-spacing:.13em;margin:0;font-weight:800}
+  .tag{color:var(--muted);font-size:clamp(15px,2.2vw,19px);margin:10px 0 0;
+    letter-spacing:.02em}
+  h2{font-size:clamp(23px,3.4vw,31px);margin:0 0 18px;line-height:1.25;
+    font-weight:700}
+  h3{font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 12px;font-weight:600}
+  p{margin:0 0 16px;color:#cdd5e0}
+  p.lead{font-size:19px;line-height:1.6}
+  b{color:#fff}
+
+  header{padding:86px 0 60px;border-bottom:1px solid var(--line)}
+  .cta{display:inline-flex;align-items:center;gap:10px;margin-top:34px;
+    background:var(--accent);color:#170a02;text-decoration:none;font-weight:700;
+    padding:15px 28px;border-radius:8px;font-size:17px;
+    box-shadow:0 6px 26px #f9731633}
+  .cta:hover{background:#fb923c}
+  .cta.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);
+    box-shadow:none;font-weight:600;font-size:15px;padding:13px 22px}
+  .cta.ghost:hover{border-color:#37455a}
+  .ctas{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:26px 0 8px}
+  @media(max-width:720px){.two{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+    padding:20px 22px}
+  .card .n{font-size:40px;font-weight:800;line-height:1.05;letter-spacing:-.02em}
+  .card .u{font-size:13px;color:var(--muted);margin-top:2px}
+  .card .d{font-size:13.5px;color:#aab4c2;margin-top:12px;line-height:1.55}
+  .card.cool{border-color:#1e3a5f}   .card.cool .n{color:var(--cool)}
+  .card.hot {border-color:#7c2d12}   .card.hot  .n{color:var(--accent)}
+
+  .quote{border-left:3px solid var(--accent);background:#1a1207;
+    padding:20px 24px;border-radius:0 8px 8px 0;font-size:19px;line-height:1.55;
+    color:#fed7aa;margin:26px 0}
+  .quote b{color:var(--accent)}
+
+  table{width:100%;border-collapse:collapse;margin:22px 0 10px;font-size:14.5px}
+  th{text-align:left;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);border-bottom:1.5px solid var(--line);padding:9px 10px;
+    font-weight:600}
+  td{padding:11px 10px;border-bottom:1px solid #182130}
+  td.num{font-variant-numeric:tabular-nums;text-align:right}
+  tr.hi td{background:#16110a}
+  .ok{color:var(--accent);font-weight:700}
+  .meh{color:var(--muted)}
+
+  ul{margin:0;padding-left:20px;color:#cdd5e0}
+  li{margin-bottom:11px}
+  li b{color:#fff}
+  .foot{padding:44px 0 70px;color:var(--muted);font-size:13px}
+  .foot a{color:var(--cool)}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:13px;color:#c99a6a}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <h1>NIGHTWATCH</h1>
+  <p class="tag">Heat maps measure the wrong thing.</p>
+  <p class="lead" style="margin-top:26px;max-width:640px">
+    Cities decide where to plant trees and open cooling centres using maps of
+    <b>how hot</b> it gets. Across a whole city that barely changes.
+    <b>How long</b> it stays dangerous changes enormously — and the same
+    neighbourhoods lose every time.</p>
+  <div class="ctas">
+    <a class="cta" href="web/">Open the map →</a>
+    <a class="cta ghost" href="#finding">See the evidence first</a>
+  </div>
+</div></header>
+
+<section id="finding"><div class="wrap">
+  <h3>The problem</h3>
+  <h2>A whole city fits inside two degrees. Nobody acts on two degrees.</h2>
+  <p>We measured every 100-metre block across 21 square miles of Phoenix on a
+     hot July afternoon. From the coolest block to the hottest, the entire
+     spread was <b>1.8&thinsp;°C</b>. Look at that map and nothing demands
+     attention.</p>
+  <p>Then we asked the same blocks a different question: <b>how many hours in a
+     row do you spend above the danger threshold?</b></p>
+
+  <div class="two">
+    <div class="card cool">
+      <div class="n">1.8°C</div><div class="u">temperature range, whole city</div>
+      <div class="d">What a conventional heat map shows. Almost flat, so
+        nothing stands out and no block looks urgent.</div>
+    </div>
+    <div class="card hot">
+      <div class="n">9.1 hours</div><div class="u">exposure range, same blocks</div>
+      <div class="d">The same data, asked differently. Some blocks endure nine
+        more hours of dangerous heat than others on the same day.</div>
+    </div>
+  </div>
+
+  <div class="quote">
+    Two blocks in Phoenix both read <b>99.7&thinsp;°F</b> at 3pm.
+    One spends <b>6.1 hours</b> above 35&thinsp;°C. The other spends
+    <b>11.2</b>. Five hours apart, identical on a temperature map.
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h3>The obvious objection</h3>
+  <h2>“That’s just one bad afternoon.”</h2>
+  <p>It was the first thing we tested. We re-ran the whole measurement across
+     five separate heat events between 2022 and 2025, then counted how often
+     each block landed in the worst quarter of its city.</p>
+  <p>If the worst blocks moved around with the weather, almost none would
+     appear every time. Some cities behave that way. Others don’t.</p>
+
+  <table>
+    <tr><th>City</th><th class="num">Blocks worst <em>every</em> time</th>
+        <th class="num">Expected by chance</th><th class="num">Ratio</th></tr>
+    <tr class="hi"><td>Houston</td><td class="num">1,408</td>
+        <td class="num">22</td><td class="num ok">64.6×</td></tr>
+    <tr><td>Chicago</td><td class="num">1,298</td>
+        <td class="num">128</td><td class="num ok">10.2×</td></tr>
+    <tr><td>Phoenix</td><td class="num">817</td>
+        <td class="num">335</td><td class="num meh">2.4×</td></tr>
+  </table>
+  <p style="font-size:14px;color:var(--muted)">In Houston and Chicago the same
+     ground loses every time — that is a property of the built environment, not
+     of the weather. In Phoenix it is far weaker, and the site list there should
+     not be treated as fixed. We report all three.</p>
+</div></section>
+
+<section><div class="wrap">
+  <h3>What we got wrong</h3>
+  <h2>The idea we started with turned out to be false.</h2>
+  <p>The original plan was to show that the hottest block at 3pm is not the most
+     dangerous block at 3am. Chicago agreed emphatically — a correlation of
+     <b>−0.73</b>.</p>
+  <p>It was Lake Michigan. Exclude everything within 3&thinsp;km of water and it
+     flips to <b>+0.13</b>. Test two cities with no lake and it disappears
+     entirely: Houston came back at <b>+0.84</b>, meaning afternoon heat
+     predicts night heat almost perfectly.</p>
+  <p>So we abandoned it and kept looking. The finding above is what survived
+     three progressively stricter tests. The failed one is still in the commit
+     history, because a result nobody tried to break isn’t worth much.</p>
+</div></section>
+
+<section><div class="wrap">
+  <h3>How it works</h3>
+  <h2>Built on FortyGuard’s temperature API.</h2>
+  <ul>
+    <li><b>Exposure</b> comes from <code>analytic_type: persistence</code> — the
+      longest <em>unbroken</em> run of hours above a danger threshold, not a
+      scattered total. Eight consecutive dangerous hours is an event; eight
+      scattered ones are not.</li>
+    <li><b>Temperatures</b> are two <code>tcm</code> calls at 3pm and 3am local
+      time. We established the API speaks local rather than UTC by sweeping all
+      24 hours and finding the pre-dawn minimum — the documentation says
+      otherwise.</li>
+    <li><b>Thresholds</b> are set per city, between its own measured afternoon
+      and pre-dawn means, so a mild city and an extreme one are both
+      measurable.</li>
+    <li><b>Sites</b> are joined-up patches of blocks that were worst on every
+      heat event, exportable as CSV and GeoJSON for a planning department.</li>
+  </ul>
+</div></section>
+
+<section><div class="wrap">
+  <h2 style="margin-bottom:10px">See it for yourself.</h2>
+  <p>Three cities, five map layers, and a guided tour that explains every panel.</p>
+  <div class="ctas"><a class="cta" href="web/">Open the map →</a></div>
+</div></section>
+
+<div class="wrap foot">
+  NIGHTWATCH · FortyGuard Hackathon&rsquo;26 · data from the FortyGuard API ·
+  basemap © CARTO, © OpenStreetMap contributors ·
+  <a href="https://github.com/shaurav-vora/nightwatch">source on GitHub</a>
+</div>
+
+</body>
+</html>
