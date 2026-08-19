@@ -82,6 +82,16 @@
   table.cmp tr.sel td{color:#fdba74}
   table.cmp tr.sel td:first-child{color:var(--accent)}
 
+  /* What day is this? sits ON the map, because that is what it describes.
+     It was previously 11px grey text in a column of 11px grey text. */
+  #stamp{position:absolute;top:14px;left:14px;z-index:4;pointer-events:none;
+    background:#070b11e8;border:1px solid #263243;border-left:3px solid var(--accent);
+    border-radius:6px;padding:11px 15px;max-width:min(420px,60%)}
+  #stamp .s1{font-size:17px;font-weight:700;letter-spacing:.03em;line-height:1.2}
+  #stamp .s2{font-size:15px;color:var(--accent);font-weight:600;margin-top:3px}
+  #stamp .s3{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.45}
+  @media(max-width:1180px){#stamp{max-width:calc(100% - 28px)}}
+
   #tip{position:absolute;pointer-events:none;background:#0b1017f2;
     border:1px solid var(--line);border-radius:6px;padding:9px 11px;
     font-size:12px;display:none;z-index:5;min-width:170px}
@@ -168,7 +178,14 @@
 </head>
 <body>
 <div id="app">
-  <div id="map"><div id="loading">loading…</div><div id="tip"></div></div>
+  <div id="map">
+    <div id="stamp">
+      <div class="s1" id="stampCity">—</div>
+      <div class="s2" id="stampWhen">—</div>
+      <div class="s3" id="stampWhat">—</div>
+    </div>
+    <div id="loading">loading…</div><div id="tip"></div>
+  </div>
   <div id="shareBg"><div id="shareBox">
     <div class="sh-hd">Email this report
       <button id="shClose" class="x">✕</button></div>
@@ -427,11 +444,43 @@ function render(){
     `Colours run from <b>${say(lo)}</b> to <b>${say(hi)}</b> `+
     `${cfg.noun||''}, across ${v.length.toLocaleString()} blocks.`;
 
+  drawStamp(cfg);
+
   const nv=DATA.cells.filter(c=>vis(c)&&keeps(val(c,layerName))).length;
   document.getElementById('thCount').innerHTML=
     `<b>${nv.toLocaleString()}</b> of ${v.length.toLocaleString()} blocks, `+
     `those ${cfg.flip?'at or below':'at or above'} <b>${say(cut)}</b>.`;
 }
+// The date changes meaning with the layer: four layers show one day, and
+// "Always worst" spans several. Saying it on the map removes the guess.
+const longDate=d=>new Date(d+'T12:00:00')
+  .toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+function drawStamp(cfg){
+  const s=CITY;
+  document.getElementById('stampCity').textContent=(s.short||s.city).toUpperCase();
+  const when=document.getElementById('stampWhen');
+  const what=document.getElementById('stampWhat');
+  const thr=useF ? `${(DATA.threshold_c*9/5+32).toFixed(0)}°F`
+                 : `${DATA.threshold_c}°C`;
+
+  if(layerName==='persistent' && CONS){
+    when.textContent=`${CONS.dates.length} separate hot days`;
+    what.innerHTML=`${CONS.dates.map(longDate).map(d=>d.split(', ')[1]).join(' · ')}`+
+      `<br>How often each block was among the worst quarter of the city.`;
+  } else {
+    when.textContent=longDate(s.date);
+    const bits={
+      exposure:`Hours spent above ${thr} on this one day.`,
+      day:`Temperature at 3pm on this one day.`,
+      night:`Temperature at 3am on this one day.`,
+      cooling:`How far the temperature fell between 3pm and 3am.`
+    };
+    what.innerHTML=(bits[layerName]||'')+
+      `<br>One day only — switch to <b>Always worst</b> for several.`;
+  }
+}
+
 function _unusedConv0(span){
   const L=LAYERS[layerName];
   if(L.unit==='h') return span.toFixed(1);
@@ -480,18 +529,9 @@ function fillPanels(){
     `Same blocks, same day. One of those looks uniform. `+
     `The other is a public-health problem.`;
 
-  // Be explicit about which day is on screen. Four of the five layers show
-  // a single date; only "Always worst" spans several, and a reader who
-  // assumes the map is an average would draw the wrong conclusion.
-  const nd=document.getElementById('dateNote');
-  const nDates=CONS?CONS.dates.length:0;
-  nd.innerHTML=
-    `The map shows <b>${new Date(s.date+'T12:00:00').toLocaleDateString(
-      'en-GB',{day:'numeric',month:'long',year:'numeric'})}</b>, `+
-    `one hot day. Each square is a ${s.granularity_m||100} m block. `+
-    (nDates?`Only the <b>Always worst</b> layer spans several — `+
-            `${nDates} separate heat events.`
-           :`Multi-date data has not been generated for this city.`);
+  // The date lives on the map now (see drawStamp), not buried here.
+  document.getElementById('dateNote').textContent=
+    `Each square is a ${s.granularity_m||100} m block — roughly one city block.`;
 
   const t=document.getElementById('cmp');
   t.innerHTML='<tr><th>city</th><th>°C span</th><th>hours span</th><th>R²</th></tr>'+
