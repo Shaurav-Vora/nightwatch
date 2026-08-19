@@ -92,6 +92,16 @@
   #stamp .s3{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.45}
   @media(max-width:1180px){#stamp{max-width:calc(100% - 28px)}}
 
+  /* colour key belongs beside the colours, not in the far rail */
+  #key{position:absolute;left:14px;bottom:16px;z-index:4;pointer-events:none;
+    background:#070b11e8;border:1px solid #263243;border-radius:6px;
+    padding:9px 12px 8px;width:236px}
+  #key .kt{font-size:11px;color:var(--ink);margin-bottom:6px;line-height:1.35}
+  #key .kb{display:flex;height:10px;border-radius:3px;overflow:hidden}
+  #key .kb div{flex:1}
+  #key .kl{display:flex;justify-content:space-between;color:var(--muted);
+    font-size:10.5px;margin-top:4px}
+
   #tip{position:absolute;pointer-events:none;background:#0b1017f2;
     border:1px solid var(--line);border-radius:6px;padding:9px 11px;
     font-size:12px;display:none;z-index:5;min-width:170px}
@@ -185,6 +195,11 @@
       <div class="s2" id="stampWhen">—</div>
       <div class="s3" id="stampWhat">—</div>
     </div>
+    <div id="key">
+      <div class="kt" id="keyTitle">—</div>
+      <div class="kb" id="keyBar"></div>
+      <div class="kl"><span id="keyLo">—</span><span id="keyHi">—</span></div>
+    </div>
     <div id="loading">loading…</div><div id="tip"></div>
   </div>
   <div id="shareBg"><div id="shareBox">
@@ -268,7 +283,7 @@
     <div class="legrow"><span id="scX0">—</span><span id="scX1">—</span></div>
     <div class="note" id="scNote">—</div>
 
-    <h2>Worst blocks</h2>
+    <h2>Hottest areas, for longest</h2>
     <table class="rank" id="rank"></table>
     <div class="dl">
       <button id="dlSites">Sites CSV</button>
@@ -464,6 +479,18 @@ function render(){
 
   drawStamp(cfg);
 
+  // colour key, mirroring the legend in the rail but sitting on the map
+  const kb=document.getElementById('keyBar'); kb.innerHTML='';
+  for(let i=0;i<26;i++){
+    const c=ramp(cfg.flip?1-i/25:i/25);
+    const d=document.createElement('div');
+    d.style.background=`rgb(${c[0]|0},${c[1]|0},${c[2]|0})`; kb.appendChild(d);
+  }
+  document.getElementById('keyTitle').textContent=cfg.noun
+    ? cfg.noun.charAt(0).toUpperCase()+cfg.noun.slice(1) : cfg.title;
+  document.getElementById('keyLo').textContent=say(lo);
+  document.getElementById('keyHi').textContent=say(hi);
+
   const nv=DATA.cells.filter(c=>vis(c)&&keeps(val(c,layerName))).length;
   document.getElementById('thCount').innerHTML=
     `<b>${nv.toLocaleString()}</b> of ${v.length.toLocaleString()} blocks, `+
@@ -474,6 +501,17 @@ function render(){
 const longDate=d=>new Date(d+'T12:00:00')
   .toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
+// "too cool, too cool to rank" reads like a stutter. Group the reasons and
+// count them instead of listing one per date.
+function excludedWhy(list){
+  const n={};
+  list.forEach(d=>{n[d[1]]=(n[d[1]]||0)+1;});
+  const word={'too cool':'not hot enough to measure',
+              'saturated':'so hot that nothing could be ranked'};
+  return Object.entries(n).map(([k,c])=>
+    (c>1?`${c} `:'')+(word[k]||k)).join(', and ');
+}
+
 function drawStamp(cfg){
   const s=CITY;
   document.getElementById('stampCity').textContent=(s.short||s.city).toUpperCase();
@@ -483,9 +521,14 @@ function drawStamp(cfg){
                  : `${DATA.threshold_c}°C`;
 
   if(layerName==='persistent' && CONS){
+    const ex=(CONS.dates_excluded||[]).length;
     when.textContent=`${CONS.dates.length} separate hot days`;
     what.innerHTML=`${CONS.dates.map(longDate).map(d=>d.split(', ')[1]).join(' · ')}`+
-      `<br>How often each block was among the worst quarter of the city.`;
+      `<br>How often each block spent longest above ${thr}.`+
+      // the date count differs between cities and that looks arbitrary
+      // unless you say why
+      (ex?`<br><span style="color:#7c8ba1">${ex} other ${ex===1?'date was':'dates were'} `+
+          `tried but dropped: ${excludedWhy(CONS.dates_excluded)}.</span>`:'');
   } else {
     when.textContent=longDate(s.date);
     const bits={
