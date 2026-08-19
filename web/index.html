@@ -638,7 +638,8 @@ function drawRanking(){
 
   const tot=hotspots.reduce((s,h)=>s+h.area_km2,0);
   document.getElementById('rankNote').innerHTML=
-    `<b>${hotspots.length}</b> sites, <b>${tot.toFixed(1)} km²</b>. `+
+    `<b>${hotspots.length}</b> site${hotspots.length===1?'':'s'}, `+
+    `<b>${tot.toFixed(1)} km²</b>. `+
     `Contiguous areas above <b>${cut.toFixed(1)} h</b> averaging at least `+
     `${MARGIN_H} h beyond the city median of <b>${median.toFixed(1)} h</b>, `+
     `ranked by excess hours × area. Click a row to locate it.`;

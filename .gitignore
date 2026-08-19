@@ -32,3 +32,6 @@ __pycache__/
 # os
 .DS_Store
 Thumbs.db
+
+# stray scratch file the sandbox could not unlink
+.github_pages_note.txt
