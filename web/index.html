@@ -473,6 +473,10 @@
 
 <script>
 const {DeckGL, PolygonLayer, ScatterplotLayer} = deck;
+// Defined first: it was declared further down and the lightbox handlers
+// referenced it at load time, which threw on the const's temporal dead
+// zone and stopped the whole script before any data was fetched.
+const $=id=>document.getElementById(id);
 const BUILD='202608201103';   // bumped whenever the data is regenerated
 let SELECTED=null;   // the site the map was last flown to
 
@@ -1732,7 +1736,6 @@ function openReport(){
 // who wants the raw grid. The dialog says so plainly rather than
 // pretending an attachment will appear.
 // ---------------------------------------------------------------------
-const $=id=>document.getElementById(id);
 const MAILTO_MAX=1900;   // several clients truncate beyond ~2000 chars
 
 function subjectLine(){
