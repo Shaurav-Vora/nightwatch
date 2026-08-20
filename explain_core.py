@@ -119,8 +119,13 @@ def main():
     ap.add_argument("--city", default="houston", choices=list(CITIES))
     ap.add_argument("--n", type=int, default=15, help="blocks per group")
     ap.add_argument("--skip-streetview", action="store_true")
+    ap.add_argument("--photos-only", action="store_true",
+                    help="street view only, no satellite segmentation "
+                         "(4 calls instead of 34)")
     ap.add_argument("--yes", action="store_true", help="skip the cost prompt")
     args = ap.parse_args()
+    if args.photos_only and args.skip_streetview:
+        sys.exit("--photos-only and --skip-streetview leave nothing to do")
 
     load_dotenv()
     cfg = CITIES[args.city]
@@ -152,13 +157,20 @@ def main():
         print("    which weakens the comparison — say so in the write-up")
         near = never
 
-    sa = farthest_point_sample(always, args.n)
-    sb = farthest_point_sample(near, args.n)
+    if args.photos_only:
+        sa = sb = []
+    else:
+        sa = farthest_point_sample(always, args.n)
+        sb = farthest_point_sample(near, args.n)
 
     n_sat = len(sa) + len(sb)
     n_sv = 0 if args.skip_streetview else len(HEADINGS)
     bill = n_sat * SAT_COST + n_sv * SV_COST
-    print(f"\n  {n_sat} satellite calls x {SAT_COST:,} = {n_sat*SAT_COST:,}")
+    print()
+    if args.photos_only:
+        print("  PHOTOS ONLY — no land-cover comparison for this city")
+    if n_sat:
+        print(f"  {n_sat} satellite calls x {SAT_COST:,} = {n_sat*SAT_COST:,}")
     if n_sv:
         print(f"  {n_sv} street view calls x {SV_COST:,} = {n_sv*SV_COST:,}")
     print(f"  TOTAL {bill:,} credits")
@@ -168,8 +180,11 @@ def main():
     client = NightwatchClient()
     date = cfg["date"]
 
-    groups = {}
+    groups = {"always_worst": {"rows": [], "years": [], "sample": []},
+              "never_worst": {"rows": [], "years": [], "sample": []}}
     for name, sample in (("always_worst", sa), ("never_worst", sb)):
+        if not sample:              # photos-only: nothing to segment
+            continue
         rows, years = [], []
         print(f"\n  segmenting {name} ({len(sample)} blocks)")
         for i, c in enumerate(sample, 1):
@@ -191,11 +206,14 @@ def main():
 
     # --- compare ----------------------------------------------------
     classes = sorted({k for g in groups.values() for r in g["rows"] for k in r})
-    print("\n" + "=" * 74)
-    print("LAND COVER: persistent core vs never-worst")
-    print("=" * 74)
-    print(f"  {'class':<22} {'core':>8} {'control':>9} {'diff':>8} {'p':>8}")
     comparison = []
+    sig = []
+    if classes:
+        print("\n" + "=" * 74)
+        print("LAND COVER: persistently hottest vs never-hottest")
+        print("=" * 74)
+        print(f"  {'class':<22} {'core':>8} {'control':>9} "
+              f"{'diff':>8} {'p':>8}")
     for cls in classes:
         a = [r.get(cls, 0.0) for r in groups["always_worst"]["rows"]]
         b = [r.get(cls, 0.0) for r in groups["never_worst"]["rows"]]
@@ -212,28 +230,55 @@ def main():
                            "diff_pct": round(diff, 2), "p": round(p, 4)})
 
     sig = [c for c in comparison if c["p"] < 0.05]
-    print(f"\n  {len(sig)} of {len(comparison)} classes differ at p<0.05 "
-          f"(permutation test, n={args.n} per group)")
+    if comparison:
+        print(f"\n  {len(sig)} of {len(comparison)} classes differ at p<0.05 "
+              f"(permutation test, n={args.n} per group)")
     if sig:
         top = max(sig, key=lambda c: abs(c["diff_pct"]))
         print(f"  largest: {top['class']} {top['diff_pct']:+.1f} points "
               f"({top['core_pct']:.0f}% vs {top['control_pct']:.0f}%)")
-    else:
-        print("  No class separates the groups. The core is not explained by")
-        print("  land cover at this sample size — report that rather than")
-        print("  hunting for a story.")
+    elif comparison:
+        print("  No class separates the groups. The hottest blocks are not")
+        print("  explained by land cover at this sample size — report that")
+        print("  rather than hunting for a story.")
+
+    # Write the satellite analysis now. Street view runs afterwards and can
+    # hang; losing 432,000 credits of segmentation because a free photo call
+    # stalled would be indefensible.
+    out_early = {
+        "city": args.city, "label": cfg["label"], "date": date,
+        "n_per_group": args.n if not args.photos_only else 0,
+        "n_always_total": len(always), "n_never_total": len(never),
+        "core_centre": [round(cx, 5), round(cy, 5)],
+        "core_radius_km": round(band, 2),
+        "comparison": comparison, "n_significant": len(sig),
+        "streetview": [],
+    }
+    part = DATA / f"explain_{args.city}.json"
+    if comparison:
+        part.write_text(json.dumps(out_early, indent=2))
+        print(f"\n  analysis saved to {part} before attempting photos")
 
     # --- street view -------------------------------------------------
     sv = []
+    sv_fail = 0
     if not args.skip_streetview:
         print(f"\n  street view at the core centre ({cy:.4f}, {cx:.4f})")
         for hdg in HEADINGS:
+            if sv_fail >= 2:
+                print("    two headings failed in a row — skipping the rest")
+                break
             try:
+                # 90s, not the 900s default. A photo that has not arrived in
+                # a minute and a half is not going to.
                 r = client.streetview(cy, cx, horizontal_angle=float(hdg),
-                                      vertical_angle=15.0)
+                                      vertical_angle=15.0, timeout_s=90)
             except Exception as e:
-                print(f"    {hdg:3d}deg failed: {type(e).__name__}")
+                sv_fail += 1
+                print(f"    {hdg:3d}deg failed: {type(e).__name__}: "
+                      f"{str(e)[:70]}")
                 continue
+            sv_fail = 0
             front = (r or {}).get("front") or {}
             entry = {"heading": hdg, "segments": front.get("segments") or {},
                      "image_date": front.get("image_date")}

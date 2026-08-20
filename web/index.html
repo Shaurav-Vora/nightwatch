@@ -186,6 +186,21 @@
   #scatter{width:100%;height:auto;display:block;margin-top:4px;
     border:1px solid var(--line);border-radius:5px;background:#0b1017}
 
+  .shots{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .shot{position:relative;border:1px solid var(--line);border-radius:5px;
+    overflow:hidden;cursor:pointer;background:#0b1017}
+  .shot img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover}
+  .shot .hd{position:absolute;top:0;left:0;background:#070b11d8;
+    font-size:9.5px;letter-spacing:.08em;padding:3px 6px;color:var(--muted);
+    border-bottom-right-radius:5px}
+  .shot .sw{position:absolute;bottom:0;right:0;background:#070b11d8;
+    font-size:9px;padding:3px 6px;color:#93c5fd;border-top-left-radius:5px}
+  .shot:hover{border-color:var(--accent)}
+  .segbar{display:flex;height:22px;border-radius:4px;overflow:hidden;
+    margin-top:9px;font-size:9.5px}
+  .segbar div{display:flex;align-items:center;justify-content:center;
+    color:#0b1017;font-weight:700;overflow:hidden;white-space:nowrap}
+
   .stat{display:flex;justify-content:space-between;align-items:baseline;
     gap:12px;padding:7px 0;border-bottom:1px solid var(--line)}
   .stat b{font-size:19px;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -384,6 +399,13 @@
       <div class="note" id="consNote">—</div>
     </div>
 
+    <h2 id="photoH" style="display:none">What it looks like there</h2>
+    <div id="photoBox" style="display:none">
+      <div class="shots" id="shots"></div>
+      <div class="segbar" id="segbar"></div>
+      <div class="note" id="photoNote">—</div>
+    </div>
+
     <h2>Who lives there</h2>
     <div id="popBox">
       <div class="stat"><b id="sPeople">—</b><span id="sPeopleL">—</span></div>
@@ -438,7 +460,7 @@ const LAYERS = {
 const RAMP=[[8,20,48],[20,60,110],[30,110,150],[90,160,140],
             [200,180,90],[240,130,50],[220,60,40],[150,20,30]];
 
-let INDEX=null, CITY=null, DATA=null, CONS=null;
+let INDEX=null, CITY=null, DATA=null, CONS=null, EXPLAIN=null;
 // Open on the layer listed first, so the highlighted button and the top of
 // the list agree. "Always worst" is also the strongest thing here: it spans
 // several heat events rather than one day.
@@ -717,6 +739,7 @@ function fillPanels(){
   drawRanking();
   drawConsistency();
   drawPopulation();
+  drawPhotos();
 
   const best=INDEX.cities[0];
   document.getElementById('cmpNote').innerHTML=
@@ -952,6 +975,64 @@ function drawConsistency(){
       : `Only slightly above chance — the ranking here is largely `+
         `weather-driven, and the site list should not be read as fixed.`)+
     (ex?` Dates excluded: ${ex}.`:'');
+}
+
+// Ground-level photographs from inside the persistently-hottest area, with
+// FortyGuard's own segmentation over them. The overhead comparison found
+// nothing at n=15; this is unambiguous — click a photo to swap to the mask.
+const SEG_COLOUR={road:'#94a3b8', sky:'#7dd3fc', building:'#fbbf24',
+  tree:'#4ade80', grass:'#86efac', sidewalk:'#cbd5e1', car:'#f472b6',
+  'road, route':'#94a3b8', others:'#64748b', plant:'#86efac'};
+
+function drawPhotos(){
+  const h=$('photoH'), box=$('photoBox');
+  if(!EXPLAIN || !EXPLAIN.streetview || !EXPLAIN.streetview.length){
+    h.style.display='none'; box.style.display='none'; return;
+  }
+  h.style.display=''; box.style.display='';
+  const shots=EXPLAIN.streetview.filter(s=>s.photo);
+
+  $('shots').innerHTML=shots.map((s,i)=>
+    `<div class="shot" data-i="${i}">`+
+    `<img src="data/${s.photo}" alt="street view facing ${s.heading}°">`+
+    `<div class="hd">${s.heading}°</div>`+
+    (s.mask?`<div class="sw">tap for mask</div>`:'')+
+    `</div>`).join('');
+
+  document.querySelectorAll('.shot').forEach(el=>{
+    const s=shots[+el.dataset.i]; if(!s.mask) return;
+    let masked=false;
+    el.onclick=()=>{
+      masked=!masked;
+      el.querySelector('img').src=`data/${masked?s.mask:s.photo}`;
+      el.querySelector('.sw').textContent=masked?'tap for photo':'tap for mask';
+    };
+  });
+
+  // average the four headings — they barely differ, which is the point
+  const tot={};
+  shots.forEach(s=>Object.entries(s.segments||{}).forEach(([k,v])=>
+    tot[k]=(tot[k]||0)+v/shots.length));
+  const parts=Object.entries(tot).sort((a,b)=>b[1]-a[1]);
+  $('segbar').innerHTML=parts.filter(([,v])=>v>=3).map(([k,v])=>
+    `<div style="flex:${v};background:${SEG_COLOUR[k]||'#475569'}" `+
+    `title="${k} ${v.toFixed(0)}%">${v>=12?k+' '+v.toFixed(0)+'%':''}</div>`
+  ).join('');
+
+  const road=(tot['road']||0)+(tot['road, route']||0);
+  const tree=(tot['tree']||0)+(tot['plant']||0)+(tot['grass']||0);
+  const sky=tot['sky']||0;
+  $('photoNote').innerHTML=
+    `Standing inside this area and looking in all four directions: `+
+    `<b>${road.toFixed(0)}% road</b>, <b>${sky.toFixed(0)}% open sky</b>, `+
+    `<b>${tree.toFixed(0)}% anything green</b>. Almost half the view being `+
+    `sky means nothing casts shade — not trees, not buildings.`+
+    `<br><br><span style="color:#6b7787">One location `+
+    `(${(EXPLAIN.streetview[0].lat||0).toFixed(4)}, `+
+    `${(EXPLAIN.streetview[0].lon||0).toFixed(4)}), photographed `+
+    `${EXPLAIN.streetview[0].image_date||'recently'}. Illustrative, not a `+
+    `sample — the overhead land-cover comparison across 30 blocks found no `+
+    `difference at all, and both results are reported.</span>`;
 }
 
 function drawPopulation(){
@@ -1275,6 +1356,33 @@ function reportCityBars(W=520,H=190){
   return `<svg viewBox="0 0 ${W} ${Math.max(H,y+20)}" width="100%">${r}</svg>`;
 }
 
+// Photographs from inside the hottest area, embedded so the report stays a
+// single self-contained file when saved or emailed.
+function photoSection(){
+  if(!EXPLAIN || !(EXPLAIN.streetview||[]).length) return '';
+  const shots=EXPLAIN.streetview.filter(s=>s.photo);
+  if(!shots.length) return '';
+  const tot={};
+  shots.forEach(s=>Object.entries(s.segments||{}).forEach(([k,v])=>
+    tot[k]=(tot[k]||0)+v/shots.length));
+  const road=(tot['road']||0)+(tot['road, route']||0);
+  const tree=(tot['tree']||0)+(tot['plant']||0)+(tot['grass']||0);
+  const sky=tot['sky']||0;
+  const s0=shots[0];
+  return `<h2>What it looks like on the ground</h2>
+<div class="shots">${shots.map(s=>
+  `<figure><img src="${s.photo}" alt="facing ${s.heading} degrees">
+   <figcaption>facing ${s.heading}°</figcaption></figure>`).join('')}</div>
+<p class="cap">Standing inside this area and looking in all four directions:
+<b>${road.toFixed(0)}% road</b>, <b>${sky.toFixed(0)}% open sky</b>,
+<b>${tree.toFixed(0)}% anything green</b>. Almost half the view being sky
+means nothing casts shade — not trees, not buildings.
+One location (${(s0.lat||0).toFixed(4)}, ${(s0.lon||0).toFixed(4)}),
+photographed ${s0.image_date||'recently'}. Illustrative rather than a sample:
+the overhead land-cover comparison across 30 blocks found no difference at
+all, and both results are reported here.</p>`;
+}
+
 function buildReportHTML(){
   const s=CITY, m=reportMap(), med=medianHours();
   const F=c=>(c*9/5+32).toFixed(1);
@@ -1319,6 +1427,10 @@ td.hh{color:#c2410c;font-weight:700;white-space:nowrap}
 .mono{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:#475569}
 tr.sel td{background:#fff7ed;font-weight:600}
 .fig{margin:14px 0 6px;border:1px solid #e2e8f0;border-radius:5px;overflow:hidden}
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 6px}
+.shots figure{margin:0;border:1px solid #e2e8f0;border-radius:5px;overflow:hidden}
+.shots img{width:100%;display:block}
+.shots figcaption{font-size:10.5px;color:#64748b;padding:5px 8px;background:#f8fafc}
 .cap{font-size:11.5px;color:#64748b;margin:0 0 18px;line-height:1.5}
 .twin{display:flex;gap:14px;margin:12px 0}
 .tw{flex:1;border:1px solid #e2e8f0;border-radius:5px;padding:12px}
@@ -1396,6 +1508,8 @@ read the same at 3pm are not the same at night. R² = <b>${s.r2}</b>.</p>
 <div class="fig">${reportHistogram()}</div>
 <p class="cap">Median ${med.toFixed(1)} h. Sites below are contiguous areas
 averaging at least 1 h beyond it.</p>
+
+${photoSection()}
 
 ${havePeople?`<h2>Who is affected</h2>
 <div class="lede" style="font-size:15px">
@@ -1679,9 +1793,12 @@ function loadCity(name){
   Promise.all([
     fetch(`data/${name}.json`).then(r=>r.json()),
     fetch(`data/consistency_${name}.json`).then(r=>r.ok?r.json():null)
-                                          .catch(()=>null)
-  ]).then(([d,cons])=>{
+                                          .catch(()=>null),
+    fetch(`data/explain_${name}.json`).then(r=>r.ok?r.json():null)
+                                      .catch(()=>null)
+  ]).then(([d,cons,exp])=>{
     mergeConsistency(d,cons);
+    EXPLAIN=exp;
     DATA=d;
     CITY=INDEX.cities.find(c=>c.city===name);
     CITY.granularity_m=d.granularity_m; CITY.threshold_c=d.threshold_c;

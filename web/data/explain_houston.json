@@ -1,0 +1,161 @@
+{
+  "city": "houston",
+  "label": "Houston, TX \u2014 humid, sprawling, no lake",
+  "date": "2025-07-22",
+  "n_per_group": 15,
+  "n_always_total": 1408,
+  "n_never_total": 11824,
+  "core_centre": [
+    -95.30529,
+    29.75681
+  ],
+  "core_radius_km": 5.33,
+  "imagery_years": [
+    2026
+  ],
+  "comparison": [
+    {
+      "class": "building",
+      "core_pct": 15.36,
+      "control_pct": 25.83,
+      "diff_pct": -10.47,
+      "p": 0.2406
+    },
+    {
+      "class": "earth, ground",
+      "core_pct": 8.87,
+      "control_pct": 18.46,
+      "diff_pct": -9.59,
+      "p": 0.1543
+    },
+    {
+      "class": "field",
+      "core_pct": 6.84,
+      "control_pct": 0.0,
+      "diff_pct": 6.84,
+      "p": 0.4823
+    },
+    {
+      "class": "grass",
+      "core_pct": 5.36,
+      "control_pct": 4.56,
+      "diff_pct": 0.8,
+      "p": 0.7524
+    },
+    {
+      "class": "mountain, mount",
+      "core_pct": 15.92,
+      "control_pct": 10.47,
+      "diff_pct": 5.46,
+      "p": 0.6088
+    },
+    {
+      "class": "others",
+      "core_pct": 11.0,
+      "control_pct": 2.65,
+      "diff_pct": 8.35,
+      "p": 0.3914
+    },
+    {
+      "class": "plant",
+      "core_pct": 1.21,
+      "control_pct": 1.97,
+      "diff_pct": -0.76,
+      "p": 0.7017
+    },
+    {
+      "class": "road, route",
+      "core_pct": 21.52,
+      "control_pct": 14.24,
+      "diff_pct": 7.28,
+      "p": 0.3438
+    },
+    {
+      "class": "skyscraper",
+      "core_pct": 0.0,
+      "control_pct": 1.49,
+      "diff_pct": -1.49,
+      "p": 1.0
+    },
+    {
+      "class": "tree",
+      "core_pct": 12.23,
+      "control_pct": 19.22,
+      "diff_pct": -6.99,
+      "p": 0.4326
+    }
+  ],
+  "n_significant": 0,
+  "streetview": [
+    {
+      "heading": 0,
+      "lat": 29.74058,
+      "lon": -95.3048,
+      "segments": {
+        "building": 6.25,
+        "sky": 44.44,
+        "tree": 1.1,
+        "road": 45.0,
+        "grass": 0.55,
+        "car": 0.71,
+        "streetlight": 0.93,
+        "others": 1.03
+      },
+      "image_date": "2026-03-01",
+      "photo": "sv_houston_0_photo.png",
+      "mask": "sv_houston_0_mask.png"
+    },
+    {
+      "heading": 90,
+      "lat": 29.74058,
+      "lon": -95.3048,
+      "segments": {
+        "building": 6.05,
+        "sky": 45.47,
+        "tree": 1.11,
+        "road": 44.1,
+        "grass": 0.51,
+        "car": 0.66,
+        "streetlight": 0.85,
+        "others": 1.26
+      },
+      "image_date": "2026-03-01",
+      "photo": "sv_houston_90_photo.png",
+      "mask": "sv_houston_90_mask.png"
+    },
+    {
+      "heading": 180,
+      "lat": 29.74058,
+      "lon": -95.3048,
+      "segments": {
+        "building": 5.96,
+        "sky": 46.39,
+        "tree": 1.26,
+        "road": 43.4,
+        "sidewalk": 0.6,
+        "others": 2.4
+      },
+      "image_date": "2026-03-01",
+      "photo": "sv_houston_180_photo.png",
+      "mask": "sv_houston_180_mask.png"
+    },
+    {
+      "heading": 270,
+      "lat": 29.74058,
+      "lon": -95.3048,
+      "segments": {
+        "building": 6.66,
+        "sky": 47.21,
+        "tree": 1.08,
+        "road": 42.66,
+        "streetlight": 0.77,
+        "others": 1.62
+      },
+      "image_date": "2026-03-01",
+      "photo": "sv_houston_270_photo.png",
+      "mask": "sv_houston_270_mask.png"
+    }
+  ],
+  "caveat": "n=15 blocks per group, sampled by farthest-point selection so neither group is a single cluster. Controls are restricted to the same distance band from the core centre. Land cover and exposure are still observational: this shows what the persistent core is made of, not that the material causes the exposure.",
+  "streetview_note": "Photographed at 29.7406, -95.3048 \u2014 a block inside the persistently-hottest area that has street coverage. The area's geometric centroid returned no imagery, which is itself a clue: it is not on a public road."
+}
