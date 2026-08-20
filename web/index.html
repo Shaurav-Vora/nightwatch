@@ -120,6 +120,39 @@
   .tiprow i{font-style:normal;color:var(--ink);font-variant-numeric:tabular-nums}
   .tiprow.hi i{color:var(--accent);font-weight:700}
 
+  /* --- photo lightbox ----------------------------------------------- */
+  #lb{position:fixed;inset:0;z-index:70;background:#04070cf2;display:none;
+    flex-direction:column}
+  #lb.on{display:flex}
+  .lb-bar{display:flex;align-items:center;gap:9px;padding:12px 16px;
+    border-bottom:1px solid var(--line)}
+  .lb-t{font-size:14px;font-weight:600}
+  .lb-sp{flex:1}
+  #lb button{width:auto;margin:0;padding:8px 14px;font-size:13px;
+    background:#131c28;border:1px solid #2b3849;color:var(--ink);
+    border-radius:6px;cursor:pointer}
+  #lb button:hover{border-color:var(--accent);color:#fdba74}
+  #lb button.on{background:var(--accent);border-color:var(--accent);
+    color:#170a02;font-weight:700}
+  .lb-body{flex:1;display:flex;align-items:center;gap:10px;padding:14px 16px;
+    min-height:0}
+  .lb-stage{flex:1;height:100%;display:flex;align-items:center;
+    justify-content:center;min-width:0}
+  .lb-stage img{max-width:100%;max-height:100%;object-fit:contain;
+    border-radius:7px;border:1px solid var(--line)}
+  .lb-stage.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;
+    align-content:center;overflow:auto}
+  .lb-stage.grid figure{margin:0;position:relative;min-height:0}
+  .lb-stage.grid img{width:100%;height:100%;max-height:38vh;cursor:pointer}
+  .lb-stage.grid figcaption{position:absolute;top:7px;left:7px;
+    background:#070b11d8;font-size:10.5px;padding:3px 8px;border-radius:4px;
+    color:var(--muted)}
+  .lb-nav{font-size:26px;line-height:1;padding:12px 16px!important;
+    background:#0d131c!important}
+  .lb-cap{padding:12px 18px 18px;font-size:12.5px;color:var(--muted);
+    line-height:1.6;border-top:1px solid var(--line);max-width:900px}
+  .lb-cap b{color:var(--ink)}
+
   /* --- guided tour -------------------------------------------------- */
   #tourWrap{position:fixed;inset:0;z-index:60;display:none}
   #tourWrap.on{display:block}
@@ -309,6 +342,22 @@
     </div>
   </div></div>
 
+  <div id="lb">
+    <div class="lb-bar">
+      <span class="lb-t" id="lbTitle">—</span>
+      <span class="lb-sp"></span>
+      <button id="lbMode">Grid</button>
+      <button id="lbMask">Show mask</button>
+      <button id="lbClose">✕</button>
+    </div>
+    <div class="lb-body">
+      <button class="lb-nav" id="lbPrev">‹</button>
+      <div class="lb-stage" id="lbStage"></div>
+      <button class="lb-nav" id="lbNext">›</button>
+    </div>
+    <div class="lb-cap" id="lbCap">—</div>
+  </div>
+
   <div id="tourWrap">
     <div id="tourDim"></div>
     <div id="tourRing"></div>
@@ -424,6 +473,7 @@
 
 <script>
 const {DeckGL, PolygonLayer, ScatterplotLayer} = deck;
+const BUILD='202608201103';   // bumped whenever the data is regenerated
 let SELECTED=null;   // the site the map was last flown to
 
 const LAYERS = {
@@ -996,17 +1046,11 @@ function drawPhotos(){
     `<div class="shot" data-i="${i}">`+
     `<img src="data/${s.photo}" alt="street view facing ${s.heading}°">`+
     `<div class="hd">${s.heading}°</div>`+
-    (s.mask?`<div class="sw">tap for mask</div>`:'')+
+    `<div class="sw">enlarge</div>`+
     `</div>`).join('');
 
   document.querySelectorAll('.shot').forEach(el=>{
-    const s=shots[+el.dataset.i]; if(!s.mask) return;
-    let masked=false;
-    el.onclick=()=>{
-      masked=!masked;
-      el.querySelector('img').src=`data/${masked?s.mask:s.photo}`;
-      el.querySelector('.sw').textContent=masked?'tap for photo':'tap for mask';
-    };
+    el.onclick=()=>lbOpen(+el.dataset.i);
   });
 
   // average the four headings — they barely differ, which is the point
@@ -1034,6 +1078,74 @@ function drawPhotos(){
     `sample — the overhead land-cover comparison across 30 blocks found no `+
     `difference at all, and both results are reported.</span>`;
 }
+
+// ---------------------------------------------------------------------
+// Lightbox: one photo at a time with arrows, or all four at once. The
+// mask toggle applies to whichever view you are in, so you can compare
+// the photograph against FortyGuard's segmentation of it.
+// ---------------------------------------------------------------------
+let LB={shots:[], i:0, mask:false, grid:false};
+
+function lbOpen(i){
+  LB.shots=(EXPLAIN&&EXPLAIN.streetview||[]).filter(s=>s.photo);
+  if(!LB.shots.length) return;
+  LB.i=Math.max(0,Math.min(LB.shots.length-1,i||0));
+  $('lb').classList.add('on');
+  lbDraw();
+}
+const lbClose=()=>$('lb').classList.remove('on');
+
+function lbDraw(){
+  const S=LB.shots, s=S[LB.i], stage=$('lbStage');
+  const src=x=>`data/${LB.mask&&x.mask?x.mask:x.photo}`;
+
+  $('lbMode').textContent=LB.grid?'Single':'Grid';
+  $('lbMask').textContent=LB.mask?'Show photo':'Show mask';
+  $('lbMask').classList.toggle('on',LB.mask);
+  $('lbPrev').style.visibility=LB.grid?'hidden':'visible';
+  $('lbNext').style.visibility=LB.grid?'hidden':'visible';
+
+  if(LB.grid){
+    stage.className='lb-stage grid';
+    stage.innerHTML=S.map((x,i)=>
+      `<figure><img src="${src(x)}" alt="facing ${x.heading}°" data-i="${i}">`+
+      `<figcaption>${x.heading}°</figcaption></figure>`).join('');
+    stage.querySelectorAll('img').forEach(im=>im.onclick=()=>{
+      LB.i=+im.dataset.i; LB.grid=false; lbDraw();});
+    $('lbTitle').textContent=`All four directions${LB.mask?' — segmented':''}`;
+  } else {
+    stage.className='lb-stage';
+    stage.innerHTML=`<img src="${src(s)}" alt="facing ${s.heading}°">`;
+    $('lbTitle').textContent=
+      `Facing ${s.heading}°  ·  ${LB.i+1} of ${S.length}`+
+      (LB.mask?'  — segmented':'');
+  }
+
+  const seg=s.segments||{};
+  const top=Object.entries(seg).sort((a,b)=>b[1]-a[1]).slice(0,5)
+    .map(([k,v])=>`${k} ${v.toFixed(0)}%`).join(' · ');
+  $('lbCap').innerHTML=
+    `Inside an area that is in Houston's hottest quarter on <b>every</b> heat `+
+    `event measured. ${LB.grid?'':`This view: ${top}.`}`+
+    `<br>${(s.lat||0).toFixed(4)}, ${(s.lon||0).toFixed(4)} · photographed `+
+    `${s.image_date||'recently'} · one location, illustrative rather than a `+
+    `sample.`;
+}
+
+$('lbClose').onclick=lbClose;
+$('lbPrev').onclick=()=>{LB.i=(LB.i-1+LB.shots.length)%LB.shots.length;lbDraw();};
+$('lbNext').onclick=()=>{LB.i=(LB.i+1)%LB.shots.length;lbDraw();};
+$('lbMask').onclick=()=>{LB.mask=!LB.mask;lbDraw();};
+$('lbMode').onclick=()=>{LB.grid=!LB.grid;lbDraw();};
+$('lb').onclick=e=>{ if(e.target===$('lb')) lbClose(); };
+document.addEventListener('keydown',e=>{
+  if(!$('lb').classList.contains('on')) return;
+  if(e.key==='Escape') lbClose();
+  if(e.key==='ArrowRight') $('lbNext').onclick();
+  if(e.key==='ArrowLeft') $('lbPrev').onclick();
+  if(e.key==='m'||e.key==='M') $('lbMask').onclick();
+  if(e.key==='g'||e.key==='G') $('lbMode').onclick();
+});
 
 function drawPopulation(){
   const p=DATA.population;
@@ -1790,12 +1902,16 @@ function mergeConsistency(d, cons){
 function loadCity(name){
   document.getElementById('loading').style.display='flex';
   document.getElementById('loading').textContent='loading '+name+'…';
+  // Cache-bust the data files. Re-running the python scripts changes them
+  // without changing their names, and a stale copy silently shows the wrong
+  // thing — population went missing twice this way before anyone noticed.
+  const v=`?v=${BUILD}`;
   Promise.all([
-    fetch(`data/${name}.json`).then(r=>r.json()),
-    fetch(`data/consistency_${name}.json`).then(r=>r.ok?r.json():null)
-                                          .catch(()=>null),
-    fetch(`data/explain_${name}.json`).then(r=>r.ok?r.json():null)
-                                      .catch(()=>null)
+    fetch(`data/${name}.json${v}`).then(r=>r.json()),
+    fetch(`data/consistency_${name}.json${v}`).then(r=>r.ok?r.json():null)
+                                              .catch(()=>null),
+    fetch(`data/explain_${name}.json${v}`).then(r=>r.ok?r.json():null)
+                                          .catch(()=>null)
   ]).then(([d,cons,exp])=>{
     mergeConsistency(d,cons);
     EXPLAIN=exp;
@@ -1940,7 +2056,7 @@ addEventListener('resize',()=>{
   if(document.getElementById('tourWrap').classList.contains('on')) tourAt(TI);
 });
 
-fetch('data/cities.json').then(r=>r.json()).then(idx=>{
+fetch(`data/cities.json?v=${BUILD}`).then(r=>r.json()).then(idx=>{
   INDEX=idx;
   if(!idx.cities.length) throw new Error('no cities');
   loadCity(idx.cities[0].city);      // lowest R² first: the strongest case
