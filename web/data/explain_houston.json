@@ -1,6 +1,6 @@
 {
   "city": "houston",
-  "label": "Houston, TX \u2014 humid, sprawling, no lake",
+  "label": "Houston, TX (humid, sprawling, no lake)",
   "date": "2025-07-22",
   "n_per_group": 15,
   "n_always_total": 1408,
@@ -157,5 +157,5 @@
     }
   ],
   "caveat": "n=15 blocks per group, sampled by farthest-point selection so neither group is a single cluster. Controls are restricted to the same distance band from the core centre. Land cover and exposure are still observational: this shows what the persistent core is made of, not that the material causes the exposure.",
-  "streetview_note": "Photographed at 29.7406, -95.3048 \u2014 a block inside the persistently-hottest area that has street coverage. The area's geometric centroid returned no imagery, which is itself a clue: it is not on a public road."
+  "streetview_note": "Photographed at 29.7406, -95.3048, a block inside the persistently-hottest area that has street coverage. The area's geometric centroid returned no imagery, which is itself a clue: it is not on a public road."
 }

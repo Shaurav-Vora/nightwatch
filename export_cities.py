@@ -173,7 +173,39 @@ def main() -> None:
                         "grid": grid},
             "cells": cells,
         }
+        # population.py appends a "people" column to this same file. Writing
+        # it fresh silently destroys that, and the only symptom is the
+        # frontend quietly saying "no census data" — which is exactly what
+        # happened. Carry it across instead.
         p = OUT / f"{key}.json"
+        if p.exists():
+            try:
+                old = json.loads(p.read_text())
+                if "people" in (old.get("fields") or []):
+                    idx = old["fields"].index("people")
+                    prev = {f"{c[0]},{c[1]}": c[idx] for c in old["cells"]
+                            if len(c) > idx}
+                    hit = 0
+                    for c in payload["cells"]:
+                        v = prev.get(f"{c[0]},{c[1]}")
+                        if v is not None:
+                            c.append(v)
+                            hit += 1
+                        else:
+                            c.append(0.0)
+                    if hit:
+                        payload["fields"] = payload["fields"] + ["people"]
+                        if old.get("population"):
+                            payload["population"] = old["population"]
+                        print(f"  carried population across for {hit} of "
+                              f"{len(payload['cells'])} blocks")
+                    else:
+                        for c in payload["cells"]:
+                            c.pop()
+            except Exception as e:
+                print(f"  could not preserve population ({type(e).__name__}) "
+                      f"— re-run population.py")
+
         p.write_text(json.dumps(payload, separators=(",", ":")))
 
         stats = {

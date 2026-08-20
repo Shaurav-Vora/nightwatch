@@ -9,7 +9,7 @@
   "cities": [
     {
       "city": "phoenix",
-      "label": "Phoenix, AZ \u2014 arid, no water, extreme UHI",
+      "label": "Phoenix, AZ (arid, no water, extreme urban heat island)",
       "threshold_c": 35.0,
       "dates": [
         {
@@ -77,7 +77,7 @@
     },
     {
       "city": "houston",
-      "label": "Houston, TX \u2014 humid, sprawling, no lake",
+      "label": "Houston, TX (humid, sprawling, no lake)",
       "threshold_c": 32.0,
       "dates": [
         {
@@ -159,7 +159,7 @@
     },
     {
       "city": "chicago",
-      "label": "Chicago, IL \u2014 baseline, lake-dominated",
+      "label": "Chicago, IL (baseline, lake-dominated)",
       "threshold_c": 25.0,
       "dates": [
         {

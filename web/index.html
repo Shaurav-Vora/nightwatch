@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NIGHTWATCH — heat maps measure the wrong thing</title>
+<title>NIGHTWATCH · heat maps measure the wrong thing</title>
 <script src="https://unpkg.com/deck.gl@8.9.35/dist.min.js"></script>
 <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
@@ -17,22 +17,37 @@
      beside an empty map wasted the width and buried everything below the
      fold. */
   #app{display:grid;grid-template-columns:290px minmax(340px,1fr) 390px;
-    height:100vh}
+    grid-template-rows:auto 1fr;height:100vh}
   /* the map element comes first in the DOM (deck.gl mounts into it), so
      place the columns explicitly rather than relying on source order */
-  #map{position:relative;grid-column:2}
+  #map{position:relative;grid-column:2;grid-row:2}
+  #cityBar{grid-column:2;grid-row:1}
   #left,#right{background:var(--panel);overflow-y:auto;padding:18px 18px 48px}
-  #left{border-right:1px solid var(--line);grid-column:1;grid-row:1}
-  #right{border-left:1px solid var(--line);grid-column:3;grid-row:1}
+  #left{border-right:1px solid var(--line);grid-column:1;grid-row:1/-1}
+  #right{border-left:1px solid var(--line);grid-column:3;grid-row:1/-1}
+
+  /* the city switch sits over the map it changes, not down a side rail
+     where it read as one more setting */
+  #cityBar{display:flex;align-items:center;gap:12px;background:#0c111a;
+    border-bottom:1px solid var(--line);padding:9px 14px}
+  #cityBar .cb-lab{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);font-weight:600}
+  #cityBar .cities{display:flex;gap:6px}
+  #cityBar .cities button{width:auto;margin:0;padding:7px 16px;
+    text-align:center;font-size:13px}
+  #cityBar .cb-note{font-size:11px;color:#6b7787;margin-left:auto;
+    text-align:right;line-height:1.35}
+  @media(max-width:640px){#cityBar .cb-note{display:none}}
 
   /* below this the three columns stop fitting, so stack and let the page
      scroll rather than squeezing the map into nothing */
   @media(max-width:1180px){
-    #app{grid-template-columns:1fr;grid-template-rows:auto 62vh auto;
+    #app{grid-template-columns:1fr;grid-template-rows:auto auto 62vh auto;
       height:auto}
-    #left {grid-column:1;grid-row:1}
-    #map  {grid-column:1;grid-row:2}
-    #right{grid-column:1;grid-row:3}
+    #left   {grid-column:1;grid-row:1}
+    #cityBar{grid-column:1;grid-row:2}
+    #map    {grid-column:1;grid-row:3}
+    #right  {grid-column:1;grid-row:4}
     #left,#right{border:none;border-top:1px solid var(--line)}
   }
 
@@ -293,6 +308,12 @@
 </head>
 <body>
 <div id="app">
+  <div id="cityBar">
+    <span class="cb-lab">City</span>
+    <div class="cities" id="cityBtns"></div>
+    <span class="cb-note">Any US city works. These three are pre-loaded
+      because each one costs API credits to measure.</span>
+  </div>
   <div id="map">
     <div id="stamp">
       <div class="s1" id="stampCity">—</div>
@@ -380,7 +401,7 @@
 
     <p class="intro">Cities decide where to plant trees and open cooling
       centres using maps of <b>how hot</b> it gets. Across a whole city that
-      barely changes. <b>How long</b> it stays dangerous changes enormously —
+      barely changes. <b>How long</b> it stays dangerous changes enormously,
       and the same neighbourhoods lose every time. This maps that.</p>
 
     <div class="hero">
@@ -389,11 +410,6 @@
       <div class="oneday-hero" id="heroDay">—</div>
     </div>
     <div class="note" id="dateNote">—</div>
-
-    <h2>City</h2>
-    <div class="cities" id="cityBtns"></div>
-    <div class="note">Works for any US city. These three are pre-loaded
-      because each one costs API credits to measure.</div>
 
     <h2>Layer</h2>
     <div id="layerBtns"></div>
@@ -477,7 +493,6 @@ const {DeckGL, PolygonLayer, ScatterplotLayer} = deck;
 // referenced it at load time, which threw on the const's temporal dead
 // zone and stopped the whole script before any data was fetched.
 const $=id=>document.getElementById(id);
-const BUILD='202608201103';   // bumped whenever the data is regenerated
 let SELECTED=null;   // the site the map was last flown to
 
 const LAYERS = {
@@ -632,7 +647,7 @@ function render(){
           `<div class="tiprow"><span>3pm</span><i>${F(c[3])}</i></div>`+
           `<div class="tiprow"><span>3am</span><i>${F(c[4])}</i></div>`+
           `<div class="tiprow"><span>cooled</span><i>${D(c[3]-c[4])}</i></div>`+
-          (isWater(c)?`<div class="tiprow"><span>— water</span></div>`:'');
+          (isWater(c)?`<div class="tiprow"><span>water</span></div>`:'');
       }
     });
   } else {
@@ -717,7 +732,7 @@ function drawStamp(cfg){
       cooling:`How far the temperature fell between 3pm and 3am.`
     };
     what.innerHTML=(bits[layerName]||'')+
-      `<br>One day only — switch to <b>Hottest every time</b> for several.`;
+      `<br>One day only. Switch to <b>Hottest every time</b> for several.`;
   }
 }
 
@@ -763,7 +778,7 @@ function fillPanels(){
   document.getElementById('subtitle').textContent=
     `${s.label} · ${s.date} · ${s.aoi_sq_mi} mi² at ${s.granularity_m||100} m`;
   document.getElementById('heroBig').innerHTML=
-    `<b>${s.temp_span_c}°C</b> of afternoon temperature across this city — `+
+    `<b>${s.temp_span_c}°C</b> of afternoon temperature across this city, `+
     `and <b>${s.exposure_span_h} hours</b> of dangerous exposure.`;
   document.getElementById('heroCap').textContent=
     `Same blocks, same day. One of those looks uniform. `+
@@ -771,14 +786,14 @@ function fillPanels(){
 
   // The date lives on the map now (see drawStamp), not buried here.
   document.getElementById('dateNote').textContent=
-    `Each square is a ${s.granularity_m||100} m block — roughly one city block.`;
+    `Each square is a ${s.granularity_m||100} m block, roughly one city block.`;
 
   // The hero, the twin blocks and the chart all describe ONE afternoon,
   // while the map opens on several. Nothing said so, and reading top to
   // bottom you would assume they matched.
   document.getElementById('heroDay').textContent=
     `Measured on ${new Date(s.date+'T12:00:00').toLocaleDateString('en-GB',
-      {day:'numeric',month:'long',year:'numeric'})} — one afternoon. `+
+      {day:'numeric',month:'long',year:'numeric'})}, a single afternoon. `+
     (CONS?`The map and the rankings use all ${CONS.dates.length}.`:'');
 
   const t=document.getElementById('cmp');
@@ -802,7 +817,7 @@ function fillPanels(){
 
   document.getElementById('method').innerHTML=
     `Exposure is the longest <b>unbroken</b> run of hours above `+
-    `${s.threshold_c}°C — FortyGuard <code>/v1/heatmap</code>, `+
+    `${s.threshold_c}°C, from FortyGuard <code>/v1/heatmap</code>, `+
     `<code>analytic_type: persistence</code>. Thresholds are set per city `+
     `between its measured 3pm and 3am means. Temperatures are two `+
     `<code>tcm</code> calls at ${s.day_hour||15}:00 and ${s.night_hour||3}:00 `+
@@ -828,7 +843,7 @@ function drawTwins(){
     row(t.low,'cool','shorter exposure')+
     row(t.high,'hot','longer exposure')+
     `<div class="ft">${t.gap_h.toFixed(1)} hours apart, `+
-    `above ${DATA.threshold_c}°C — from the same afternoon reading.</div>`;
+    `above ${DATA.threshold_c}°C, from the same afternoon reading.</div>`;
 }
 
 // A CHART, not a map. It previously used the map's colour ramp and had no
@@ -881,7 +896,7 @@ function drawScatter(){
   document.getElementById('scX1').textContent='';
   document.getElementById('scNote').innerHTML=
     `This is a chart, not a map. Every small square counts how many blocks `+
-    `had that combination — brighter means more blocks. `+
+    `had that combination. Brighter means more blocks. `+
     `<b>Look at any single column:</b> those blocks were all the same `+
     `temperature at 3pm, yet they spread up and down by hours. That spread `+
     `is what a temperature map throws away.`;
@@ -1026,7 +1041,7 @@ function drawConsistency(){
         `a property of the built environment, not of one day's weather.`
       : ratio>=3
       ? `Above chance, but most of the ranking turns over between dates.`
-      : `Only slightly above chance — the ranking here is largely `+
+      : `Only slightly above chance. The ranking here is largely `+
         `weather-driven, and the site list should not be read as fixed.`)+
     (ex?` Dates excluded: ${ex}.`:'');
 }
@@ -1041,7 +1056,11 @@ const SEG_COLOUR={road:'#94a3b8', sky:'#7dd3fc', building:'#fbbf24',
 function drawPhotos(){
   const h=$('photoH'), box=$('photoBox');
   if(!EXPLAIN || !EXPLAIN.streetview || !EXPLAIN.streetview.length){
-    h.style.display='none'; box.style.display='none'; return;
+    // clear as well as hide: leaving the previous city's photos in the DOM
+    // means one stray unhide would show Houston's street under another city
+    h.style.display='none'; box.style.display='none';
+    $('shots').innerHTML=''; $('segbar').innerHTML=''; $('photoNote').textContent='';
+    return;
   }
   h.style.display=''; box.style.display='';
   const shots=EXPLAIN.streetview.filter(s=>s.photo);
@@ -1074,12 +1093,12 @@ function drawPhotos(){
     `Standing inside this area and looking in all four directions: `+
     `<b>${road.toFixed(0)}% road</b>, <b>${sky.toFixed(0)}% open sky</b>, `+
     `<b>${tree.toFixed(0)}% anything green</b>. Almost half the view being `+
-    `sky means nothing casts shade — not trees, not buildings.`+
+    `sky means nothing casts shade, not trees and not buildings.`+
     `<br><br><span style="color:#6b7787">One location `+
     `(${(EXPLAIN.streetview[0].lat||0).toFixed(4)}, `+
     `${(EXPLAIN.streetview[0].lon||0).toFixed(4)}), photographed `+
     `${EXPLAIN.streetview[0].image_date||'recently'}. Illustrative, not a `+
-    `sample — the overhead land-cover comparison across 30 blocks found no `+
+    `sample. The overhead land-cover comparison across 30 blocks found no `+
     `difference at all, and both results are reported.</span>`;
 }
 
@@ -1116,13 +1135,13 @@ function lbDraw(){
       `<figcaption>${x.heading}°</figcaption></figure>`).join('');
     stage.querySelectorAll('img').forEach(im=>im.onclick=()=>{
       LB.i=+im.dataset.i; LB.grid=false; lbDraw();});
-    $('lbTitle').textContent=`All four directions${LB.mask?' — segmented':''}`;
+    $('lbTitle').textContent=`All four directions${LB.mask?', segmented':''}`;
   } else {
     stage.className='lb-stage';
     stage.innerHTML=`<img src="${src(s)}" alt="facing ${s.heading}°">`;
     $('lbTitle').textContent=
       `Facing ${s.heading}°  ·  ${LB.i+1} of ${S.length}`+
-      (LB.mask?'  — segmented':'');
+      (LB.mask?'  ·  segmented':'');
   }
 
   const seg=s.segments||{};
@@ -1178,9 +1197,9 @@ function drawPopulation(){
     `Out of <b>${p.total.toLocaleString()}</b> residents in this area. `+
     (dens<0.95
       ? `The hottest ground is <b>less</b> densely populated than the city `+
-        `around it — much of it is industrial or commercial. Heat and people `+
-        `only partly overlap, which is exactly why ranking by area sends you `+
-        `to the wrong place.`
+        `around it. Much of it is industrial or commercial. Heat and people `+
+        `only partly overlap, which is why ranking by area sends you to the `+
+        `wrong place.`
       : dens>1.05
       ? `The hottest ground is <b>more</b> densely populated than average, so `+
         `heat and people coincide here.`
@@ -1255,16 +1274,16 @@ function drawRanking(){
     (havePeople
       ? `<b>${Math.round(ppl).toLocaleString()} residents</b> across `+
         `${tot.toFixed(1)} km². Ordered by <b>how many people live there</b>, `+
-        `not by size — `+
-        (reordered?`${reordered} of them change position when you do that. `
-                  :`which happens to give the same order here. `)
+        `not by size, `+
+        (reordered?`and ${reordered} of them change position because of it. `
+                  :`though that happens to give the same order here. `)
       : `<b>${tot.toFixed(1)} km²</b> in total, largest first. `)+
     (P
       ? (hidden?`Showing the top ${shownRows.length}; the other ${hidden} `+
                 `${hidden===1?'is':'are'} in the downloads. `:'')+
         `These are joined-up patches of blocks that were among the hottest `+
         `quarter of the city on <b>every one</b> of the ${CONS.dates.length} `+
-        `hot days measured — ${n_pool.toLocaleString()} blocks in all. `+
+        `hot days measured, ${n_pool.toLocaleString()} blocks in all. `+
         `Not one bad afternoon.`
       : `Based on a single day, because this city has no multi-date data yet: `+
         `joined-up areas above <b>${cut.toFixed(1)} hours</b> that also run at `+
@@ -1332,7 +1351,7 @@ function downloadGeoJSON(){
   const fc={type:'FeatureCollection',
     properties:{city:DATA.city,date:DATA.date,
       threshold_c:DATA.threshold_c,granularity_m:DATA.granularity_m,
-      analytic:'persistence — longest unbroken run of hours above threshold',
+      analytic:'persistence: longest unbroken run of hours above threshold',
       note:'water tiles excluded; local time, not UTC'},
     features:ranked().map((c,i)=>({
       type:'Feature',
@@ -1492,7 +1511,7 @@ function photoSection(){
 <p class="cap">Standing inside this area and looking in all four directions:
 <b>${road.toFixed(0)}% road</b>, <b>${sky.toFixed(0)}% open sky</b>,
 <b>${tree.toFixed(0)}% anything green</b>. Almost half the view being sky
-means nothing casts shade — not trees, not buildings.
+means nothing casts shade, not trees and not buildings.
 One location (${(s0.lat||0).toFixed(4)}, ${(s0.lon||0).toFixed(4)}),
 photographed ${s0.image_date||'recently'}. Illustrative rather than a sample:
 the overhead land-cover comparison across 30 blocks found no difference at
@@ -1522,7 +1541,7 @@ function buildReportHTML(){
     `<td>${c.r2}</td><td>${c.n.toLocaleString()}</td></tr>`).join('');
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
-<title>NIGHTWATCH — ${esc(s.short)}, ${esc(s.date)}</title><style>
+<title>NIGHTWATCH ${esc(s.short)} ${esc(s.date)}</title><style>
 @page{margin:16mm}
 *{box-sizing:border-box}
 body{font:13px/1.6 -apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a;
@@ -1610,14 +1629,14 @@ ${t?`<h2>Two blocks, the same afternoon</h2>
     <div class="l">above ${DATA.threshold_c}°C<br>
     <span class="mono">${t.high.lat.toFixed(4)}, ${t.high.lon.toFixed(4)}</span></div></div>
 </div>
-<p class="cap">Both blocks read ${t.temp_c.toFixed(1)}°C (${F(t.temp_c)}°F) at 3pm —
-indistinguishable on a temperature map — yet differ by
+<p class="cap">Both blocks read ${t.temp_c.toFixed(1)}°C (${F(t.temp_c)}°F) at 3pm
+and are indistinguishable on a temperature map, yet they differ by
 <b>${t.gap_h.toFixed(1)} hours</b> of exposure.</p>`:''}
 
 <h2>Degrees in, hours out</h2>
 <div class="fig">${reportScatter()}</div>
 <p class="cap">Each column is one afternoon temperature; height is hours of
-exposure. The vertical spread within a column is the finding — blocks that
+exposure. The vertical spread within a column is the finding: blocks that
 read the same at 3pm are not the same at night. R² = <b>${s.r2}</b>.</p>
 
 <h2>Distribution of exposure</h2>
@@ -1637,7 +1656,7 @@ ${pop.total.toLocaleString()} in this area.
 is matched to its nearest tract centroid and the tract's population divided
 evenly across it, so these figures are dependable for whole areas and
 indicative only for a single block. Ranking below is by residents, not by
-size — the two disagree, and area alone would send a budget to the wrong
+size. The two disagree, and area alone would send a budget to the wrong
 place.</p>`:''}
 
 <h2>Ranked areas</h2>
@@ -1681,8 +1700,8 @@ of it.</p>
 
 <h2>Method</h2>
 <p class="note">Exposure is the longest <em>unbroken</em> run of hours above
-${DATA.threshold_c}°C — FortyGuard <code>/v1/heatmap</code>,
-<code>analytic_type: persistence</code> — rather than a scattered total.
+${DATA.threshold_c}°C, from FortyGuard <code>/v1/heatmap</code> with
+<code>analytic_type: persistence</code>, rather than a scattered total.
 Eight consecutive dangerous hours is an event; eight scattered ones are not.
 Temperatures are two <code>tcm</code> calls at ${s.day_hour}:00 and
 ${s.night_hour}:00 local time. Thresholds are set per city between its
@@ -1697,8 +1716,8 @@ block-level detail should not be over-read.<br>
 ${havePeople?`Population comes from census tracts matched by nearest centroid,
 not by polygon intersection, and is assumed even within a tract. Dependable
 for whole areas, indicative only for one block.<br>
-The persistently hottest ground runs below the area's average density — much
-of it is industrial or commercial — so heat and residents only partly
+The persistently hottest ground runs below the area's average density, and
+much of it is industrial or commercial, so heat and residents only partly
 overlap.<br>`
 :`No population weighting: areas are ranked by size, not by who lives there.
 Run population.py to add it.<br>`}
@@ -1739,7 +1758,7 @@ function openReport(){
 const MAILTO_MAX=1900;   // several clients truncate beyond ~2000 chars
 
 function subjectLine(){
-  return `Night-time heat exposure — ${CITY.short}, `+
+  return `Night-time heat exposure in ${CITY.short}: `+
          `${HOTSPOTS.length} site${HOTSPOTS.length===1?'':'s'} above `+
          `${DATA.threshold_c}°C`;
 }
@@ -1769,7 +1788,7 @@ function buildBody(){
     L.push(`AREAS THAT STAY HOT LONGEST (hours above ${DATA.threshold_c}°C, `+
            `vs a city median of ${medianHours().toFixed(1)} h)`);
     if(havePeople)
-      L.push(`Ordered by residents, not by size — the two disagree.`);
+      L.push(`Ordered by residents, not by size. The two disagree.`);
     HOTSPOTS.slice(0,8).forEach((h,i)=>{
       L.push(` ${i+1}. `+
              (havePeople?`${Math.round(h.people).toLocaleString()} residents  ·  `:'')+
@@ -1812,7 +1831,7 @@ function refreshPreview(){
   const b=buildBody();
   $('shBody').value=b;
   const over=b.length>MAILTO_MAX;
-  $('shLen').textContent=`${b.length} chars`+(over?' — too long for mail client':'');
+  $('shLen').textContent=`${b.length} chars`+(over?', too long for most mail clients':'');
   $('shLen').style.color=over?'#f87171':'';
   $('shSend').textContent=over?'Open mail client (trimmed)':'Open mail client';
 }
@@ -1849,7 +1868,7 @@ $('shCopy').onclick=async()=>{
     setTimeout(()=>$('shCopy').textContent='Copy text',1400);
   }catch(err){
     $('shBody').select();       // clipboard API needs https or localhost
-    $('shErr').textContent='Clipboard blocked — text selected, press Ctrl+C.';
+    $('shErr').textContent='Clipboard blocked. The text is selected, press Ctrl+C.';
   }
 };
 
@@ -1867,7 +1886,7 @@ $('shSend').onclick=()=>{
   let body=$('shBody').value;
   if(body.length>MAILTO_MAX){
     body=body.slice(0,MAILTO_MAX-90).replace(/\n[^\n]*$/,'')+
-         '\n\n[trimmed — full detail in the attached CSV]';
+         '\n\n[trimmed. Full detail is in the attached CSV]';
   }
   const url=`mailto:${encodeURIComponent(parts.join(','))}`+
             `?subject=${encodeURIComponent(subjectLine())}`+
@@ -1877,7 +1896,7 @@ $('shSend').onclick=()=>{
   if(wanted.length){
     $('shErr').style.color='#93c5fd';
     $('shErr').textContent=
-      `${wanted.length} file${wanted.length===1?'':'s'} downloading — attach from your Downloads folder.`;
+      `${wanted.length} file${wanted.length===1?'':'s'} downloading. Attach from your Downloads folder.`;
   } else {
     setTimeout(closeShare,600);
   }
@@ -1905,16 +1924,17 @@ function mergeConsistency(d, cons){
 function loadCity(name){
   document.getElementById('loading').style.display='flex';
   document.getElementById('loading').textContent='loading '+name+'…';
-  // Cache-bust the data files. Re-running the python scripts changes them
-  // without changing their names, and a stale copy silently shows the wrong
-  // thing — population went missing twice this way before anyone noticed.
-  const v=`?v=${BUILD}`;
+  // Always revalidate the data files. A hardcoded build stamp does not
+  // help: the python scripts change the data without changing the HTML, so
+  // the stamp stays the same and the browser keeps serving the old copy.
+  // no-cache asks the server every time and only re-downloads on a change.
+  const NC={cache:'no-cache'};
   Promise.all([
-    fetch(`data/${name}.json${v}`).then(r=>r.json()),
-    fetch(`data/consistency_${name}.json${v}`).then(r=>r.ok?r.json():null)
-                                              .catch(()=>null),
-    fetch(`data/explain_${name}.json${v}`).then(r=>r.ok?r.json():null)
-                                          .catch(()=>null)
+    fetch(`data/${name}.json`,NC).then(r=>r.json()),
+    fetch(`data/consistency_${name}.json`,NC).then(r=>r.ok?r.json():null)
+                                             .catch(()=>null),
+    fetch(`data/explain_${name}.json`,NC).then(r=>r.ok?r.json():null)
+                                         .catch(()=>null)
   ]).then(([d,cons,exp])=>{
     mergeConsistency(d,cons);
     EXPLAIN=exp;
@@ -1930,7 +1950,7 @@ function loadCity(name){
     if(!window.__toured){ window.__toured=true; setTimeout(tourOpen,450); }
   }).catch(e=>{
     document.getElementById('loading').textContent=
-      'could not load data/'+name+'.json — run: python export_cities.py';
+      'could not load data/'+name+'.json. Run: python export_cities.py';
     console.error(e);
   });
 }
@@ -1956,21 +1976,22 @@ $('unitC').onclick=()=>setUnits(false);
 const TOUR=[
   {el:null, title:'One minute, and this will all make sense',
    body:`Heat maps show temperature. Across a whole city that's often under `+
-        `two degrees — nothing you'd act on.<br><br>`+
+        `two degrees, which is nothing you'd act on.<br><br>`+
         `This map shows <b>how many hours each block stays dangerously hot</b>. `+
         `That varies by nine.`},
   {el:'#stamp', title:'Start here', pos:'right',
    body:`The city, and which day the colours come from.<br><br>`+
         `Most views show a single afternoon. <b>Hottest every time</b> covers `+
-        `several hot days — this box always says which.`},
+        `several hot days. This box always says which.`},
   {el:'#layerBtns', title:'Five views of the same blocks', pos:'right',
    body:`<b>Hottest every time</b> counts how many hot days each block spent in `+
         `the city's hottest quarter.<br><br>`+
-        `The other four show one day. Try <b>Afternoon heat</b> — that's the `+
+        `The other four show one day. Try <b>Afternoon heat</b>. That's the `+
         `map cities use today.`},
   {el:'#key', title:'Red is bad. Always.', pos:'right',
-   body:`The line above the bar tells you what's being measured — it changes `+
-        `with the view.<br><br>Hover any block on the map for its numbers.`},
+   body:`The line above the bar tells you what's being measured, and it `+
+        `changes with the view.<br><br>Hover any block on the map for its `+
+        `numbers.`},
   {el:'#filterBox', title:'Too much red? Drag this left.', pos:'right',
    body:`It hides everything except the hardest-hit blocks. Top 20%, then top `+
         `5%.`},
@@ -1979,8 +2000,9 @@ const TOUR=[
         `One stayed dangerous for hours longer than the other. A temperature `+
         `map can't tell them apart.`},
   {el:'#rankBox', title:'The list you came for', pos:'left',
-   body:`Areas that stayed hot longest, on <b>every</b> hot day. Biggest first.`+
-        `<br><br>Click one — the map flies there and rings it.`},
+   body:`Areas that stayed hot longest, on <b>every</b> hot day, ordered by `+
+        `how many people live there.<br><br>Click one and the map flies there `+
+        `and rings it.`},
   {el:'#exportBox', title:'Take it with you', pos:'left',
    body:`The areas as a spreadsheet, or GeoJSON for mapping software.<br><br>`+
         `<b>Generate full report</b> makes something printable, with the maps `+
@@ -1988,7 +2010,7 @@ const TOUR=[
   {el:'#repeatBox', title:'Was it just one bad day?', pos:'left',
    body:`Fair question. These blocks were in the city's hottest quarter `+
         `<b>every single time</b>.<br><br>`+
-        `Houston: 65× more than chance would give you. Phoenix: only 2.4× — `+
+        `Houston: 65× more than chance would give you. Phoenix: only 2.4×, `+
         `and we say so.`},
   {el:'#popBox', title:'And who lives there', pos:'left',
    body:`Census population, so the list above is ordered by <b>people</b>, `+
@@ -2059,13 +2081,13 @@ addEventListener('resize',()=>{
   if(document.getElementById('tourWrap').classList.contains('on')) tourAt(TI);
 });
 
-fetch(`data/cities.json?v=${BUILD}`).then(r=>r.json()).then(idx=>{
+fetch('data/cities.json',{cache:'no-cache'}).then(r=>r.json()).then(idx=>{
   INDEX=idx;
   if(!idx.cities.length) throw new Error('no cities');
   loadCity(idx.cities[0].city);      // lowest R² first: the strongest case
 }).catch(e=>{
   document.getElementById('loading').textContent=
-    'could not load data/cities.json — run: python export_cities.py, then serve this folder';
+    'could not load data/cities.json. Run: python export_cities.py, then serve this folder';
   console.error(e);
 });
 </script>

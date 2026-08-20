@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NIGHTWATCH — heat maps measure the wrong thing</title>
-<meta name="description" content="Cities pick where to cool using maps of how hot it gets. That barely varies. How long it stays dangerous varies by hours — and the same neighbourhoods lose every time.">
+<title>NIGHTWATCH · heat maps measure the wrong thing</title>
+<meta name="description" content="Cities pick where to cool using maps of how hot it gets. That barely varies. How long it stays dangerous varies by hours, and the same neighbourhoods lose every time.">
 <style>
   :root{--bg:#0a0e14;--panel:#111721;--line:#1e2836;--ink:#e6eaf0;
         --muted:#8792a5;--accent:#f97316;--cool:#38bdf8}
@@ -79,7 +79,7 @@
   <p class="lead" style="margin-top:26px;max-width:640px">
     Cities decide where to plant trees and open cooling centres using maps of
     <b>how hot</b> it gets. Across a whole city that barely changes.
-    <b>How long</b> it stays dangerous changes enormously — and the same
+    <b>How long</b> it stays dangerous changes enormously, and the same
     neighbourhoods lose every time.</p>
   <div class="ctas">
     <a class="cta" href="web/">Open the map →</a>
@@ -137,7 +137,7 @@
         <td class="num">335</td><td class="num meh">2.4×</td></tr>
   </table>
   <p style="font-size:14px;color:var(--muted)">In Houston and Chicago the same
-     ground loses every time — that is a property of the built environment, not
+     ground loses every time. That is a property of the built environment, not
      of the weather. In Phoenix it is far weaker, and the site list there should
      not be treated as fixed. We report all three.</p>
 </div></section>
@@ -146,7 +146,7 @@
   <h3>What we got wrong</h3>
   <h2>The idea we started with turned out to be false.</h2>
   <p>The original plan was to show that the hottest block at 3pm is not the most
-     dangerous block at 3am. Chicago agreed emphatically — a correlation of
+     dangerous block at 3am. Chicago agreed emphatically, with a correlation of
      <b>−0.73</b>.</p>
   <p>It was Lake Michigan. Exclude everything within 3&thinsp;km of water and it
      flips to <b>+0.13</b>. Test two cities with no lake and it disappears
@@ -161,13 +161,13 @@
   <h3>How it works</h3>
   <h2>Built on FortyGuard’s temperature API.</h2>
   <ul>
-    <li><b>Exposure</b> comes from <code>analytic_type: persistence</code> — the
+    <li><b>Exposure</b> comes from <code>analytic_type: persistence</code>: the
       longest <em>unbroken</em> run of hours above a danger threshold, not a
       scattered total. Eight consecutive dangerous hours is an event; eight
       scattered ones are not.</li>
     <li><b>Temperatures</b> are two <code>tcm</code> calls at 3pm and 3am local
       time. We established the API speaks local rather than UTC by sweeping all
-      24 hours and finding the pre-dawn minimum — the documentation says
+      24 hours and finding the pre-dawn minimum. The documentation says
       otherwise.</li>
     <li><b>Thresholds</b> are set per city, between its own measured afternoon
       and pre-dawn means, so a mild city and an extreme one are both

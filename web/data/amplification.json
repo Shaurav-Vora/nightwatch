@@ -1,6 +1,6 @@
 {
   "phoenix": {
-    "label": "Phoenix, AZ \u2014 arid, no water, extreme UHI",
+    "label": "Phoenix, AZ (arid, no water, extreme urban heat island)",
     "threshold_c": 35.0,
     "n": 21453,
     "temp_span_c": 1.814,
@@ -15,7 +15,7 @@
     "clamped_zero": 0
   },
   "houston": {
-    "label": "Houston, TX \u2014 humid, sprawling, no lake",
+    "label": "Houston, TX (humid, sprawling, no lake)",
     "threshold_c": 32.0,
     "n": 22333,
     "temp_span_c": 4.199,
@@ -30,7 +30,7 @@
     "clamped_zero": 0
   },
   "chicago": {
-    "label": "Chicago, IL \u2014 baseline, lake-dominated",
+    "label": "Chicago, IL (baseline, lake-dominated)",
     "threshold_c": 25.0,
     "n": 9606,
     "temp_span_c": 8.037,

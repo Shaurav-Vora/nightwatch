@@ -155,7 +155,7 @@ def main():
         "city": args.city, "label": cfg["label"]}
     out["streetview"] = sv
     out["streetview_note"] = (
-        f"Photographed at {lat:.4f}, {lon:.4f} — a block inside the "
+        f"Photographed at {lat:.4f}, {lon:.4f}, a block inside the "
         f"persistently-hottest area that has street coverage. The area's "
         f"geometric centroid returned no imagery, which is itself a clue: it "
         f"is not on a public road.")

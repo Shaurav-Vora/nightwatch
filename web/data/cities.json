@@ -2,7 +2,7 @@
   "cities": [
     {
       "city": "phoenix",
-      "label": "Phoenix, AZ \u2014 arid, no water, extreme UHI",
+      "label": "Phoenix, AZ (arid, no water, extreme urban heat island)",
       "short": "Phoenix",
       "date": "2025-07-22",
       "threshold_c": 35.0,
@@ -19,7 +19,7 @@
     },
     {
       "city": "chicago",
-      "label": "Chicago, IL \u2014 baseline, lake-dominated",
+      "label": "Chicago, IL (baseline, lake-dominated)",
       "short": "Chicago",
       "date": "2025-07-22",
       "threshold_c": 25.0,
@@ -36,7 +36,7 @@
     },
     {
       "city": "houston",
-      "label": "Houston, TX \u2014 humid, sprawling, no lake",
+      "label": "Houston, TX (humid, sprawling, no lake)",
       "short": "Houston",
       "date": "2025-07-22",
       "threshold_c": 32.0,

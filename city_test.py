@@ -50,17 +50,17 @@ DAY_HOUR, NIGHT_HOUR, GRAN = 15, 3, 100
 # 15:00 means 15:00 where the city is.
 CITIES = {
     "phoenix": {
-        "label": "Phoenix, AZ — arid, no water, extreme UHI",
+        "label": "Phoenix, AZ (arid, no water, extreme urban heat island)",
         "ring": geo.bbox_ring(-112.16, 33.40, -112.00, 33.53),
         "date": "2025-07-22",
     },
     "houston": {
-        "label": "Houston, TX — humid, sprawling, no lake",
+        "label": "Houston, TX (humid, sprawling, no lake)",
         "ring": geo.bbox_ring(-95.45, 29.70, -95.29, 29.83),
         "date": "2025-07-22",
     },
     "chicago": {
-        "label": "Chicago, IL — baseline, lake-dominated",
+        "label": "Chicago, IL (baseline, lake-dominated)",
         "ring": geo.bbox_ring(-87.75, 41.85, -87.60, 41.92),
         "date": "2025-07-22",
     },
