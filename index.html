@@ -48,6 +48,39 @@
   .card.cool{border-color:#1e3a5f}   .card.cool .n{color:var(--cool)}
   .card.hot {border-color:#7c2d12}   .card.hot  .n{color:var(--accent)}
 
+  /* the one-line answer to "what is this", directly under the title */
+  .isline{font-size:clamp(18px,2.6vw,23px);line-height:1.5;color:var(--ink);
+    max-width:700px;margin:22px 0 0;font-weight:500}
+  .isline b{color:var(--accent)}
+  .for{font-size:14.5px;color:var(--muted);margin:14px 0 0;max-width:640px}
+
+  /* the two preview maps: the argument, before anyone reads a word */
+  .maps{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:8px 0 0}
+  @media(max-width:720px){.maps{grid-template-columns:1fr}}
+  .maps figure{margin:0}
+  .maps img{width:100%;display:block;border-radius:8px;border:1px solid var(--line);
+    image-rendering:auto;background:#0a0e14}
+  .maps .lbl{font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 8px;font-weight:600}
+  .maps .cool-l{color:var(--cool)} .maps .hot-l{color:var(--accent)}
+  .maps figcaption{font-size:13.5px;color:#aab4c2;margin-top:9px;line-height:1.5}
+  .maps figcaption b{color:#fff}
+  .mapnote{font-size:14px;color:var(--muted);margin:20px 0 0;
+    border-left:2px solid var(--line);padding-left:16px}
+
+  /* what you actually get */
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0 0}
+  @media(max-width:720px){.three{grid-template-columns:1fr}}
+  .g{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+    padding:19px 20px}
+  .g .t{font-weight:700;font-size:15.5px;margin-bottom:7px;color:#fff}
+  .g .b{font-size:13.5px;color:#aab4c2;line-height:1.55}
+
+  figure.shot{margin:26px 0 0}
+  figure.shot img{width:100%;display:block;border-radius:10px;
+    border:1px solid var(--line)}
+  figure.shot figcaption{font-size:13px;color:var(--muted);margin-top:10px}
+
   .quote{border-left:3px solid var(--accent);background:#1a1207;
     padding:20px 24px;border-radius:0 8px 8px 0;font-size:19px;line-height:1.55;
     color:#fed7aa;margin:26px 0}
@@ -76,19 +109,90 @@
 <header><div class="wrap">
   <h1>NIGHTWATCH</h1>
   <p class="tag">Heat maps measure the wrong thing.</p>
-  <p class="lead" style="margin-top:26px;max-width:640px">
-    Cities decide where to plant trees and open cooling centres using maps of
-    <b>how hot</b> it gets. Across a whole city that barely changes.
-    <b>How long</b> it stays dangerous changes enormously, and the same
-    neighbourhoods lose every time.</p>
+
+  <p class="isline">An interactive map showing <b>how many hours each city
+    block stays dangerously hot after dark</b>, for Phoenix, Houston and
+    Chicago. It finds the neighbourhoods that never cool down, ranks them by
+    how many people live there, and exports the list.</p>
+
+  <p class="for">Built for the people who decide where a city spends its
+    cooling budget. 53,000 blocks measured, at 100 metres, using FortyGuard's
+    temperature API.</p>
+
   <div class="ctas">
     <a class="cta" href="web/">Open the map →</a>
-    <a class="cta ghost" href="#finding">See the evidence first</a>
+    <a class="cta ghost" href="#why">Why it matters</a>
   </div>
 </div></header>
 
-<section id="finding"><div class="wrap">
-  <h3>The problem</h3>
+<section><div class="wrap">
+  <h3>See the difference in one look</h3>
+  <h2>Same city, same day, same blocks. Two questions.</h2>
+
+  <div class="maps">
+    <figure>
+      <p class="lbl cool-l">Q: how hot does it get?</p>
+      <img src="web/img/preview-temperature.png"
+           alt="Phoenix coloured by afternoon temperature. The hottest ground
+                is concentrated in the north-west.">
+      <figcaption><b>What a normal heat map shows.</b> Afternoon temperature.
+        This is the map cities use today to decide where to plant trees.</figcaption>
+    </figure>
+    <figure>
+      <p class="lbl hot-l">Q: how long does it stay dangerous?</p>
+      <img src="web/img/preview-exposure.png"
+           alt="The same Phoenix blocks coloured by hours above the danger
+                threshold. The worst ground is now in the centre and east, a
+                completely different pattern.">
+      <figcaption><b>What NIGHTWATCH shows.</b> Hours spent above the danger
+        threshold, from the same readings on the same day.</figcaption>
+    </figure>
+  </div>
+
+  <p class="mapnote">These are the same 21,453 blocks on the same afternoon,
+    drawn from the same data with the same colours. If afternoon temperature
+    told you where the night-time danger was, the two pictures would match.
+    In Phoenix they do not. That gap is the entire point of this project.
+    <br><br>Both panels are contrast-stretched to fill the colour range, so
+    compare the <em>patterns</em>, not the intensities. The sizes of the two
+    spreads are the next section, and they are not close either.</p>
+</div></section>
+
+<section><div class="wrap">
+  <h3>What you get</h3>
+  <h2>A map, a shortlist, and files you can act on.</h2>
+
+  <div class="three">
+    <div class="g">
+      <div class="t">1. The map</div>
+      <div class="b">Five layers over three cities. Toggle between the
+        conventional afternoon view and the duration view and watch the
+        priorities move. A guided tour explains every panel.</div>
+    </div>
+    <div class="g">
+      <div class="t">2. The shortlist</div>
+      <div class="b">Joined-up areas that stayed worst on <em>every</em> heat
+        event tested, ranked by residents rather than by size, with
+        coordinates. Click one and the map flies there.</div>
+    </div>
+    <div class="g">
+      <div class="t">3. The files</div>
+      <div class="b">Every block as CSV, the ranked sites as CSV, the grid as
+        GeoJSON for QGIS or ArcGIS, and a printable report carrying the method
+        and the limitations.</div>
+    </div>
+  </div>
+
+  <figure class="shot">
+    <img src="web/img/screenshot.png" alt="The NIGHTWATCH interface."
+         onerror="this.closest('figure').style.display='none'">
+    <figcaption>The interface: controls on the left, map in the middle,
+      evidence on the right.</figcaption>
+  </figure>
+</div></section>
+
+<section id="why"><div class="wrap">
+  <h3>Why it matters</h3>
   <h2>A whole city fits inside two degrees. Nobody acts on two degrees.</h2>
   <p>We measured every 100-metre block across 83 square miles of Phoenix on a
      hot July afternoon. From the coolest block to the hottest, the entire
@@ -115,6 +219,11 @@
     One spends <b>6.1 hours</b> above 35&thinsp;°C. The other spends
     <b>11.2</b>. Five hours apart, identical on a temperature map.
   </div>
+
+  <p style="font-size:14px;color:var(--muted)">Heat duration, not peak
+     temperature, is what correlates with excess mortality in the
+     epidemiological literature. A body that never gets to cool overnight
+     never recovers.</p>
 </div></section>
 
 <section><div class="wrap">
@@ -181,7 +290,8 @@
 
 <section><div class="wrap">
   <h2 style="margin-bottom:10px">See it for yourself.</h2>
-  <p>Three cities, five map layers, and a guided tour that explains every panel.</p>
+  <p>Pick a city, switch between the two questions, and open the shortlist.
+     The guided tour runs on its own, so there is nothing to work out first.</p>
   <div class="ctas"><a class="cta" href="web/">Open the map →</a></div>
 </div></section>
 
