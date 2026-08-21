@@ -21,7 +21,7 @@
     letter-spacing:.02em}
   h2{font-size:clamp(23px,3.4vw,31px);margin:0 0 18px;line-height:1.25;
     font-weight:700}
-  h3{font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+  .kicker{font-size:11px;letter-spacing:.15em;text-transform:uppercase;
     color:var(--muted);margin:0 0 12px;font-weight:600}
   p{margin:0 0 16px;color:#cdd5e0}
   p.lead{font-size:19px;line-height:1.6}
@@ -154,7 +154,7 @@
 </div></header>
 
 <section><div class="wrap">
-  <h3>See the difference in one look</h3>
+  <div class="kicker">See the difference in one look</div>
   <h2>Phoenix. Same day, same blocks. Two questions.</h2>
   <p style="font-size:14.5px;color:var(--muted);margin-top:-6px">Phoenix is the
      clearest example, so it leads. Houston and Chicago are below, and both are
@@ -189,7 +189,7 @@
 </div></section>
 
 <section><div class="wrap">
-  <h3>What you get</h3>
+  <div class="kicker">What you get</div>
   <h2>A map, a shortlist, and files you can act on.</h2>
 
   <div class="three">
@@ -213,7 +213,7 @@
     </div>
   </div>
 
-  <h3 style="margin-top:44px">The shortlist, for Phoenix</h3>
+  <div class="kicker" style="margin-top:44px">The shortlist, for Phoenix</div>
   <p>Nine areas, 11,206 residents, 8.1&thinsp;km² in total. This is the top of
      the list exactly as the app produces it.</p>
 
@@ -238,7 +238,7 @@
      has the fewest people. A city choosing sites by size would work down this
      list backwards.</p>
 
-  <h3 style="margin-top:38px">The same rows, downloaded</h3>
+  <div class="kicker" style="margin-top:38px">The same rows, downloaded</div>
   <pre class="csv">site_id,residents,mean_hours,peak_hours,area_km2,blocks,latitude,longitude,mean_3pm_c,mean_3am_c,threshold_c,city,date
 1,3404,12.65,13.27,0.809,79,33.40506,-112.04388,38.08,31.01,35,phoenix,2025-07-22
 2,2886,12.92,13.30,1.504,147,33.45287,-112.05080,38.20,31.45,35,phoenix,2025-07-22</pre>
@@ -249,7 +249,7 @@
 </div></section>
 
 <section id="cities"><div class="wrap">
-  <h3>Three cities</h3>
+  <div class="kicker">Three cities</div>
   <h2>Three cities that behave differently, each with its own threshold.</h2>
   <p>An arid city with no water, a humid sprawling one, and a lake-dominated
      one. Each map below is hours spent above that city's danger threshold, on
@@ -285,7 +285,7 @@
     </figure>
   </div>
 
-  <h3 style="margin-top:44px">Where the threshold comes from</h3>
+  <div class="kicker" style="margin-top:44px">Where the threshold comes from</div>
   <p>The threshold is the temperature a block has to stay above to count as
      dangerous. We set it per city, midway between that city's own measured
      3pm and 3am means:</p>
@@ -307,7 +307,7 @@
      midpoint guarantees the day partly clears the threshold, and that is the
      only place duration has room to vary.</p>
 
-  <h3 style="margin-top:44px">What the hours number counts</h3>
+  <div class="kicker" style="margin-top:44px">What the hours number counts</div>
   <p>One call to the API covers a full 24 hours and returns the longest
      unbroken stretch above the threshold. Here is that day in Chicago, so you
      can see where the stretch falls.</p>
@@ -342,7 +342,7 @@
 </div></section>
 
 <section id="why"><div class="wrap">
-  <h3>Why it matters</h3>
+  <div class="kicker">Why it matters</div>
   <h2>A whole city fits inside two degrees. Nobody acts on two degrees.</h2>
   <p>We measured every 100-metre block across 83 square miles of Phoenix on a
      hot July afternoon. From the coolest block to the hottest, the entire
@@ -377,7 +377,7 @@
 </div></section>
 
 <section><div class="wrap">
-  <h3>The obvious objection</h3>
+  <div class="kicker">The obvious objection</div>
   <h2>"That's just one bad afternoon."</h2>
   <p>It was the first thing we tested. We re-ran the whole measurement across
      five separate hot days between 2022 and 2025, then counted how often
@@ -404,7 +404,7 @@
 </div></section>
 
 <section><div class="wrap">
-  <h3>How it works</h3>
+  <div class="kicker">How it works</div>
   <h2>Built on FortyGuard's temperature API.</h2>
   <ul>
     <li><b>Exposure</b> comes from <code>analytic_type: persistence</code>: the

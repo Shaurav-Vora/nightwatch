@@ -70,6 +70,10 @@
 
   /* The threshold decides every "hours" number on the page and used to be
      mentioned only in the method note at the very bottom. */
+  #left .back{display:inline-block;margin:6px 0 2px;font-size:11.5px;
+    color:var(--cool);text-decoration:none;border-bottom:1px solid transparent}
+  #left .back:hover{border-bottom-color:var(--cool)}
+
   #thrBox{margin-top:14px;background:#0c1826;border:1px solid #24425e;
     border-left:3px solid var(--cool);border-radius:6px;padding:11px 13px}
   #thrBox .tb-h{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
@@ -411,6 +415,7 @@
 
   <div id="left">
     <h1>NIGHTWATCH</h1>
+    <a class="back" href="../">Back to the evidence and method</a>
     <div class="sub" id="subtitle">—</div>
 
     <p class="intro">Cities decide where to plant trees and open cooling
@@ -439,7 +444,8 @@
       <label class="row"><span id="thLabel">—</span><span id="thVal">—</span></label>
       <input id="th" type="range" min="0" max="100" value="100">
       <div class="note" id="thCount">—</div>
-      <label class="chk"><input type="checkbox" id="water"> show water tiles</label>
+      <label class="chk" id="waterRow"><input type="checkbox" id="water">
+        <span id="waterLbl">show water tiles</span></label>
     </div>
 
     <h2>Scale</h2>
@@ -758,6 +764,22 @@ function render(){
       : ` That is the blocks in the hottest quarter on <b>at least ${days}</b> `+
         `of the ${CONS.dates.length} hot days.`;
   }
+  // Water has no consistency value, so it cannot appear on "Hottest every
+  // time" whatever the checkbox says. Disabling it beats ignoring the click.
+  const wRow=document.getElementById('waterRow'), wBox=document.getElementById('water');
+  const waterN=DATA.cells.filter(isWater).length;
+  if(!waterN){
+    wRow.style.display='none';
+  } else if(layerName==='persistent'){
+    wRow.style.display=''; wBox.disabled=true; wRow.style.opacity='.45';
+    document.getElementById('waterLbl').textContent=
+      'water tiles: not measured on this layer';
+  } else {
+    wRow.style.display=''; wBox.disabled=false; wRow.style.opacity='';
+    document.getElementById('waterLbl').textContent=
+      `show ${waterN.toLocaleString()} water tiles`;
+  }
+
   document.getElementById('thCount').innerHTML=
     `<b>${nv.toLocaleString()}</b> of ${v.length.toLocaleString()} blocks, `+
     `those ${cfg.flip?'at or below':'at or above'} <b>${say(cut)}</b>.`+meaning;
