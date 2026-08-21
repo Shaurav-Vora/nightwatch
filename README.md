@@ -27,6 +27,7 @@ you spend above the danger threshold? That answer spans **9.07 hours**.
 | R² (does 3pm predict duration?) | **0.106** | 0.802 | 0.783 |
 | Blocks measured | 21,453 | 22,333 | 9,606 (1,430 water) |
 | Threshold | 35 °C | 32 °C | 25 °C |
+| Top 100 by heat also in top 100 by duration | **0** | 45 | **0** |
 
 R² is the row that matters, and the only one you can read across cities
 rather than down a column (see the threshold caveat below). In Phoenix,

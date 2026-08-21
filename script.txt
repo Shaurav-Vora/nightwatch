@@ -37,8 +37,8 @@ ACTION   Scroll to the pair of Phoenix maps. Let both sit on screen while you
 NARRATION
   Here is why that matters. Same city, same afternoon, same blocks, asked two
   ways. On the left, how hot it got. On the right, how long it stayed
-  dangerous. If the first told you where the danger was, these two pictures
-  would match. They do not even look like the same city.
+  dangerous. Take the hundred hottest blocks at three p.m., and the hundred
+  that stayed dangerous longest. In Phoenix, not one block is on both lists.
 
 
 0:45 - 1:10   THE TOGGLE
@@ -132,6 +132,9 @@ NUMBERS, IF A JUDGE ASKS
   Repeat:   Houston 1,408 blocks worst every time = 64.6x chance
             Chicago 1,298 = 10.2x
             Phoenix   817 =  2.4x, which is weak, and the app says so
+
+  Overlap:  top 100 by 3pm heat vs top 100 by hours, blocks on both lists:
+            Phoenix 0, Chicago 0, Houston 45
 
   Twins:    both 37.63 C at 3pm, 6.10 h vs 11.18 h
   Water:    Chicago rho -0.731 across all tiles, +0.130 beyond 3 km of water.
