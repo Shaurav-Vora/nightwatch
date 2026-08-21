@@ -70,6 +70,17 @@
   .hero .big b{color:var(--accent);font-size:23px;display:inline-block}
   .hero .cap{font-size:11.5px;color:#c2703a;margin-top:7px}
 
+  /* The threshold decides every "hours" number on the page and used to be
+     mentioned only in the method note at the very bottom. */
+  #thrBox{margin-top:14px;background:#0c1826;border:1px solid #24425e;
+    border-left:3px solid var(--cool);border-radius:6px;padding:11px 13px}
+  #thrBox .tb-h{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:#7fb4d8;font-weight:600}
+  #thrBox .tb-v{font-size:21px;font-weight:800;color:#bae6fd;line-height:1.2;
+    margin-top:3px;letter-spacing:-.01em}
+  #thrBox .tb-n{font-size:11px;color:#8fa5bb;margin-top:6px;line-height:1.5}
+  #thrBox .tb-n b{color:#cbd9e6}
+
   .cities{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
   .cities button{text-align:center;padding:8px 4px;font-size:12.5px}
   button{background:#0d1219;color:var(--ink);border:1px solid var(--line);
@@ -411,6 +422,12 @@
     </div>
     <div class="note" id="dateNote">—</div>
 
+    <div id="thrBox">
+      <div class="tb-h">Danger threshold</div>
+      <div class="tb-v" id="thrVal">—</div>
+      <div class="tb-n" id="thrNote">—</div>
+    </div>
+
     <h2>Layer</h2>
     <div id="layerBtns"></div>
 
@@ -539,6 +556,22 @@ let lo=0, hi=1, deckgl=null;
 // fly the camera there. Controlled means we must echo user pans back.
 let VIEW=null;
 
+// ONE formatter for the danger threshold. Every surface that prints it goes
+// through here. It used to be written out by hand in a dozen places, and the
+// twin-blocks card kept saying "above 32°C" while the rest of the page was
+// in Fahrenheit. A number the reader cannot trust is worse than no number.
+const thrTxt=c=>useF?`${(c*9/5+32).toFixed(0)}°F`:`${c}°C`;
+const THR=()=>thrTxt(DATA?DATA.threshold_c:0);
+// both units, for the one place that has to be unambiguous
+const THR2=()=>DATA ? (useF
+  ? `${(DATA.threshold_c*9/5+32).toFixed(0)}°F (${DATA.threshold_c}°C)`
+  : `${DATA.threshold_c}°C (${(DATA.threshold_c*9/5+32).toFixed(0)}°F)`) : '';
+// A temperature DIFFERENCE, not a temperature. Spans scale by 9/5 with no
+// +32 offset; running one through the absolute converter turns a 4.2 degree
+// spread into a 39 degree one.
+const dTxt=c=>useF?`${(c*9/5).toFixed(2)}°F`:`${c}°C`;
+const dUnit=()=>useF?'°F span':'°C span';
+
 const val=(c,name)=>{const L=LAYERS[name];return L.i<0 ? c[3]-c[4] : c[L.i];};
 const isWater=c=>c[5]===1;
 const vis=c=>(showWater||!isWater(c)) &&
@@ -639,8 +672,7 @@ function render(){
         tip.style.left=(info.x+14)+'px'; tip.style.top=(info.y+14)+'px';
         const F=t=>useF?(t*9/5+32).toFixed(1)+'°F':t.toFixed(1)+'°C';
         const D=t=>useF?(t*9/5).toFixed(1)+'°F':t.toFixed(1)+'°C';
-        const thr=useF?`${(DATA.threshold_c*9/5+32).toFixed(0)}°F`
-                      :`${DATA.threshold_c}°C`;
+        const thr=THR();
         tip.innerHTML=
           `<div class="tiprow hi"><span>above ${thr} for</span>`+
             `<i>${c[2].toFixed(1)} hours</i></div>`+
@@ -711,8 +743,7 @@ function drawStamp(cfg){
   document.getElementById('stampCity').textContent=(s.short||s.city).toUpperCase();
   const when=document.getElementById('stampWhen');
   const what=document.getElementById('stampWhat');
-  const thr=useF ? `${(DATA.threshold_c*9/5+32).toFixed(0)}°F`
-                 : `${DATA.threshold_c}°C`;
+  const thr=THR();
 
   if(layerName==='persistent' && CONS){
     const ex=(CONS.dates_excluded||[]).length;
@@ -778,11 +809,25 @@ function fillPanels(){
   document.getElementById('subtitle').textContent=
     `${s.label} · ${s.date} · ${s.aoi_sq_mi} mi² at ${s.granularity_m||100} m`;
   document.getElementById('heroBig').innerHTML=
-    `<b>${s.temp_span_c}°C</b> of afternoon temperature across this city, `+
+    `<b>${dTxt(s.temp_span_c)}</b> of afternoon temperature across this city, `+
     `and <b>${s.exposure_span_h} hours</b> of dangerous exposure.`;
   document.getElementById('heroCap').textContent=
     `Same blocks, same day. One of those looks uniform. `+
     `The other is a public-health problem.`;
+
+  // Say the threshold plainly, near the top, in both units. Every "hours"
+  // figure on this page is time spent above this line, and it differs per
+  // city, so the other two are named as well.
+  document.getElementById('thrVal').textContent=THR2();
+  document.getElementById('thrNote').innerHTML=
+    `Every <b>hours</b> figure here counts time above this line. `+
+    `It is ${s.short}'s own, set midway between its measured 3pm and 3am `+
+    `averages, so a mild city and an extreme one are both measurable.`+
+    (INDEX.cities.length>1
+      ? `<br><br>Per city: `+INDEX.cities.map(c=>
+          `${c.short} <b>${thrTxt(c.threshold_c)}</b>`).join(' · ')+
+        `. Hours are comparable within a city, not between cities.`
+      : '');
 
   // The date lives on the map now (see drawStamp), not buried here.
   document.getElementById('dateNote').textContent=
@@ -797,10 +842,11 @@ function fillPanels(){
     (CONS?`The map and the rankings use all ${CONS.dates.length}.`:'');
 
   const t=document.getElementById('cmp');
-  t.innerHTML='<tr><th>city</th><th>°C span</th><th>hours span</th><th>R²</th></tr>'+
+  t.innerHTML=`<tr><th>city</th><th>${dUnit()}</th><th>hours span</th>`+
+    `<th>R²</th></tr>`+
     INDEX.cities.map(c=>
       `<tr class="${CITY&&c.city===CITY.city?'sel':''}">`+
-      `<td>${c.short}</td><td>${c.temp_span_c}</td>`+
+      `<td>${c.short}</td><td>${useF?(c.temp_span_c*9/5).toFixed(2):c.temp_span_c}</td>`+
       `<td>${c.exposure_span_h}</td><td>${c.r2}</td></tr>`).join('');
 
   drawTwins();
@@ -815,15 +861,15 @@ function fillPanels(){
     `R² is how much of a block's night-time exposure is predictable from its `+
     `afternoon temperature. In ${best.short} it is <b>${best.r2}</b>.`+
     `<br><br><span style="color:#7c8ba1">Each city is measured against its own `+
-    `threshold (`+INDEX.cities.map(c=>`${c.short} ${c.threshold_c}°C`).join(', ')+
+    `threshold (`+INDEX.cities.map(c=>`${c.short} ${thrTxt(c.threshold_c)}`).join(', ')+
     `), so read the <b>hours</b> column down a single row, not across. R² has `+
     `no units and is the column that does compare.</span>`;
 
   document.getElementById('method').innerHTML=
     `Exposure is the longest <b>unbroken</b> run of hours above `+
-    `${s.threshold_c}°C, from FortyGuard <code>/v1/heatmap</code>, `+
+    `${THR()}, from FortyGuard <code>/v1/heatmap</code>, `+
     `<code>analytic_type: persistence</code>. ${s.short}'s threshold of `+
-    `<b>${s.threshold_c}°C</b> sits midway between its own measured 3pm and `+
+    `<b>${THR2()}</b> sits midway between its own measured 3pm and `+
     `3am means, because one fixed number across three cities would read zero `+
     `everywhere in the cool one and 24 hours everywhere in the hot one. `+
     `Temperatures are two `+
@@ -850,7 +896,7 @@ function drawTwins(){
     row(t.low,'cool','shorter exposure')+
     row(t.high,'hot','longer exposure')+
     `<div class="ft">${t.gap_h.toFixed(1)} hours apart, `+
-    `above ${DATA.threshold_c}°C, from the same afternoon reading.</div>`;
+    `above ${THR()}, from the same afternoon reading.</div>`;
 }
 
 // A CHART, not a map. It previously used the map's colour ramp and had no
@@ -1470,7 +1516,7 @@ function reportHistogram(W=520,H=210,bins=34){
   r+=`<text x="${P}" y="${H-8}" font-size="10" fill="#475569">${lo.toFixed(1)}h</text>`+
      `<text x="${P+iw}" y="${H-8}" font-size="10" fill="#475569" text-anchor="end">${hi.toFixed(1)}h</text>`+
      `<text x="${P+iw/2}" y="${H-8}" font-size="10" fill="#475569" text-anchor="middle">`+
-     `hours above ${DATA.threshold_c}°C</text>`;
+     `hours above ${THR()}</text>`;
   return `<svg viewBox="0 0 ${W} ${H}" width="100%">${r}</svg>`;
 }
 
@@ -1486,7 +1532,7 @@ function reportCityBars(W=520,H=190){
        `fill="${sel?'#c2410c':'#334155'}" font-weight="${sel?700:400}">${esc(c.short)}</text>`;
     const wT=iw*c.temp_span_c/maxT, wH=iw*c.exposure_span_h/maxH;
     r+=`<rect x="${P}" y="${y+4}" width="${wT.toFixed(1)}" height="13" fill="#94a3b8"/>`+
-       `<text x="${P+wT+6}" y="${y+14}" font-size="10" fill="#475569">${c.temp_span_c}°C</text>`;
+       `<text x="${P+wT+6}" y="${y+14}" font-size="10" fill="#475569">${dTxt(c.temp_span_c)}</text>`;
     r+=`<rect x="${P}" y="${y+21}" width="${wH.toFixed(1)}" height="13" fill="#ea580c"/>`+
        `<text x="${P+wH+6}" y="${y+31}" font-size="10" fill="#9a3412">${c.exposure_span_h} h</text>`;
     y+=52;
@@ -1544,7 +1590,7 @@ function buildReportHTML(){
     `<td class="mono">${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}</td></tr>`).join('');
   const cityRows=INDEX.cities.map(c=>
     `<tr${c.city===s.city?' class="sel"':''}><td>${esc(c.short)}</td>`+
-    `<td>${c.temp_span_c} °C</td><td>${c.exposure_span_h} h</td>`+
+    `<td>${dTxt(c.temp_span_c)}</td><td>${c.exposure_span_h} h</td>`+
     `<td>${c.r2}</td><td>${c.n.toLocaleString()}</td></tr>`).join('');
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
@@ -1617,23 +1663,23 @@ function dlSelf(){
   at ${s.granularity_m} m · ${s.n.toLocaleString()} blocks</div>
 
 <div class="lede">Across this area the afternoon temperature spans
-<b>${s.temp_span_c}°C</b>. Expressed as hours above ${DATA.threshold_c}°C,
+<b>${dTxt(s.temp_span_c)}</b>. Expressed as hours above ${THR()},
 the same blocks span <b>${s.exposure_span_h} hours</b>.
 A conventional heat map shows the first number.</div>
 
 <h2>Where the exposure is</h2>
 <div class="fig">${m.svg}</div>
-<p class="cap">Hours above ${DATA.threshold_c}°C on ${esc(s.date)}, local time.
+<p class="cap">Hours above ${THR()} on ${esc(s.date)}, local time.
 Blue ${m.lo.toFixed(1)} h to red ${m.hi.toFixed(1)} h. Numbered rings mark the
 ranked sites below.</p>
 
 ${t?`<h2>Two blocks, the same afternoon</h2>
 <div class="twin">
   <div class="tw a"><div class="n">${t.low.exposure_h.toFixed(1)} h</div>
-    <div class="l">above ${DATA.threshold_c}°C<br>
+    <div class="l">above ${THR()}<br>
     <span class="mono">${t.low.lat.toFixed(4)}, ${t.low.lon.toFixed(4)}</span></div></div>
   <div class="tw b"><div class="n">${t.high.exposure_h.toFixed(1)} h</div>
-    <div class="l">above ${DATA.threshold_c}°C<br>
+    <div class="l">above ${THR()}<br>
     <span class="mono">${t.high.lat.toFixed(4)}, ${t.high.lon.toFixed(4)}</span></div></div>
 </div>
 <p class="cap">Both blocks read ${t.temp_c.toFixed(1)}°C (${F(t.temp_c)}°F) at 3pm
@@ -1704,18 +1750,18 @@ ${CONS.n_always/Math.max(CONS.expected_by_chance,1e-9) >= 8
 <p class="cap">Where R² is low, afternoon temperature carries little
 information about night-time exposure; where it is high, it carries most
 of it. Each city is measured against its own threshold
-(${INDEX.cities.map(c=>`${esc(c.short)} ${c.threshold_c}&thinsp;°C`).join(', ')}),
+(${INDEX.cities.map(c=>`${esc(c.short)} ${thrTxt(c.threshold_c)}`).join(', ')}),
 so the exposure column is comparable down a row and not across one. R² is
 dimensionless and is the column that compares.</p>
 
 <h2>Method</h2>
 <p class="note">Exposure is the longest <em>unbroken</em> run of hours above
-${DATA.threshold_c}°C, from FortyGuard <code>/v1/heatmap</code> with
+${THR2()}, from FortyGuard <code>/v1/heatmap</code> with
 <code>analytic_type: persistence</code>, rather than a scattered total.
 Eight consecutive dangerous hours is an event; eight scattered ones are not.
 Temperatures are two <code>tcm</code> calls at ${s.day_hour}:00 and
 ${s.night_hour}:00 local time. ${esc(s.short)}'s threshold of
-${DATA.threshold_c}&thinsp;°C sits midway between its own measured 3pm and 3am
+${THR2()} sits midway between its own measured 3pm and 3am
 means, because a single fixed number across three cities would read zero
 everywhere in the coolest and 24 hours everywhere in the hottest. Water is
 excluded throughout.</p>
@@ -1773,7 +1819,7 @@ const MAILTO_MAX=1900;   // several clients truncate beyond ~2000 chars
 function subjectLine(){
   return `Night-time heat exposure in ${CITY.short}: `+
          `${HOTSPOTS.length} site${HOTSPOTS.length===1?'':'s'} above `+
-         `${DATA.threshold_c}°C`;
+         `${THR()}`;
 }
 
 function buildBody(){
@@ -1782,8 +1828,8 @@ function buildBody(){
   L.push(`${s.date} · ${s.aoi_sq_mi} mi² at ${s.granularity_m} m`);
   L.push('');
   L.push(`Across this area the afternoon temperature spans just `+
-         `${s.temp_span_c}°C. Expressed as hours above `+
-         `${DATA.threshold_c}°C, the same blocks span `+
+         `${dTxt(s.temp_span_c)}. Expressed as hours above `+
+         `${THR()}, the same blocks span `+
          `${s.exposure_span_h} hours.`);
   L.push('A conventional heat map shows the first number.');
 
@@ -1798,14 +1844,14 @@ function buildBody(){
   if($('incSites').checked && HOTSPOTS.length){
     const havePeople=HOTSPOTS.some(h=>h.people>0);
     L.push('');
-    L.push(`AREAS THAT STAY HOT LONGEST (hours above ${DATA.threshold_c}°C, `+
+    L.push(`AREAS THAT STAY HOT LONGEST (hours above ${THR()}, `+
            `vs a city median of ${medianHours().toFixed(1)} h)`);
     if(havePeople)
       L.push(`Ordered by residents, not by size. The two disagree.`);
     HOTSPOTS.slice(0,8).forEach((h,i)=>{
       L.push(` ${i+1}. `+
              (havePeople?`${Math.round(h.people).toLocaleString()} residents  ·  `:'')+
-             `${h.mean.toFixed(1)} h above ${DATA.threshold_c}°C  ·  `+
+             `${h.mean.toFixed(1)} h above ${THR()}  ·  `+
              `${h.area_km2.toFixed(2)} km²  ·  ${h.n} blocks`+
              (havePeople?`  ·  #${h.areaRank} by size`:''));
       L.push(`    ${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}`);
@@ -1816,7 +1862,7 @@ function buildBody(){
     L.push('');
     L.push('METHOD');
     L.push(`Exposure is the longest unbroken run of hours above `+
-           `${DATA.threshold_c}°C (FortyGuard /v1/heatmap, `+
+           `${THR()} (FortyGuard /v1/heatmap, `+
            `analytic_type=persistence), not scattered totals.`);
     L.push(`Temperatures are 3pm and 3am local time, verified local rather `+
            `than UTC by sweeping all 24 hours and locating the pre-dawn `+
@@ -1974,7 +2020,10 @@ function setUnits(f){
   useF=f;
   $('unitF').classList.toggle('on',f);
   $('unitC').classList.toggle('on',!f);
-  render(); drawTwins(); drawScatter(); drawRanking();
+  // fillPanels covers the twins, scatter and ranking, and also the threshold
+  // box, method note and city table, which print the threshold and were
+  // being left in the old unit.
+  render(); fillPanels();
 }
 $('unitF').onclick=()=>setUnits(true);
 $('unitC').onclick=()=>setUnits(false);
@@ -1996,6 +2045,11 @@ const TOUR=[
    body:`The city, and which day the colours come from.<br><br>`+
         `Most views show a single afternoon. <b>Hottest every time</b> covers `+
         `several hot days. This box always says which.`},
+  {el:'#thrBox', title:'What counts as dangerous', pos:'right',
+   body:`Every <b>hours</b> number here means hours spent above this `+
+        `temperature.<br><br>Each city gets its own line, midway between its `+
+        `own afternoon and pre-dawn averages. One fixed number would read `+
+        `zero all over Chicago and 24 hours all over Phoenix.`},
   {el:'#layerBtns', title:'Five views of the same blocks', pos:'right',
    body:`<b>Hottest every time</b> counts how many hot days each block spent in `+
         `the city's hottest quarter.<br><br>`+
