@@ -1765,7 +1765,8 @@ and are indistinguishable on a temperature map, yet they differ by
 <div class="fig">${reportScatter()}</div>
 <p class="cap">Each column is one afternoon temperature; height is hours of
 exposure. The vertical spread within a column is the finding: blocks that
-read the same at 3pm are not the same at night. R² = <b>${s.r2}</b>.</p>
+read the same at 3pm do not stay dangerous for the same length of time.
+R² = <b>${s.r2}</b>.</p>
 
 <h2>Distribution of exposure</h2>
 <div class="fig">${reportHistogram()}</div>
@@ -1836,7 +1837,9 @@ ${THR2()}, from FortyGuard <code>/v1/heatmap</code> with
 <code>analytic_type: persistence</code>, rather than a scattered total.
 Eight consecutive dangerous hours is an event; eight scattered ones are not.
 Temperatures are two <code>tcm</code> calls at ${s.day_hour}:00 and
-${s.night_hour}:00 local time. ${esc(s.short)}'s threshold of
+${s.night_hour}:00 local time. The counted stretch runs from mid-morning
+until roughly two hours after sunset, so it covers the afternoon and the early
+evening rather than the whole night. ${esc(s.short)}'s threshold of
 ${THR2()} sits midway between its own measured 3pm and 3am
 means, because a single fixed number across three cities would read zero
 everywhere in the coolest and 24 hours everywhere in the hottest. Water is

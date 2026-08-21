@@ -82,8 +82,8 @@ and others at 11:00; some drop back below it at 20:00 and others hold on until
 
 Changing the threshold is not a display setting. It is a request parameter, so
 a new threshold means re-harvesting that city from the API and re-running
-`export_cities.py`. The slider in the app's left panel is a **percentile
-filter** ("show me the worst 20%"), not a threshold control.
+`export_cities.py`. The slider in the app's left panel narrows the map to the
+worst-hit blocks; it is not a threshold control.
 
 ## Does it repeat, or was it one bad day?
 
@@ -128,8 +128,10 @@ residents instead, and shows you which sites move when it does.
 
 ## Running the demo
 
-Nothing to install. Open **https://shaurav-vora.github.io/nightwatch/**, read
-the two cards, and click through to the map. A guided tour opens on its own.
+Nothing to install. Open **https://shaurav-vora.github.io/nightwatch/**. The
+opening section puts the same Phoenix blocks side by side, asked two ways, and
+the rest of the page carries the threshold, the evidence and the caveats.
+Click through to the map and a guided tour opens on its own.
 
 The path through the app, roughly ninety seconds:
 
@@ -137,7 +139,10 @@ The path through the app, roughly ninety seconds:
    strongest form of the argument.
 2. **Switch to "Afternoon heat", then back to "Hottest every time".** That
    toggle is the whole insight: the first is the map cities use today.
-3. **Drag the filter left** to strip everything but the worst-hit blocks.
+3. **Drag the filter left** to strip everything but the worst-hit blocks. On
+   the default layer it steps in whole days, because a block is either in the
+   hottest quarter on a given day or it is not, and the label reports the
+   share actually on screen.
 4. **Click a row in the ranked list.** The map flies there and outlines the
    actual blocks, not a circle approximating them.
 5. **Generate full report** opens a self-contained printable page with inline
@@ -218,9 +223,6 @@ Several of these cut against us.
 - Population is matched to the **nearest tract centroid**, not by polygon
   intersection, and assumed uniform within a tract. Dependable for ranking
   areas of hundreds of blocks, indicative only for any single block.
-- Refuge access, where present, uses **straight-line distance**. This
-  *understates* the problem: walls, highways and rail only make a cool place
-  harder to reach.
 - The land-cover comparison across 30 blocks found **no significant difference
   at any of 10 classes**. The street-view photographs are illustrative of one
   location, not a sample, and both results are reported.
