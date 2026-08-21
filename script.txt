@@ -2,132 +2,133 @@ NIGHTWATCH - 3 MINUTE DEMO SCRIPT
 =================================
 
 Read the NARRATION lines aloud. Do what the ACTION lines say while you read
-them. Target pace is about 150 words per minute, which is unhurried. If you
-run long, the cut list is at the bottom.
+them. Pace is about 150 words a minute, which is unhurried. The cut list is
+at the bottom if you run long.
 
 
 BEFORE YOU RECORD
 -----------------
-[ ] Open https://shaurav-vora.github.io/nightwatch/ in a clean window, no
-    bookmarks bar, no extensions visible.
-[ ] Browser zoom 100%. Window at least 1600 wide so the three columns fit.
-[ ] Hard-refresh once (Ctrl+Shift+R) and let both pages load fully, then
-    reload to start. Cold tile loading looks like lag on camera.
-[ ] On the map page, click "Skip" on the tour. You are the tour.
-[ ] Reset to Phoenix, layer "Hottest every time", filter slider at 100%.
-[ ] Record at 1080p minimum. Mouse movements slow and deliberate.
+[ ] Open https://shaurav-vora.github.io/nightwatch/ in a clean window. No
+    bookmarks bar, no extensions showing.
+[ ] Browser zoom 100%. Window at least 1600 wide, or the three columns of the
+    app will stack.
+[ ] Load both pages once, then reload. Cold tiles look like lag on camera.
+[ ] On the map page, click Skip on the tour. You are the tour.
+[ ] Leave it on Phoenix, layer "Hottest every time", filter at 100%.
+[ ] Record at 1080p or better. Move the mouse slower than feels natural.
 
 
-0:00 - 0:22   THE PROBLEM
+0:00 - 0:20   WHAT IT IS
 -------------
-ACTION   Landing page, top. Slowly scroll to the two cards.
+ACTION   Landing page, top. Hold on the title and the opening line.
 
 NARRATION
-  Cities decide where to plant trees and open cooling centres using maps of how
-  hot it gets. We measured every hundred-metre block across eighty-three square
-  miles of Phoenix on a hot July afternoon. From the coolest block to the
-  hottest, the whole spread was one point eight degrees. Nobody acts on that.
-
-ACTION   Stop with both cards on screen.
+  Cities decide where to plant trees and where to open cooling centres using
+  maps of how hot it gets. NIGHTWATCH maps something else: how many hours each
+  city block stays dangerously hot after dark. Phoenix, Houston and Chicago,
+  block by block.
 
 
-0:22 - 0:42   THE REFRAME
+0:20 - 0:45   THE TWO MAPS
 -------------
-ACTION   Point at the "9.1 hours" card. Then scroll to the quote block.
+ACTION   Scroll to the pair of Phoenix maps. Let both sit on screen while you
+         talk. Point at the left one, then the right one.
 
 NARRATION
-  So we asked a different question. Not how hot, but how many hours in a row do
-  you stay above the danger threshold. That answer spans nine hours. Same
-  blocks, same day. One of those numbers is a rounding error. The other is a
-  public health problem.
+  Here is why that matters. Same city, same afternoon, same blocks, asked two
+  ways. On the left, how hot it got. On the right, how long it stayed
+  dangerous. If the first told you where the danger was, these two pictures
+  would match. They do not even look like the same city.
 
 
-0:42 - 1:08   THE MAP, AND THE TOGGLE
+0:45 - 1:10   THE TOGGLE
 -------------
-ACTION   Click "Open the map". Wait for Phoenix to render.
-         Then click "Afternoon heat". Pause two seconds on it.
-         Then click back to "Hottest every time".
+ACTION   Click "Open the map". Wait for Phoenix to draw.
+         Click "Afternoon heat". Hold two seconds.
+         Click back to "Hottest every time".
 
 NARRATION
-  This is Phoenix. Red is the ground that stays dangerous longest after dark.
-  Here is the map a city would use today.
-  [PAUSE while Afternoon heat is on screen]
-  Temperature at three in the afternoon. Almost flat. Now back to duration.
+  This is the live version. Red is the ground that stays dangerous longest.
+  Now here is the map a city would use today.
+  [PAUSE on Afternoon heat]
+  Temperature at three in the afternoon. Almost flat. Back to duration.
   [CLICK BACK]
-  Completely different city. In Phoenix, how hot a block gets in the afternoon
-  tells you almost nothing about its night. R-squared is zero point one.
+  A different city. In Phoenix, how hot a block gets in the afternoon tells you
+  almost nothing about its night. R-squared is zero point one.
 
 
-1:08 - 1:30   TWO REAL BLOCKS
+1:10 - 1:30   TWO REAL BLOCKS
 -------------
-ACTION   Scroll the right panel to the twin-blocks card. Let the coordinates
-         be readable for at least three seconds.
+ACTION   Scroll the right panel to the twin blocks card. Hold long enough for
+         the coordinates to be readable.
 
 NARRATION
-  What that means on the ground. These two blocks both read ninety-nine point
-  seven Fahrenheit at three p.m. Identical on a temperature map. One spends six
-  hours above the danger threshold. The other spends eleven. Real coordinates.
+  What that looks like on the ground. These two blocks both read ninety-nine
+  point seven Fahrenheit at three in the afternoon, so a temperature map cannot
+  tell them apart. One spends six hours above the danger line. The other spends
+  eleven.
 
 
 1:30 - 1:55   DOES IT REPEAT
 -------------
 ACTION   Click "Houston" in the bar above the map. Scroll the right panel to
-         the repeat card showing 1,408 and 64.6x.
+         the card showing 1,408 and 64.6x.
 
 NARRATION
-  The obvious objection is that this was one bad afternoon, so we tested it
+  The obvious objection is that this was one bad afternoon, so we tested that
   first, across five heat events between twenty twenty-two and twenty
   twenty-five. In Houston, fourteen hundred blocks landed in the worst quarter
   of the city every single time. Chance would give you twenty-two. That is
-  sixty-five times over. Not weather. Built environment, which means fixable.
+  sixty-five times over. This is the built environment, not the weather, which
+  means someone can fix it.
 
 
 1:55 - 2:18   WHO LIVES THERE
 -------------
-ACTION   Scroll to the population card, then to the ranked list. Click the
-         top row. Let the map fly and outline the site.
+ACTION   Scroll to the population card, then the ranked list. Click the top
+         row and let the map fly and outline the site.
 
 NARRATION
   Then we joined census population. Twenty-nine thousand people live in that
-  core, but the density there is below the city average, because the hottest
-  ground is largely industrial. So the list is ordered by people, not area, and
-  it shows you which sites move when you do that.
+  core, and the density there is below the city average, because the hottest
+  ground is mostly industrial. So the list is ordered by residents rather than
+  by area, and it shows you which sites move when you do that.
 
 
 2:18 - 2:40   THE PART THAT FAILED
 -------------
-ACTION   Switch to the landing page tab, scroll to "What we got wrong".
+ACTION   Switch to the landing page tab. Scroll to "What we got wrong".
 
 NARRATION
-  One more thing. The idea we started with was that the hottest block at three
-  p.m. is the safest at three a.m. Chicago agreed strongly. It was Lake
-  Michigan. Exclude land within three kilometres of water and it flips. We
-  abandoned it. That failure is still in the repo, because a result nobody
-  tried to break is not worth much.
+  One more thing. We set out to show that the hottest block at three p.m. is
+  the safest at three a.m. Chicago agreed. It was Lake Michigan. Take out the
+  land within three kilometres of water and it flips. We dropped it, and the
+  failed version is still in the repo, because a result nobody attacked is
+  worth very little.
 
 
 2:40 - 3:00   WHAT YOU CAN DO WITH IT
 -------------
-ACTION   Back to the map tab. Click "Generate full report". Let the report
-         page open and scroll it once. End on the report or the map.
+ACTION   Back to the map tab. Click "Generate full report". Let it open and
+         scroll it once. End on the report or the map.
 
 NARRATION
-  Everything exports. Ranked sites as a spreadsheet, the grid as GeoJSON, and a
-  printable report with the method and the limitations in it. Built on
-  FortyGuard's API. Three cities, fifty-three thousand blocks. Heat maps measure
+  All of it exports. Ranked sites as a spreadsheet, the grid as GeoJSON, and a
+  printable report carrying the method and the limitations. Built on
+  FortyGuard's API, three cities, fifty-three thousand blocks. Heat maps measure
   how hot. This measures how long.
 
 
 IF YOU RUN LONG
 ---------------
 Cut in this order:
-  1. The last two sentences of 1:08 (the twin-blocks coordinates line).
-  2. The whole 2:18 failed-hypothesis beat. Costs you the honesty point, so
-     cut it last if you can.
-  3. Tighten 0:00 by starting at "We measured every hundred-metre block".
+  1. The last sentence of 1:10, about the six and eleven hours. The card is on
+     screen and says it.
+  2. The whole 2:18 beat. It costs you the honesty point, so cut it last.
+  3. Start 0:00 at "NIGHTWATCH maps something else".
 
-DO NOT CUT the Afternoon heat toggle at 0:42. That toggle is the entire
-argument and the video is pointless without it.
+Do not cut the toggle at 0:45. That toggle is the argument, and the video does
+not work without it.
 
 
 NUMBERS, IF A JUDGE ASKS
@@ -135,9 +136,15 @@ NUMBERS, IF A JUDGE ASKS
   Phoenix   1.81 C spread  ->  9.07 h spread   R2 0.106   21,453 blocks
   Houston   4.20 C spread  ->  5.56 h spread   R2 0.802   22,333 blocks
   Chicago   5.56 C spread  -> 11.56 h spread   R2 0.783    9,606 blocks
-  Repeat:   Houston 1,408 blocks = 64.6x chance
+
+  Thresholds are per city, midway between that city's own 3pm and 3am means:
+    Phoenix 35 C, Houston 32 C, Chicago 25 C. Hours compare within a city,
+    not between cities. R2 is the number that compares.
+
+  Repeat:   Houston 1,408 blocks worst every time = 64.6x chance
             Chicago 1,298 = 10.2x
-            Phoenix   817 =  2.4x  (weak, and the app says so)
+            Phoenix   817 =  2.4x, which is weak, and the app says so
+
   Twins:    both 37.63 C at 3pm, 6.10 h vs 11.18 h
-  Lake:     Chicago rho -0.731 all tiles, +0.130 beyond 3 km from water
+  Lake:     Chicago rho -0.731 across all tiles, +0.130 beyond 3 km of water
             Houston +0.842, no lake

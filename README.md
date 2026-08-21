@@ -27,12 +27,11 @@ you spend above the danger threshold? That answer spans **9.07 hours**.
 | Blocks measured | 21,453 | 22,333 | 9,606 (1,430 water) |
 | Threshold | 35 °C | 32 °C | 25 °C |
 
-R² is the number that matters, and it is also the only row in that table you
-can compare across cities (see the threshold caveat below). In Phoenix,
+R² is the row that matters, and the only one you can read across cities
+rather than down a column (see the threshold caveat below). In Phoenix,
 knowing a block's afternoon temperature tells you almost nothing about how
-long it stays dangerous after dark. A conventional heat map of Phoenix is
-close to uninformative about night-time exposure, and it is the map cities
-actually use.
+long it stays dangerous after dark. So a conventional heat map of Phoenix
+says very little about the night, and that is the map cities use.
 
 **Two real blocks in Phoenix both read 99.7 °F at 3pm.** One spends 6.1 hours
 above 35 °C. The other spends 11.2. Five hours apart, identical on a
@@ -96,10 +95,10 @@ instead of presenting its site list with the same confidence.
 ## The hypothesis we started with was wrong
 
 The original plan was to show that the hottest block at 3pm is *not* the most
-dangerous block at 3am. Chicago agreed emphatically: Spearman ρ = **−0.731**.
+dangerous block at 3am. Chicago agreed, at Spearman ρ = **−0.731**.
 
 It was Lake Michigan. Excluding land within 3 km of water flips the sign, and
-the effect scales cleanly with distance:
+the effect scales with distance:
 
 | Chicago tiles | ρ (3pm vs 3am) |
 |---|---|
@@ -109,17 +108,17 @@ the effect scales cleanly with distance:
 | land >3 km from water | **+0.130** |
 | land >4 km from water | +0.345 |
 
-That is a dose-response curve for proximity to a lake, not a discovery about
-cities. Houston, which has no lake, came back at **+0.842**: afternoon heat
-predicts night heat almost perfectly there.
+That is a dose-response curve for distance from a lake, not a discovery about
+cities. Houston has no lake and came back at **+0.842**, so there the afternoon
+predicts the night almost perfectly.
 
-So we abandoned the reversal thesis and kept looking. What survived is the
-amplification result above, which is weaker as a headline and much harder to
-argue with. The failed hypothesis is still in the commit history and in
-`water_confound.py` and `detrend.py`, because a result nobody tried to break is
-not worth much.
+So we dropped the reversal thesis and kept looking. What survived is the
+amplification result above. It makes a weaker headline and it is much harder to
+argue with. The failed version is still in the commit history and in
+`water_confound.py` and `detrend.py`, because a result nobody attacked is worth
+very little.
 
-## Who is actually affected
+## Who it affects
 
 Population comes from the US Census (ACS 2022 5-year, joined to 2023 Gazetteer
 tract centroids).
@@ -130,11 +129,11 @@ tract centroids).
 | Houston | 29,128 | 550,848 | 0.84× |
 | Chicago | 64,442 | 669,093 | 0.71× |
 
-All three come out **below 1**, and that is the useful result, not a
-disappointment. The ground that is reliably hottest is largely industrial and
-commercial, so heat and residents only partly overlap. Ranking sites by area
-sends money to the wrong places, which is why the app ranks by residents and
-shows you where the two orderings disagree.
+All three come out below 1. We expected the opposite, and the result is more
+useful than the one we expected: the ground that is reliably hottest is mostly
+industrial and commercial, so heat and residents overlap only in part. Rank
+sites by area and you send money to the wrong places. The app ranks by
+residents instead, and shows you which sites move when it does.
 
 ---
 
@@ -202,7 +201,7 @@ Worth reporting back, and all of it is in `probe_report.json` from day one.
   probe, well past the 10 mi² documented for Basic. Our city AOIs run 37 to 86
   mi² as single requests.
 - **Granularity is close to cosmetic.** 60 m returns 2.78× the tiles with
-  effectively identical standard deviation and range, so native resolution is
+  the same standard deviation and range, so the underlying resolution is
   coarser than 100 m and block-level detail should not be over-read.
 - **`persistence` and `exceedance` can disagree impossibly**, with persistence
   exceeding exceedance on some tiles. We use `persistence` throughout because
@@ -223,7 +222,7 @@ Worth reporting back, and all of it is in `probe_report.json` from day one.
 
 ## Limitations
 
-Stated plainly, because several of them cut against us.
+Several of these cut against us.
 
 - Modelled temperature field for a single day, not sensor measurement.
 - Population is matched to the **nearest tract centroid**, not by polygon
@@ -282,6 +281,7 @@ credits**. Only a cache miss costs anything.
 | `explain_core.py` | Land-cover comparison inside vs outside the core |
 | `core_photos.py` | Finds a street-view location inside the core, four headings |
 | `export_cities.py` | Bakes everything into `web/data/*.json` |
+| `preview_maps.py` | Renders the landing-page maps from the baked data |
 
 **The investigation trail** (kept deliberately, this is where the failed
 hypothesis lives):

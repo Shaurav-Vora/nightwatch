@@ -522,7 +522,7 @@ const LAYERS = {
   // that ___".
   persistent:{i:7, unit:'pct', rel:false,
             title:'Hottest every time',
-            sub:'how many hot days it was in the city’s hottest quarter',
+            sub:'how many hot days it was in the hottest quarter of the city',
             noun:'of the hot days we checked',
             filter:'were bad on fewer days than'},
   exposure:{i:2, unit:'h', rel:true,
@@ -1085,13 +1085,13 @@ function drawConsistency(){
   if(!CONS){
     a.textContent='—'; ch.textContent='—';
     l.textContent='no multi-date data for this city';
-    n.textContent='Run multidate.py then consistency.py to populate this.';
+    n.textContent='This city was measured on a single date, so the repeat test does not apply to it.';
     return;
   }
   const ratio=CONS.n_always/Math.max(CONS.expected_by_chance,1e-9);
   a.textContent=CONS.n_always.toLocaleString();
   a.style.color = ratio>=8 ? '#f97316' : ratio>=3 ? '#fbbf24' : '#8792a5';
-  l.innerHTML=`blocks in the city’s hottest quarter on <b>all ${CONS.dates.length}</b> `+
+  l.innerHTML=`blocks in the hottest quarter of the city on <b>all ${CONS.dates.length}</b> `+
     `heat events measured`;
   ch.textContent=ratio.toFixed(1)+'×';
   ch.style.color=a.style.color;
@@ -1240,7 +1240,7 @@ function drawPopulation(){
   if(!p||p.in_persistent==null){
     a.textContent='—'; d.textContent='—';
     l.textContent='no census data for this city';
-    n.textContent='Run population.py to add it.';
+    n.textContent='Without it the areas below are ranked by size instead of by residents.';
     return;
   }
   const shareP=p.in_persistent/p.total;
@@ -1662,7 +1662,7 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid #e2e8f0;
 <div class="tb">
   <button class="p" onclick="window.print()">Save as PDF</button>
   <button onclick="dlSelf()">Download HTML</button>
-  <span class="sp">Choose “Save as PDF” as the destination.</span>
+  <span class="sp">Choose "Save as PDF" as the destination.</span>
 </div>
 <scr` + `ipt>
 function dlSelf(){
@@ -1795,7 +1795,7 @@ The persistently hottest ground runs below the area's average density, and
 much of it is industrial or commercial, so heat and residents only partly
 overlap.<br>`
 :`No population weighting: areas are ranked by size, not by who lives there.
-Run population.py to add it.<br>`}
+The areas are ranked by size instead.<br>`}
 Persistence and exceedance are identical wherever the temperature curve
 crosses the threshold only once, which is most of the day in most cities.
 </div>
