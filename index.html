@@ -76,6 +76,23 @@
   .g .t{font-weight:700;font-size:15.5px;margin-bottom:7px;color:#fff}
   .g .b{font-size:13.5px;color:#aab4c2;line-height:1.55}
 
+  /* the three-city strip */
+  .strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0 0}
+  @media(max-width:720px){.strip{grid-template-columns:1fr}}
+  .strip figure{margin:0}
+  .strip .box{aspect-ratio:4/3;background:#080c12;border:1px solid var(--line);
+    border-radius:8px;display:flex;align-items:center;justify-content:center;
+    overflow:hidden}
+  .strip .box img{width:100%;height:100%;object-fit:contain;display:block}
+  .strip .cn{font-weight:700;font-size:16px;margin:10px 0 2px;color:#fff}
+  .strip .cm{font-size:12.5px;color:var(--muted);line-height:1.5}
+  .strip .cm b{color:var(--accent);font-weight:700}
+
+  .warn{border-left:3px solid var(--cool);background:#0c1826;
+    padding:16px 20px;border-radius:0 8px 8px 0;margin:26px 0 0;
+    font-size:14px;color:#b9c6d6;line-height:1.6}
+  .warn b{color:#fff}
+
   figure.shot{margin:26px 0 0}
   figure.shot img{width:100%;display:block;border-radius:10px;
     border:1px solid var(--line)}
@@ -127,7 +144,10 @@
 
 <section><div class="wrap">
   <h3>See the difference in one look</h3>
-  <h2>Same city, same day, same blocks. Two questions.</h2>
+  <h2>Phoenix. Same day, same blocks. Two questions.</h2>
+  <p style="font-size:14.5px;color:var(--muted);margin-top:-6px">Phoenix is the
+     clearest example, so it leads. Houston and Chicago are below, and both are
+     in the app.</p>
 
   <div class="maps">
     <figure>
@@ -191,6 +211,76 @@
   </figure>
 </div></section>
 
+<section id="cities"><div class="wrap">
+  <h3>Three cities</h3>
+  <h2>Deliberately different, and each measured against its own line.</h2>
+  <p>An arid city with no water, a humid sprawling one, and a lake-dominated
+     one. Each map below is hours spent above that city's danger threshold, on
+     22 July 2025.</p>
+
+  <div class="strip">
+    <figure>
+      <div class="box"><img src="web/img/city-phoenix.png"
+        alt="Phoenix exposure map. The longest-exposure ground runs through the
+             centre and east."></div>
+      <div class="cn">Phoenix, AZ</div>
+      <div class="cm">Threshold <b>35 °C</b> (95 °F)<br>
+        21,453 blocks · arid, no water<br>
+        Afternoon heat predicts the night worst here. R² 0.106</div>
+    </figure>
+    <figure>
+      <div class="box"><img src="web/img/city-houston.png"
+        alt="Houston exposure map. A large cool block sits in the upper middle
+             with severe exposure to the south and east."></div>
+      <div class="cn">Houston, TX</div>
+      <div class="cm">Threshold <b>32 °C</b> (90 °F)<br>
+        22,333 blocks · humid, sprawling<br>
+        The most persistent core of the three. 64.6× chance</div>
+    </figure>
+    <figure>
+      <div class="box"><img src="web/img/city-chicago.png"
+        alt="Chicago exposure map. The lakefront strip on the right is
+             dramatically cooler than everywhere inland."></div>
+      <div class="cn">Chicago, IL</div>
+      <div class="cm">Threshold <b>25 °C</b> (77 °F)<br>
+        8,176 land blocks · lake-dominated<br>
+        That cool strip on the right is Lake Michigan</div>
+    </figure>
+  </div>
+
+  <h3 style="margin-top:44px">Where the threshold comes from</h3>
+  <p>The threshold is the temperature a block has to stay above to count as
+     dangerous. We set it per city, midway between that city's own measured
+     3pm and 3am means:</p>
+
+  <table>
+    <tr><th>City</th><th class="num">3pm mean</th><th class="num">3am mean</th>
+        <th class="num">Midpoint</th><th class="num">Threshold used</th></tr>
+    <tr><td>Phoenix</td><td class="num">38.33 °C</td><td class="num">31.31 °C</td>
+        <td class="num">34.82</td><td class="num ok">35 °C</td></tr>
+    <tr><td>Houston</td><td class="num">36.20 °C</td><td class="num">27.29 °C</td>
+        <td class="num">31.75</td><td class="num ok">32 °C</td></tr>
+    <tr><td>Chicago</td><td class="num">29.99 °C</td><td class="num">20.74 °C</td>
+        <td class="num">25.36</td><td class="num ok">25 °C</td></tr>
+  </table>
+
+  <p>A single fixed number across all three would measure nothing. At 35 °C
+     Chicago never crosses the line and every block scores zero. At 25 °C
+     Phoenix never drops below it and every block scores twenty-four. The
+     midpoint guarantees the day partly clears the threshold, and that is the
+     only place duration has room to vary.</p>
+
+  <div class="warn">
+    <b>So compare within a city, not between them.</b> Because each city has
+    its own threshold, the hour figures are not interchangeable: Chicago's
+    11.6-hour spread is not "worse" than Houston's 5.6-hour spread, it is
+    measured against a different line. What <em>is</em> comparable across
+    cities is R², which has no units, and the repeat ratios further down.
+    Every export carries its <code>threshold_c</code> in the file so the
+    number can never travel without it.
+  </div>
+</div></section>
+
 <section id="why"><div class="wrap">
   <h3>Why it matters</h3>
   <h2>A whole city fits inside two degrees. Nobody acts on two degrees.</h2>
@@ -203,14 +293,14 @@
 
   <div class="two">
     <div class="card cool">
-      <div class="n">1.8°C</div><div class="u">temperature range, whole city</div>
+      <div class="n">1.8°C</div><div class="u">temperature range, all of Phoenix</div>
       <div class="d">What a conventional heat map shows. Almost flat, so
         nothing stands out and no block looks urgent.</div>
     </div>
     <div class="card hot">
       <div class="n">9.1 hours</div><div class="u">exposure range, same blocks</div>
       <div class="d">The same data, asked differently. Some blocks endure nine
-        more hours of dangerous heat than others on the same day.</div>
+        more hours above 35 °C than others on the same day.</div>
     </div>
   </div>
 
@@ -280,9 +370,10 @@
       time. We established the API speaks local rather than UTC by sweeping all
       24 hours and finding the pre-dawn minimum. The documentation says
       otherwise.</li>
-    <li><b>Thresholds</b> are set per city, between its own measured afternoon
-      and pre-dawn means, so a mild city and an extreme one are both
-      measurable.</li>
+    <li><b>Thresholds</b> are 35 °C in Phoenix, 32 °C in Houston and 25 °C in
+      Chicago, each midway between that city's own measured afternoon and
+      pre-dawn means. The derivation and the comparability caveat are in
+      <a href="#cities" style="color:var(--cool)">Three cities</a> above.</li>
     <li><b>Sites</b> are joined-up patches of blocks that were worst on every
       heat event, exportable as CSV and GeoJSON for a planning department.</li>
   </ul>

@@ -100,18 +100,36 @@ def render(cells, col_index, dlon, dlat, name, invert_y=True):
     return path
 
 
-def main() -> None:
-    d = json.loads((DATA / f"{CITY}.json").read_text(encoding="utf-8"))
+def load(city: str):
+    d = json.loads((DATA / f"{city}.json").read_text(encoding="utf-8"))
     fields = d["fields"]
-    dlon, dlat = d["cell"]
     cells = [c for c in d["cells"] if not c[fields.index("is_water")]]
-    print(f"{d['label']}  {len(cells)} land blocks at {d['granularity_m']} m")
+    return d, fields, cells
 
+
+def main() -> None:
+    # --- the hero pair: one city, one day, asked two ways ---------------
+    d, fields, cells = load(CITY)
+    dlon, dlat = d["cell"]
+    print(f"{d['label']}  {len(cells)} land blocks at {d['granularity_m']} m")
     render(cells, fields.index("day_c"), dlon, dlat, "preview-temperature.png")
     render(cells, fields.index("exposure_h"), dlon, dlat, "preview-exposure.png")
     print("\nBoth panels: same blocks, same day, same colour ramp.")
     print("They disagree because afternoon temperature does not predict the "
-          "night here (R2 0.106).")
+          "night here (R2 0.106).\n")
+
+    # --- the three-city strip, exposure only ---------------------------
+    # Each city is stretched over its OWN range, because each was measured
+    # against its own threshold. Comparing the colours between these three
+    # is meaningless and the caption on the page says so.
+    print("three-city strip (exposure, each stretched over its own range):")
+    for city in ("phoenix", "houston", "chicago"):
+        d, fields, cells = load(city)
+        dlon, dlat = d["cell"]
+        render(cells, fields.index("exposure_h"), dlon, dlat,
+               f"city-{city}.png")
+        print(f"    {city} threshold {d['threshold_c']} C, "
+              f"{len(cells)} land blocks")
 
 
 if __name__ == "__main__":

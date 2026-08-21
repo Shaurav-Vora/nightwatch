@@ -813,13 +813,20 @@ function fillPanels(){
   const best=INDEX.cities[0];
   document.getElementById('cmpNote').innerHTML=
     `R² is how much of a block's night-time exposure is predictable from its `+
-    `afternoon temperature. In ${best.short} it is <b>${best.r2}</b>.`;
+    `afternoon temperature. In ${best.short} it is <b>${best.r2}</b>.`+
+    `<br><br><span style="color:#7c8ba1">Each city is measured against its own `+
+    `threshold (`+INDEX.cities.map(c=>`${c.short} ${c.threshold_c}°C`).join(', ')+
+    `), so read the <b>hours</b> column down a single row, not across. R² has `+
+    `no units and is the column that does compare.</span>`;
 
   document.getElementById('method').innerHTML=
     `Exposure is the longest <b>unbroken</b> run of hours above `+
     `${s.threshold_c}°C, from FortyGuard <code>/v1/heatmap</code>, `+
-    `<code>analytic_type: persistence</code>. Thresholds are set per city `+
-    `between its measured 3pm and 3am means. Temperatures are two `+
+    `<code>analytic_type: persistence</code>. ${s.short}'s threshold of `+
+    `<b>${s.threshold_c}°C</b> sits midway between its own measured 3pm and `+
+    `3am means, because one fixed number across three cities would read zero `+
+    `everywhere in the cool one and 24 hours everywhere in the hot one. `+
+    `Temperatures are two `+
     `<code>tcm</code> calls at ${s.day_hour||15}:00 and ${s.night_hour||3}:00 `+
     `local time. `+
     `${s.n_water?s.n_water.toLocaleString()+' water tiles are masked. ':''}`+
@@ -1696,7 +1703,10 @@ ${CONS.n_always/Math.max(CONS.expected_by_chance,1e-9) >= 8
 <th>R²</th><th>blocks</th></tr>${cityRows}</table>
 <p class="cap">Where R² is low, afternoon temperature carries little
 information about night-time exposure; where it is high, it carries most
-of it.</p>
+of it. Each city is measured against its own threshold
+(${INDEX.cities.map(c=>`${esc(c.short)} ${c.threshold_c}&thinsp;°C`).join(', ')}),
+so the exposure column is comparable down a row and not across one. R² is
+dimensionless and is the column that compares.</p>
 
 <h2>Method</h2>
 <p class="note">Exposure is the longest <em>unbroken</em> run of hours above
@@ -1704,8 +1714,11 @@ ${DATA.threshold_c}°C, from FortyGuard <code>/v1/heatmap</code> with
 <code>analytic_type: persistence</code>, rather than a scattered total.
 Eight consecutive dangerous hours is an event; eight scattered ones are not.
 Temperatures are two <code>tcm</code> calls at ${s.day_hour}:00 and
-${s.night_hour}:00 local time. Thresholds are set per city between its
-measured 3pm and 3am means. Water is excluded throughout.</p>
+${s.night_hour}:00 local time. ${esc(s.short)}'s threshold of
+${DATA.threshold_c}&thinsp;°C sits midway between its own measured 3pm and 3am
+means, because a single fixed number across three cities would read zero
+everywhere in the coolest and 24 hours everywhere in the hottest. Water is
+excluded throughout.</p>
 
 <h2>Limitations</h2>
 <div class="caveat">

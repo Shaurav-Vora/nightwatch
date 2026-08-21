@@ -27,14 +27,48 @@ you spend above the danger threshold? That answer spans **9.07 hours**.
 | Blocks measured | 21,453 | 22,333 | 9,606 (1,430 water) |
 | Threshold | 35 °C | 32 °C | 25 °C |
 
-R² is the number that matters. In Phoenix, knowing a block's afternoon
-temperature tells you almost nothing about how long it stays dangerous after
-dark. A conventional heat map of Phoenix is close to uninformative about
-night-time exposure, and it is the map cities actually use.
+R² is the number that matters, and it is also the only row in that table you
+can compare across cities (see the threshold caveat below). In Phoenix,
+knowing a block's afternoon temperature tells you almost nothing about how
+long it stays dangerous after dark. A conventional heat map of Phoenix is
+close to uninformative about night-time exposure, and it is the map cities
+actually use.
 
 **Two real blocks in Phoenix both read 99.7 °F at 3pm.** One spends 6.1 hours
 above 35 °C. The other spends 11.2. Five hours apart, identical on a
 temperature map. The app shows you both, with coordinates.
+
+## The threshold, and why it differs per city
+
+"Dangerously hot" needs a line, and that line is a FortyGuard API parameter
+(`threshold`, in °C, with `direction: "above"`). Everything the project calls
+*exposure* is the longest unbroken run of hours above it.
+
+We set it per city, midway between that city's own measured 3pm and 3am means:
+
+| City | 3pm mean | 3am mean | Midpoint | Threshold used |
+|---|---|---|---|---|
+| Phoenix | 38.33 °C | 31.31 °C | 34.82 | **35 °C** (95 °F) |
+| Houston | 36.20 °C | 27.29 °C | 31.75 | **32 °C** (90 °F) |
+| Chicago | 29.99 °C | 20.74 °C | 25.36 | **25 °C** (77 °F) |
+
+A single fixed number across all three would measure nothing. At 35 °C,
+Chicago never crosses the line and every block scores zero. At 25 °C, Phoenix
+never drops below it and every block scores twenty-four. The midpoint
+guarantees the day partly clears the threshold, which is the only place
+duration has room to vary. It lives in `THRESHOLDS` in `duration_test.py`.
+
+> **Compare within a city, not between them.** Because each city has its own
+> threshold, the hour figures above are not interchangeable. Chicago's
+> 11.56-hour spread is not "worse" than Houston's 5.56-hour spread; it is
+> measured against a different line. What *is* comparable across cities is R²,
+> which is dimensionless, and the repeat ratios below. Every CSV and GeoJSON
+> export carries its own `threshold_c` so the number cannot travel without it.
+
+Changing the threshold is not a display setting. It is a request parameter, so
+a new threshold means re-harvesting that city from the API and re-running
+`export_cities.py`. The slider in the app's left panel is a **percentile
+filter** ("show me the worst 20%"), not a threshold control.
 
 ## Does it repeat, or was it one bad day?
 
@@ -203,6 +237,10 @@ Stated plainly, because several of them cut against us.
   location, not a sample, and both results are reported.
 - Phoenix's persistence ratio of 2.4× is weak. Its site list should not be
   treated as fixed, and the app says so where the list appears.
+- **Each city uses its own threshold**, so hour figures are comparable within a
+  city and not between cities. R² and the repeat ratios are the cross-city
+  numbers. A single common threshold would be a fair robustness check and we
+  did not have the credits to run one.
 - We say heat duration **correlates with excess mortality in the
   epidemiological literature**. We do not claim a body count.
 
@@ -236,7 +274,7 @@ credits**. Only a cache miss costs anything.
 | Script | Purpose |
 |---|---|
 | `city_test.py` | AOI definitions and the per-city fetch helpers |
-| `duration_test.py` | Picks each city's threshold, between its 3pm and 3am means |
+| `duration_test.py` | Holds `THRESHOLDS`, the per-city danger line. Edit here |
 | `multidate.py` | Re-runs the measurement across five dates |
 | `consistency.py` | Counts blocks in the worst quartile every time, vs chance |
 | `population.py` | Census join, appends residents per block |
