@@ -218,22 +218,25 @@
      the list exactly as the app produces it.</p>
 
   <table>
-    <tr><th></th><th class="num">residents</th><th class="num">hours above
-        threshold</th><th class="num">area</th><th>centroid</th>
-        <th class="num">rank by size</th></tr>
-    <tr><td>1</td><td class="num">3,404</td><td class="num">12.7 h</td>
+    <tr><th class="num">rank by<br>residents</th><th class="num">residents</th>
+        <th class="num">hours above<br>threshold</th><th class="num">area</th>
+        <th>centre point</th>
+        <th class="num">would rank<br>by area</th></tr>
+    <tr><td class="num">1st</td><td class="num">3,404</td><td class="num">12.7 h</td>
         <td class="num">0.81 km²</td><td class="mono">33.4051, -112.0439</td>
         <td class="num meh">4th</td></tr>
-    <tr><td>2</td><td class="num">2,886</td><td class="num">12.9 h</td>
+    <tr><td class="num">2nd</td><td class="num">2,886</td><td class="num">12.9 h</td>
         <td class="num">1.50 km²</td><td class="mono">33.4529, -112.0508</td>
         <td class="num meh">3rd</td></tr>
-    <tr><td>3</td><td class="num">1,945</td><td class="num">12.9 h</td>
+    <tr><td class="num">3rd</td><td class="num">1,945</td><td class="num">12.9 h</td>
         <td class="num">2.07 km²</td><td class="mono">33.4146, -112.0402</td>
         <td class="num meh">2nd</td></tr>
   </table>
-  <p style="font-size:14px;color:var(--muted)">Read the last column. Ranked by
-     residents, the worst site is only the <b>4th</b> biggest. A city ranking by
-     area would have worked down this list in close to the opposite order.</p>
+  <p style="font-size:14px;color:var(--muted)">Compare the first and last
+     columns. Across these three, people and area run in opposite directions:
+     the site with the most residents is the smallest of them, and the largest
+     has the fewest people. A city choosing sites by size would work down this
+     list backwards.</p>
 
   <h3 style="margin-top:38px">The same rows, downloaded</h3>
   <pre class="csv">site_id,residents,mean_hours,peak_hours,area_km2,blocks,latitude,longitude,mean_3pm_c,mean_3am_c,threshold_c,city,date
