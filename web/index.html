@@ -2052,55 +2052,62 @@ $('unitC').onclick=()=>setUnits(false);
 // replays it at any point.
 // =====================================================================
 const TOUR=[
-  {el:null, title:'One minute, and this will all make sense',
-   body:`Heat maps show temperature. Across a whole city that's often under `+
-        `two degrees, which is nothing you'd act on.<br><br>`+
-        `This map shows <b>how many hours each block stays dangerously hot</b>. `+
-        `That varies by nine.`},
-  {el:'#stamp', title:'Start here', pos:'right',
-   body:`The city, and which day the colours come from.<br><br>`+
-        `Most views show a single afternoon. <b>Hottest every time</b> covers `+
-        `several hot days. This box always says which.`},
+  {el:null, title:'What you are looking at',
+   body:`A map of how long each city block stays dangerously hot, rather than `+
+        `how hot it gets.<br><br>Every square is a 100 metre block. The `+
+        `redder it is, the longer it stayed above the danger temperature. `+
+        `Hover any square to see its numbers.<br><br>Nine more panels, about `+
+        `a minute. Skip is at the bottom of this card, and the button above `+
+        `the map replays the tour later.`},
+  {el:'#stamp', title:'Which city, and which days', pos:'right',
+   body:`This box names the city on screen and the dates the colours come `+
+        `from.<br><br>Four of the views measure a single afternoon. `+
+        `<b>Hottest every time</b> combines several hot days. The box tells `+
+        `you which you are looking at, and names any date that was dropped.`+
+        `<br><br>Switch city with the buttons above the map.`},
   {el:'#thrBox', title:'What counts as dangerous', pos:'right',
-   body:`Every <b>hours</b> number here means hours spent above this `+
-        `temperature.<br><br>Each city gets its own line, midway between its `+
-        `own afternoon and pre-dawn averages. One fixed number would read `+
-        `zero all over Chicago and 24 hours all over Phoenix.`},
-  {el:'#layerBtns', title:'Five views of the same blocks', pos:'right',
-   body:`<b>Hottest every time</b> counts how many hot days each block spent in `+
-        `the city's hottest quarter.<br><br>`+
-        `The other four show one day. Try <b>Afternoon heat</b>. That's the `+
-        `map cities use today.`},
-  {el:'#key', title:'Red is bad. Always.', pos:'right',
-   body:`The line above the bar tells you what's being measured, and it `+
-        `changes with the view.<br><br>Hover any block on the map for its `+
-        `numbers.`},
-  {el:'#filterBox', title:'Too much red? Drag this left.', pos:'right',
-   body:`It hides everything except the hardest-hit blocks. Top 20%, then top `+
-        `5%.`},
-  {el:'#twins', title:'Two real blocks', pos:'left',
-   body:`Both the same temperature at 3pm.<br><br>`+
-        `One stayed dangerous for hours longer than the other. A temperature `+
-        `map can't tell them apart.`},
-  {el:'#rankBox', title:'The list you came for', pos:'left',
-   body:`Areas that stayed hot longest, on <b>every</b> hot day, ordered by `+
-        `how many people live there.<br><br>Click one and the map flies there `+
-        `and rings it.`},
-  {el:'#exportBox', title:'Take it with you', pos:'left',
-   body:`The areas as a spreadsheet, or GeoJSON for mapping software.<br><br>`+
-        `<b>Generate full report</b> makes something printable, with the maps `+
-        `and the method. <b>Email</b> sends the findings as text.`},
-  {el:'#repeatBox', title:'Was it just one bad day?', pos:'left',
-   body:`Fair question. These blocks were in the city's hottest quarter `+
-        `<b>every single time</b>.<br><br>`+
-        `Houston: 65× more than chance would give you. Phoenix: only 2.4×, `+
-        `and we say so.`},
-  {el:'#popBox', title:'And who lives there', pos:'left',
-   body:`Census population, so the list above is ordered by <b>people</b>, `+
-        `not by square kilometres.<br><br>`+
-        `In Phoenix the biggest area holds 797 residents and the fourth `+
-        `biggest holds 3,404. Rank by size and you send the money to the `+
-        `wrong place.`},
+   body:`Every <b>hours</b> figure in the app means hours spent above this `+
+        `temperature.<br><br>Each city has its own line, taken from that `+
+        `city's own readings, so blocks can be compared inside a city. The `+
+        `box lists all three so you can see how they differ.`},
+  {el:'#layerBtns', title:'Five ways to look at the same blocks', pos:'right',
+   body:`<b>Hottest every time</b> is the default. It counts how often each `+
+        `block landed in the hottest quarter of the city across several hot `+
+        `days.<br><br>The other four each measure a single day: <b>Hours `+
+        `dangerously hot</b>, <b>Afternoon heat</b> at 3pm, <b>3am heat</b>, `+
+        `and <b>Overnight cooling</b>, which is how far the block dropped `+
+        `between the two.`},
+  {el:'#key', title:'Reading the colours', pos:'right',
+   body:`Blue is low, red is high, and red is the bad end in every view.`+
+        `<br><br>The line above the bar says what is being measured right `+
+        `now, because that changes when you switch view. The numbers at each `+
+        `end are the range currently on screen.`},
+  {el:'#filterBox', title:'Showing only the worst blocks', pos:'right',
+   body:`Drag the slider left and the map keeps only the hardest hit blocks, `+
+        `first the top 20 per cent, then the top 5.<br><br>Below it you can `+
+        `bring water tiles back into view and switch the whole app between `+
+        `°F and °C.`},
+  {el:'#twins', title:'A matched pair', pos:'left',
+   body:`The app searches the city for two blocks that read almost the same `+
+        `temperature at 3pm, then shows how far apart their exposure was.`+
+        `<br><br>Both coordinates are real, so you can look the places up.`},
+  {el:'#rankBox', title:'The ranked areas', pos:'left',
+   body:`This is the main output: joined up patches of blocks that stayed `+
+        `worst across every hot day measured.<br><br>They are ordered by how `+
+        `many people live there rather than by size, and the row tells you `+
+        `where those two orderings disagree. Click a row and the map flies `+
+        `there and outlines it.`},
+  {el:'#exportBox', title:'Taking it with you', pos:'left',
+   body:`The ranked areas as a spreadsheet, every block as a spreadsheet, or `+
+        `the grid as GeoJSON for QGIS and ArcGIS.<br><br><b>Generate full `+
+        `report</b> opens a printable page carrying the maps, the method and `+
+        `the limitations. <b>Email</b> puts the findings into a message.`},
+  {el:'#repeatBox', title:'How far to trust the list', pos:'left',
+   body:`The same measurement was run across several separate heat events, `+
+        `counting how often each block landed in the worst quarter of its `+
+        `city.<br><br>The multiplier here compares that against what chance `+
+        `alone would produce. It is strong in some cities and weak in others, `+
+        `and this panel says which, in whichever city you are viewing.`},
 ];
 let TI=0;
 
