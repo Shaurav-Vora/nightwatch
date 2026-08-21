@@ -88,6 +88,12 @@
   .strip .cm{font-size:12.5px;color:var(--muted);line-height:1.5}
   .strip .cm b{color:var(--accent);font-weight:700}
 
+  .mono{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+    color:#9fb0c4}
+  pre.csv{background:#0b1017;border:1px solid var(--line);border-radius:8px;
+    padding:14px 16px;overflow-x:auto;font-family:ui-monospace,Consolas,monospace;
+    font-size:12px;line-height:1.7;color:#9fb0c4;margin:0 0 12px}
+
   figure.curve{margin:22px 0 20px;background:#0b1017;border:1px solid var(--line);
     border-radius:9px;padding:16px 16px 10px}
   figure.curve img{width:100%;display:block}
@@ -178,7 +184,8 @@
     where it got hottest. Right is where it stayed dangerous longest.
     <br><br>Take the <b>100 hottest blocks at 3pm</b> and the <b>100 that
     stayed dangerous longest</b>. In Phoenix, not one block is on both lists.
-    Plant shade using the left map and you miss every block on the right.</p>
+    A city picking sites from the left map would choose a completely different
+    hundred blocks.</p>
 </div></section>
 
 <section><div class="wrap">
@@ -194,8 +201,8 @@
     </div>
     <div class="g">
       <div class="t">2. The shortlist</div>
-      <div class="b">Joined-up areas that stayed worst on <em>every</em> heat
-        event tested, ranked by residents rather than by size, with
+      <div class="b">Joined-up areas that stayed worst on <em>every</em> hot
+        day tested, ranked by residents rather than by size, with
         coordinates. Click one and the map flies there.</div>
     </div>
     <div class="g">
@@ -206,6 +213,36 @@
     </div>
   </div>
 
+  <h3 style="margin-top:44px">The shortlist, for Phoenix</h3>
+  <p>Nine areas, 11,206 residents, 8.1&thinsp;km² in total. This is the top of
+     the list exactly as the app produces it.</p>
+
+  <table>
+    <tr><th></th><th class="num">residents</th><th class="num">hours above
+        threshold</th><th class="num">area</th><th>centroid</th>
+        <th class="num">rank by size</th></tr>
+    <tr><td>1</td><td class="num">3,404</td><td class="num">12.7 h</td>
+        <td class="num">0.81 km²</td><td class="mono">33.4051, -112.0439</td>
+        <td class="num meh">4th</td></tr>
+    <tr><td>2</td><td class="num">2,886</td><td class="num">12.9 h</td>
+        <td class="num">1.50 km²</td><td class="mono">33.4529, -112.0508</td>
+        <td class="num meh">3rd</td></tr>
+    <tr><td>3</td><td class="num">1,945</td><td class="num">12.9 h</td>
+        <td class="num">2.07 km²</td><td class="mono">33.4146, -112.0402</td>
+        <td class="num meh">2nd</td></tr>
+  </table>
+  <p style="font-size:14px;color:var(--muted)">Read the last column. Ranked by
+     residents, the worst site is only the <b>4th</b> biggest. A city ranking by
+     area would have worked down this list in close to the opposite order.</p>
+
+  <h3 style="margin-top:38px">The same rows, downloaded</h3>
+  <pre class="csv">site_id,residents,mean_hours,peak_hours,area_km2,blocks,latitude,longitude,mean_3pm_c,mean_3am_c,threshold_c,city,date
+1,3404,12.65,13.27,0.809,79,33.40506,-112.04388,38.08,31.01,35,phoenix,2025-07-22
+2,2886,12.92,13.30,1.504,147,33.45287,-112.05080,38.20,31.45,35,phoenix,2025-07-22</pre>
+  <p style="font-size:14px;color:var(--muted)">Every export carries its own
+     threshold, city and date, so a row cannot be read out of context. There is
+     also a per-block CSV, a GeoJSON of the full grid, and a printable
+     report.</p>
 </div></section>
 
 <section id="cities"><div class="wrap">
