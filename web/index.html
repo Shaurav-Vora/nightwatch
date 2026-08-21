@@ -831,7 +831,7 @@ function fillPanels(){
   // city, so the other two are named as well.
   document.getElementById('thrVal').textContent=THR2();
   document.getElementById('thrNote').innerHTML=
-    `Every <b>hours</b> figure here counts time above this line. `+
+    `Every <b>hours</b> figure here counts time above this temperature. `+
     `It is ${s.short}'s own, set midway between its measured 3pm and 3am `+
     `averages, so a mild city and an extreme one are both measurable.`+
     (INDEX.cities.length>1
@@ -2056,9 +2056,7 @@ const TOUR=[
    body:`A map of how long each city block stays dangerously hot, rather than `+
         `how hot it gets.<br><br>Every square is a 100 metre block. The `+
         `redder it is, the longer it stayed above the danger temperature. `+
-        `Hover any square to see its numbers.<br><br>Nine more panels, about `+
-        `a minute. Skip is at the bottom of this card, and the button above `+
-        `the map replays the tour later.`},
+        `Hover any square to see its numbers.`},
   {el:'#stamp', title:'Which city, and which days', pos:'right',
    body:`This box names the city on screen and the dates the colours come `+
         `from.<br><br>Four of the views measure a single afternoon. `+
@@ -2067,9 +2065,9 @@ const TOUR=[
         `<br><br>Switch city with the buttons above the map.`},
   {el:'#thrBox', title:'What counts as dangerous', pos:'right',
    body:`Every <b>hours</b> figure in the app means hours spent above this `+
-        `temperature.<br><br>Each city has its own line, taken from that `+
-        `city's own readings, so blocks can be compared inside a city. The `+
-        `box lists all three so you can see how they differ.`},
+        `temperature.<br><br>Each city has a different one, worked out from `+
+        `its own readings, so that blocks can be compared within a city. The `+
+        `box shows the temperature used for all three cities.`},
   {el:'#layerBtns', title:'Five ways to look at the same blocks', pos:'right',
    body:`<b>Hottest every time</b> is the default. It counts how often each `+
         `block landed in the hottest quarter of the city across several hot `+

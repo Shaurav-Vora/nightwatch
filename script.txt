@@ -65,7 +65,7 @@ ACTION   Scroll the right panel to the twin blocks card. Hold long enough for
 NARRATION
   What that looks like on the ground. These two blocks both read ninety-nine
   point seven Fahrenheit at three in the afternoon, so a temperature map cannot
-  tell them apart. One spends six hours above the danger line. The other spends
+  tell them apart. One spends six hours above the danger threshold. The other
   eleven.
 
 

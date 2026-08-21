@@ -39,9 +39,10 @@ temperature map. The app shows you both, with coordinates.
 
 ## The threshold, and why it differs per city
 
-"Dangerously hot" needs a line, and that line is a FortyGuard API parameter
-(`threshold`, in °C, with `direction: "above"`). Everything the project calls
-*exposure* is the longest unbroken run of hours above it.
+"Dangerously hot" needs a temperature to sit above, and that temperature is a
+FortyGuard API parameter (`threshold`, in °C, with `direction: "above"`).
+Everything the project calls *exposure* is the longest unbroken run of hours
+above it.
 
 We set it per city, midway between that city's own measured 3pm and 3am means:
 
@@ -52,16 +53,16 @@ We set it per city, midway between that city's own measured 3pm and 3am means:
 | Chicago | 29.99 °C | 20.74 °C | 25.36 | **25 °C** (77 °F) |
 
 A single fixed number across all three would measure nothing. At 35 °C,
-Chicago never crosses the line and every block scores zero. At 25 °C, Phoenix
-never drops below it and every block scores twenty-four. The midpoint
+Chicago never crosses the threshold and every block scores zero. At 25 °C,
+Phoenix never drops below it and every block scores twenty-four. The midpoint
 guarantees the day partly clears the threshold, which is the only place
 duration has room to vary. It lives in `THRESHOLDS` in `duration_test.py`.
 
 > **Compare within a city, not between them.** Because each city has its own
 > threshold, the hour figures above are not interchangeable. Chicago's
 > 11.56-hour spread is not "worse" than Houston's 5.56-hour spread; it is
-> measured against a different line. What *is* comparable across cities is R²,
-> which is dimensionless, and the repeat ratios below. Every CSV and GeoJSON
+> measured against a different threshold. What *is* comparable across cities
+> is R², which is dimensionless, and the repeat ratios below. Every CSV and GeoJSON
 > export carries its own `threshold_c` so the number cannot travel without it.
 
 Changing the threshold is not a display setting. It is a request parameter, so
@@ -273,7 +274,7 @@ credits**. Only a cache miss costs anything.
 | Script | Purpose |
 |---|---|
 | `city_test.py` | AOI definitions and the per-city fetch helpers |
-| `duration_test.py` | Holds `THRESHOLDS`, the per-city danger line. Edit here |
+| `duration_test.py` | Holds `THRESHOLDS`, the per-city danger temperature |
 | `multidate.py` | Re-runs the measurement across five dates |
 | `consistency.py` | Counts blocks in the worst quartile every time, vs chance |
 | `population.py` | Census join, appends residents per block |
