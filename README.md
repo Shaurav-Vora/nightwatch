@@ -1,6 +1,6 @@
 # NIGHTWATCH
 
-**Heat maps measure the wrong thing.**
+**The heat maps cities use today measure the wrong thing.**
 
 Live: **https://shaurav-vora.github.io/nightwatch/**
 
