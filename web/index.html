@@ -532,7 +532,7 @@ const LAYERS = {
             title:'Afternoon heat', sub:'the map everyone already has',
             noun:'at 3pm', filter:'were cooler at 3pm than'},
   night:   {i:4, unit:'deg', rel:false,
-            title:'3am heat', sub:'how hot it still is at 3am',
+            title:'3am heat', sub:'the pre-dawn low',
             noun:'at 3am', filter:'were cooler at 3am than'},
   // flip: on every other layer a high number is bad, but cooling a LOT is
   // good. Without this, red means "fine" here and "dangerous" everywhere
@@ -884,7 +884,8 @@ function fillPanels(){
 
   const best=INDEX.cities[0];
   document.getElementById('cmpNote').innerHTML=
-    `R² is how much of a block's night-time exposure is predictable from its `+
+    `R² is how much of a block's hours above the threshold you could predict `+
+    `from its `+
     `afternoon temperature. In ${best.short} it is <b>${best.r2}</b>.`+
     `<br><br><span style="color:#7c8ba1">Each city is measured against its own `+
     `threshold (`+INDEX.cities.map(c=>`${c.short} ${thrTxt(c.threshold_c)}`).join(', ')+
@@ -899,7 +900,8 @@ function fillPanels(){
     `3am means, because one fixed number across three cities would read zero `+
     `everywhere in the cool one and 24 hours everywhere in the hot one. `+
     `Temperatures are two `+
-    `<code>tcm</code> calls at ${s.day_hour||15}:00 and ${s.night_hour||3}:00 `+
+    `<code>tcm</code> calls at ${String(s.day_hour||15).padStart(2,'0')}:00 `+
+    `and ${String(s.night_hour||3).padStart(2,'0')}:00 `+
     `local time. `+
     `${s.n_water?s.n_water.toLocaleString()+' water tiles are masked. ':''}`+
     `Modelled field for a single day, not sensor measurement, and not `+
@@ -1363,7 +1365,10 @@ function drawRanking(){
         `These are joined-up patches of blocks that were among the hottest `+
         `quarter of the city on <b>every one</b> of the ${CONS.dates.length} `+
         `hot days measured, ${n_pool.toLocaleString()} blocks in all. `+
-        `Not one bad afternoon.`
+        (CONS && CONS.n_always/Math.max(CONS.expected_by_chance,1e-9) >= 3
+          ? `Not one bad afternoon.`
+          : `In this city that is only a little above chance, so treat the `+
+            `order as provisional.`)
       : `Based on a single day, because this city has no multi-date data yet: `+
         `joined-up areas above <b>${cut.toFixed(1)} hours</b> that also run at `+
         `least ${MARGIN_H} hour beyond the city median of `+
