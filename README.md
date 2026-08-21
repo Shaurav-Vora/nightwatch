@@ -6,7 +6,8 @@ Live: **https://shaurav-vora.github.io/nightwatch/**
 
 Cities decide where to plant trees and open cooling centres using maps of *how
 hot* it gets. Across a single city that number barely moves. *How long* a block
-stays dangerous moves by hours, and the same ground loses every time.
+stays dangerous moves by hours, and the same ground comes out worst every
+time.
 
 ---
 
@@ -86,7 +87,7 @@ filter** ("show me the worst 20%"), not a threshold control.
 ## Does it repeat, or was it one bad day?
 
 That was the first objection, so it was the first thing we tested. We re-ran
-the full measurement across five heat events between 2022 and 2025 and counted
+the full measurement across five hot days between 2022 and 2025 and counted
 how often each block landed in the worst quarter of its own city. Blocks are
 ranked *within* each date, so a hot day and a mild one count equally and the
 absolute threshold cancels out.
@@ -101,9 +102,9 @@ Houston kept all five dates. Phoenix and Chicago kept three; the rest were
 dropped because the city was saturated or too cool to tell blocks apart, and
 the app names the dropped dates rather than hiding them.
 
-Houston and Chicago have a persistent core: the same ground loses regardless of
-the weather, which makes it a property of the built environment and therefore
-something you can fix. Phoenix at 2.4× is weak, and the app says so on screen
+Houston and Chicago have a persistent core: the same ground comes out worst
+whatever the weather does, which makes it a property of the built environment
+and therefore something you can fix. Phoenix at 2.4× is weak, and the app says so on screen
 instead of presenting its site list with the same confidence.
 
 ## Who it affects

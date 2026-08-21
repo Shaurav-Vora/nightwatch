@@ -416,7 +416,7 @@
     <p class="intro">Cities decide where to plant trees and open cooling
       centres using maps of <b>how hot</b> it gets. Across a whole city that
       barely changes. <b>How long</b> it stays dangerous changes enormously,
-      and the same neighbourhoods lose every time. This maps that.</p>
+      and the same neighbourhoods come out worst every time. This maps that.</p>
 
     <div class="hero">
       <div class="big" id="heroBig">—</div>
@@ -513,7 +513,7 @@ let SELECTED=null;   // the site the map was last flown to
 
 const LAYERS = {
   // Strongest layer in the project: not "hot on the day we looked" but
-  // "among the worst on every heat event measured". Joined in from
+  // "among the worst on every hot day we measured". Joined in from
   // consistency_<city>.json, which ranks blocks within each date so the
   // absolute threshold cancels out.
   // `noun` completes the sentence "6.3°C ___", so a reader can never mistake
@@ -548,7 +548,7 @@ const RAMP=[[8,20,48],[20,60,110],[30,110,150],[90,160,140],
 let INDEX=null, CITY=null, DATA=null, CONS=null, EXPLAIN=null;
 // Open on the layer listed first, so the highlighted button and the top of
 // the list agree. "Always worst" is also the strongest thing here: it spans
-// several heat events rather than one day.
+// several hot days rather than one day.
 let layerName='persistent', showWater=false, useF=true, thPct=100;
 let lo=0, hi=1, deckgl=null;
 // Controlled rather than initialViewState, so clicking a ranked block can
@@ -1007,7 +1007,7 @@ function computeHotspots(pct=0.90, minTiles=8){
   const asc=land.map(c=>c[2]).sort((a,b)=>a-b);
   const median=asc[Math.floor(asc.length/2)];
 
-  // Prefer blocks that were worst on EVERY measured heat event. That is a
+  // Prefer blocks that were worst on EVERY measured hot day. That is a
   // far stronger test than one day's top decile, and it fixes a case that
   // was plainly broken: Chicago is uniformly hot, so its median exposure is
   // 14.7h and nothing clears "1h above median" — the panel reported zero
@@ -1052,7 +1052,7 @@ function computeHotspots(pct=0.90, minTiles=8){
     const cmean=comp.reduce((s,c)=>s+c[2],0)/comp.length;
     // The margin rule only applies to the single-day fallback, where the
     // top decile of a uniform surface is just wherever the sort landed.
-    // Blocks that were worst on every heat event have already passed a
+    // Blocks that were worst on every hot day have already passed a
     // stricter test and do not need it.
     if(!usePersistent && cmean < median + MARGIN_H) continue;
     const lat=comp.reduce((s,c)=>s+c[1],0)/comp.length;
@@ -1107,7 +1107,7 @@ function drawConsistency(){
   a.textContent=CONS.n_always.toLocaleString();
   a.style.color = ratio>=8 ? '#f97316' : ratio>=3 ? '#fbbf24' : '#8792a5';
   l.innerHTML=`blocks in the hottest quarter of the city on <b>all ${CONS.dates.length}</b> `+
-    `heat events measured`;
+    `hot days we measured`;
   ch.textContent=ratio.toFixed(1)+'×';
   ch.style.color=a.style.color;
 
@@ -1733,7 +1733,7 @@ ${photoSection()}
 ${havePeople?`<h2>Who is affected</h2>
 <div class="lede" style="font-size:15px">
 <b>${Math.round(pop.in_persistent).toLocaleString()}</b> people live in the
-blocks that are hottest on every heat event measured, out of
+blocks that are hottest on every hot day we measured, out of
 ${pop.total.toLocaleString()} in this area.
 </div>
 <p class="cap">Population is from the US Census (ACS 2022 5-year). Each block
@@ -1748,13 +1748,13 @@ place.</p>`:''}
 <th>km²</th><th>blocks</th>${havePeople?'<th>rank by size</th>':''}
 <th>centroid</th></tr>${rows}</table>
 <p class="cap">Joined-up patches of blocks that were among the hottest quarter
-of the city on every heat event measured${havePeople?', ordered by how many '+
+of the city on every hot day we measured${havePeople?', ordered by how many '+
 'people live in them':', ranked by excess hours × area'}.</p>
 
 ${CONS?`<h2>Does it repeat, or was it one bad day?</h2>
 <div class="lede" style="font-size:15px">
 <b>${CONS.n_always.toLocaleString()}</b> blocks were among the worst quarter
-of the city on <b>all ${CONS.dates.length}</b> heat events measured
+of the city on <b>all ${CONS.dates.length}</b> hot days we measured
 (${CONS.dates.join(', ')}).
 Chance alone would produce about ${CONS.expected_by_chance}, so this is
 <b>${(CONS.n_always/Math.max(CONS.expected_by_chance,1e-9)).toFixed(1)}×</b>
@@ -1868,7 +1868,7 @@ function buildBody(){
   if(pop && pop.in_persistent!=null){
     L.push('');
     L.push(`${Math.round(pop.in_persistent).toLocaleString()} people live in `+
-           `the blocks that are hottest on every heat event measured, out of `+
+           `the blocks that are hottest on every hot day we measured, out of `+
            `${pop.total.toLocaleString()} in this area.`);
   }
 
@@ -2116,7 +2116,7 @@ const TOUR=[
         `report</b> opens a printable page carrying the maps, the method and `+
         `the limitations. <b>Email</b> puts the findings into a message.`},
   {el:'#repeatBox', title:'How far to trust the list', pos:'left',
-   body:`The same measurement was run across several separate heat events, `+
+   body:`The same measurement was run across several separate hot days, `+
         `counting how often each block landed in the worst quarter of its `+
         `city.<br><br>The multiplier here compares that against what chance `+
         `alone would produce. It is strong in some cities and weak in others, `+

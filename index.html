@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NIGHTWATCH · an interactive map of how long each block stays dangerously hot</title>
-<meta name="description" content="Cities pick where to cool using maps of how hot it gets. That barely varies. How long it stays dangerous varies by hours, and the same neighbourhoods lose every time.">
+<meta name="description" content="Cities pick where to cool using maps of how hot it gets. That barely varies. How long it stays dangerous varies by hours, and the same neighbourhoods come out worst every time.">
 <style>
   :root{--bg:#0a0e14;--panel:#111721;--line:#1e2836;--ink:#e6eaf0;
         --muted:#8792a5;--accent:#f97316;--cool:#38bdf8}
@@ -133,9 +133,9 @@
 
   <p class="isline">NIGHTWATCH is an interactive map of <b>how many hours a day
     each city block spends above its danger threshold</b>, for Phoenix, Houston
-    and Chicago. It names the neighbourhoods that stay dangerous longest, shows
-    that the same ones lose across separate heat events, and ranks them by how
-    many people live there.</p>
+    and Chicago. It names the neighbourhoods that stay dangerous longest,
+    shows that the same ones come out worst on hot day after hot day, and ranks
+    them by how many people live there.</p>
 
   <p class="for">Built for the people who decide where a city spends its
     cooling budget. 53,000 blocks measured, at 100 metres, using FortyGuard's
@@ -342,7 +342,7 @@
   <h3>The obvious objection</h3>
   <h2>"That's just one bad afternoon."</h2>
   <p>It was the first thing we tested. We re-ran the whole measurement across
-     five separate heat events between 2022 and 2025, then counted how often
+     five separate hot days between 2022 and 2025, then counted how often
      each block landed in the worst quarter of its city. Houston kept all five
      dates. Phoenix and Chicago kept three, because on the others the city was
      either saturated or too cool to tell blocks apart.</p>
@@ -360,7 +360,7 @@
         <td class="num">335</td><td class="num meh">2.4×</td></tr>
   </table>
   <p style="font-size:14px;color:var(--muted)">In Houston and Chicago the same
-     ground loses every time. That is a property of the built environment, not
+     ground is worst every time. That is a property of the built environment, not
      of the weather. In Phoenix it is far weaker, and the site list there should
      not be treated as fixed. We report all three.</p>
 </div></section>
@@ -382,7 +382,7 @@
       pre-dawn means. The derivation and the comparability caveat are in
       <a href="#cities" style="color:var(--cool)">Three cities</a> above.</li>
     <li><b>Sites</b> are joined-up patches of blocks that were worst on every
-      heat event, exportable as CSV and GeoJSON for a planning department.</li>
+      hot day, exportable as CSV and GeoJSON for a planning department.</li>
   </ul>
 </div></section>
 
