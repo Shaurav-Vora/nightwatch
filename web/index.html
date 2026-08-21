@@ -1621,6 +1621,11 @@ table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
 th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;
   color:#64748b;border-bottom:1.5px solid #cbd5e1;padding:6px 7px}
 td{padding:7px;border-bottom:1px solid #f1f5f9}
+/* figures right, labels left. The first column is a name or a rank and the
+   centroid is text, so both stay left. */
+th:not(:first-child),td:not(:first-child){text-align:right;
+  font-variant-numeric:tabular-nums}
+th.mono,td.mono{text-align:left;font-variant-numeric:normal}
 td.r{color:#94a3b8;width:24px}
 td.hh{color:#c2410c;font-weight:700;white-space:nowrap}
 .mono{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:#475569}
