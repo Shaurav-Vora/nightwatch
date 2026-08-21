@@ -701,8 +701,6 @@ function render(){
   document.getElementById('legLo').textContent=say(lo);
   document.getElementById('legHi').textContent=say(hi);
   document.getElementById('thVal').textContent=say(cut);
-  document.getElementById('thLabel').textContent=
-    thPct>=100 ? 'showing every block' : `showing the hottest ${thPct}%`;
 
   // Say what the number IS, every time. Without the noun, "6.3°C" on the
   // cooling layer reads as a temperature when it is a temperature DROP.
@@ -741,9 +739,28 @@ function render(){
   } else { kn.style.display='none'; kn.textContent=''; }
 
   const nv=DATA.cells.filter(c=>vis(c)&&keeps(val(c,layerName))).length;
+  // "Hottest every time" holds a count of days, so it has only as many
+  // distinct values as there are dates. A percentile slider cannot cut it
+  // finer than that: asking for the worst 5% in Phoenix returns 37% of the
+  // city, because the next step down does not exist. So report the share
+  // actually on screen rather than the share requested.
+  const actual = v.length ? Math.round(nv/v.length*100) : 0;
+  document.getElementById('thLabel').textContent =
+    nv===v.length ? 'showing every block' : `showing the worst ${actual}%`;
+
+  let meaning='';
+  if(layerName==='persistent' && CONS){
+    const days=Math.round(cut*CONS.dates.length);   // cut is a 0..1 fraction
+    meaning = days>=CONS.dates.length
+      ? ` That is the blocks in the hottest quarter on <b>all `+
+        `${CONS.dates.length}</b> hot days.`
+      : days<=0 ? ''
+      : ` That is the blocks in the hottest quarter on <b>at least ${days}</b> `+
+        `of the ${CONS.dates.length} hot days.`;
+  }
   document.getElementById('thCount').innerHTML=
     `<b>${nv.toLocaleString()}</b> of ${v.length.toLocaleString()} blocks, `+
-    `those ${cfg.flip?'at or below':'at or above'} <b>${say(cut)}</b>.`;
+    `those ${cfg.flip?'at or below':'at or above'} <b>${say(cut)}</b>.`+meaning;
 }
 // The date changes meaning with the layer: four layers show one day, and
 // "Always worst" spans several. Saying it on the map removes the guess.
@@ -1229,8 +1246,8 @@ function lbDraw(){
   const top=Object.entries(seg).sort((a,b)=>b[1]-a[1]).slice(0,5)
     .map(([k,v])=>`${k} ${v.toFixed(0)}%`).join(' · ');
   $('lbCap').innerHTML=
-    `Inside an area that is in Houston's hottest quarter on <b>every</b> heat `+
-    `event measured. ${LB.grid?'':`This view: ${top}.`}`+
+    `Inside an area that is in ${CITY?CITY.short:'the city'}'s hottest quarter `+
+    `on <b>every</b> hot day we measured. ${LB.grid?'':`This view: ${top}.`}`+
     `<br>${(s.lat||0).toFixed(4)}, ${(s.lon||0).toFixed(4)} · photographed `+
     `${s.image_date||'recently'} · one location, illustrative rather than a `+
     `sample.`;
@@ -1859,7 +1876,8 @@ function subjectLine(){
          `${THR()}`;
 }
 
-function buildBody(){
+function buildBody(maxSites){
+  if(maxSites===undefined) maxSites=8;
   const s=CITY, L=[];
   L.push(`${s.label}`);
   L.push(`${s.date} · ${s.aoi_sq_mi} mi² at ${s.granularity_m} m`);
@@ -1885,7 +1903,7 @@ function buildBody(){
            `vs a city median of ${medianHours().toFixed(1)} h)`);
     if(havePeople)
       L.push(`Ordered by residents, not by size. The two disagree.`);
-    HOTSPOTS.slice(0,8).forEach((h,i)=>{
+    HOTSPOTS.slice(0,maxSites).forEach((h,i)=>{
       L.push(` ${i+1}. `+
              (havePeople?`${Math.round(h.people).toLocaleString()} residents  ·  `:'')+
              `${h.mean.toFixed(1)} h above ${THR()}  ·  `+
@@ -1893,6 +1911,9 @@ function buildBody(){
              (havePeople?`  ·  #${h.areaRank} by size`:''));
       L.push(`    ${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}`);
     });
+    const left=HOTSPOTS.length-Math.min(maxSites,HOTSPOTS.length);
+    if(left>0)
+      L.push(` ...and ${left} more, in the attached sites CSV.`);
   }
 
   if($('incMethod').checked){
@@ -1923,8 +1944,21 @@ function medianHours(){
   return a[Math.floor(a.length/2)];
 }
 
+// A mailto URL longer than about 2,000 characters gets truncated by several
+// clients. Phoenix has nine sites and overshot at 1,948, so the dialog opened
+// on a red warning. Drop whole sites until it fits: an email that ends on a
+// clean entry reads better than one cut mid-coordinate.
+function bodyThatFits(){
+  let b='';
+  for(const n of [8,6,5,4,3,2,1]){
+    b=buildBody(n);
+    if(b.length<=MAILTO_MAX) return b;
+  }
+  return b;
+}
+
 function refreshPreview(){
-  const b=buildBody();
+  const b=bodyThatFits();
   $('shBody').value=b;
   const over=b.length>MAILTO_MAX;
   $('shLen').textContent=`${b.length} chars`+(over?', too long for most mail clients':'');
@@ -2102,10 +2136,12 @@ const TOUR=[
         `now, because that changes when you switch view. The numbers at each `+
         `end are the range currently on screen.`},
   {el:'#filterBox', title:'Showing only the worst blocks', pos:'right',
-   body:`Drag the slider left and the map keeps only the hardest hit blocks, `+
-        `first the top 20 per cent, then the top 5.<br><br>The checkbox below `+
-        `it brings water tiles back into view. The °F and °C switch is up in `+
-        `the city bar.`},
+   body:`Drag the slider left and the map keeps only the hardest hit blocks. `+
+        `The line above it always reports the share actually on screen.`+
+        `<br><br>On <b>Hottest every time</b> it steps by whole days rather `+
+        `than smoothly, because a block is either in the hottest quarter on a `+
+        `given day or it is not.<br><br>The checkbox below brings water tiles `+
+        `back. The °F and °C switch is up in the city bar.`},
   {el:'#twins', title:'A matched pair', pos:'left',
    body:`The app searches the city for two blocks that read almost the same `+
         `temperature at 3pm, then shows how far apart their exposure was.`+
