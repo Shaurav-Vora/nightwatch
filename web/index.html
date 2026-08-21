@@ -35,9 +35,7 @@
   #cityBar .cities{display:flex;gap:6px}
   #cityBar .cities button{width:auto;margin:0;padding:7px 16px;
     text-align:center;font-size:13px}
-  #cityBar .cb-note{font-size:11px;color:#6b7787;margin-left:auto;
-    text-align:right;line-height:1.35}
-  @media(max-width:640px){#cityBar .cb-note{display:none}}
+  #cityBar #unitBox{margin-left:auto;margin-top:0}
 
   /* below this the three columns stop fitting, so stack and let the page
      scroll rather than squeezing the map into nothing */
@@ -138,6 +136,8 @@
   #key .kb div{flex:1}
   #key .kl{display:flex;justify-content:space-between;color:var(--muted);
     font-size:10.5px;margin-top:4px}
+  #key .kn{font-size:10.5px;color:#7fb4d8;margin-top:6px;line-height:1.4;
+    border-top:1px solid #1e2836;padding-top:6px}
 
   #tip{position:absolute;pointer-events:none;background:#0b1017f2;
     border:1px solid var(--line);border-radius:6px;padding:9px 11px;
@@ -322,8 +322,10 @@
   <div id="cityBar">
     <span class="cb-lab">City</span>
     <div class="cities" id="cityBtns"></div>
-    <span class="cb-note">Any US city works. These three are pre-loaded
-      because each one costs API credits to measure.</span>
+    <div class="units" id="unitBox">
+      <button id="unitC" type="button">°C</button>
+      <button id="unitF" type="button" class="on">°F</button>
+    </div>
   </div>
   <div id="map">
     <div id="stamp">
@@ -336,6 +338,7 @@
       <div class="kt" id="keyTitle">—</div>
       <div class="kb" id="keyBar"></div>
       <div class="kl"><span id="keyLo">—</span><span id="keyHi">—</span></div>
+      <div class="kn" id="keyNote" style="display:none"></div>
     </div>
     <div id="loading">loading…</div><div id="tip"></div>
   </div>
@@ -437,10 +440,6 @@
       <input id="th" type="range" min="0" max="100" value="100">
       <div class="note" id="thCount">—</div>
       <label class="chk"><input type="checkbox" id="water"> show water tiles</label>
-      <div class="units">
-        <button id="unitC" type="button">°C</button>
-        <button id="unitF" type="button" class="on">°F</button>
-      </div>
     </div>
 
     <h2>Scale</h2>
@@ -724,6 +723,22 @@ function render(){
     ? cfg.noun.charAt(0).toUpperCase()+cfg.noun.slice(1) : cfg.title;
   document.getElementById('keyLo').textContent=say(lo);
   document.getElementById('keyHi').textContent=say(hi);
+
+  // Red means "hottest of what is on screen", not "dangerous". On the 3am
+  // layer the whole city sits several degrees BELOW the threshold, so the
+  // reddest block there is safe, and the key used to imply otherwise.
+  const kn=document.getElementById('keyNote');
+  if(cfg.unit==='deg' && !cfg.rel){
+    const th=DATA.threshold_c;
+    kn.style.display='';
+    kn.textContent = hi < th
+      ? `Every block on screen is below the ${THR()} threshold. `+
+        `Red here is the warmest of a safe range.`
+      : lo >= th
+      ? `Every block on screen is above the ${THR()} threshold.`
+      : `The ${THR()} threshold falls inside this range, so only the `+
+        `upper part of the bar is above it.`;
+  } else { kn.style.display='none'; kn.textContent=''; }
 
   const nv=DATA.cells.filter(c=>vis(c)&&keeps(val(c,layerName))).length;
   document.getElementById('thCount').innerHTML=
@@ -1833,7 +1848,7 @@ function openReport(){
 const MAILTO_MAX=1900;   // several clients truncate beyond ~2000 chars
 
 function subjectLine(){
-  return `Night-time heat exposure in ${CITY.short}: `+
+  return `Hours above the danger threshold in ${CITY.short}: `+
          `${HOTSPOTS.length} site${HOTSPOTS.length===1?'':'s'} above `+
          `${THR()}`;
 }
@@ -2082,9 +2097,9 @@ const TOUR=[
         `end are the range currently on screen.`},
   {el:'#filterBox', title:'Showing only the worst blocks', pos:'right',
    body:`Drag the slider left and the map keeps only the hardest hit blocks, `+
-        `first the top 20 per cent, then the top 5.<br><br>Below it you can `+
-        `bring water tiles back into view and switch the whole app between `+
-        `°F and °C.`},
+        `first the top 20 per cent, then the top 5.<br><br>The checkbox below `+
+        `it brings water tiles back into view. The °F and °C switch is up in `+
+        `the city bar.`},
   {el:'#twins', title:'A matched pair', pos:'left',
    body:`The app searches the city for two blocks that read almost the same `+
         `temperature at 3pm, then shows how far apart their exposure was.`+

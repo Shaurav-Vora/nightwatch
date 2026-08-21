@@ -88,6 +88,11 @@
   .strip .cm{font-size:12.5px;color:var(--muted);line-height:1.5}
   .strip .cm b{color:var(--accent);font-weight:700}
 
+  figure.curve{margin:22px 0 20px;background:#0b1017;border:1px solid var(--line);
+    border-radius:9px;padding:16px 16px 10px}
+  figure.curve img{width:100%;display:block}
+  figure.curve figcaption{font-size:12.5px;color:var(--muted);margin-top:8px}
+
   .warn{border-left:3px solid var(--cool);background:#0c1826;
     padding:16px 20px;border-radius:0 8px 8px 0;margin:26px 0 0;
     font-size:14px;color:#b9c6d6;line-height:1.6}
@@ -126,9 +131,9 @@
   <h1>NIGHTWATCH</h1>
   <p class="tag">Heat maps measure the wrong thing.</p>
 
-  <p class="isline">An interactive map showing <b>how many hours each city
-    block stays dangerously hot after dark</b>, for Phoenix, Houston and
-    Chicago. It finds the neighbourhoods that never cool down, ranks them by
+  <p class="isline">An interactive map showing <b>how many hours a day each
+    city block spends above its danger threshold</b>, for Phoenix, Houston and
+    Chicago. It finds the neighbourhoods that stay hot longest, ranks them by
     how many people live there, and exports the list.</p>
 
   <p class="for">Built for the people who decide where a city spends its
@@ -170,7 +175,7 @@
 
   <p class="mapnote">These are the same 21,453 blocks on the same afternoon,
     drawn from the same data with the same colours. If afternoon temperature
-    told you where the night-time danger was, the two pictures would match.
+    told you where the danger was, the two pictures would match.
     In Phoenix they do not, and that gap is what this project is about.
     <br><br>Both panels are stretched to fill the colour range, so what you
     should compare here is the <em>shape</em> of each map. The sizes of the two
@@ -219,7 +224,7 @@
       <div class="cn">Phoenix, AZ</div>
       <div class="cm">Threshold <b>35 °C</b> (95 °F)<br>
         21,453 blocks · arid, no water<br>
-        Afternoon heat predicts the night worst here. R² 0.106</div>
+        Afternoon heat predicts duration worst here. R² 0.106</div>
     </figure>
     <figure>
       <div class="box"><img src="web/img/city-houston.png"
@@ -262,6 +267,32 @@
      Phoenix never drops below it and every block scores twenty-four. The
      midpoint guarantees the day partly clears the threshold, and that is the
      only place duration has room to vary.</p>
+
+  <h3 style="margin-top:44px">What the hours number counts</h3>
+  <p>One call to the API covers a full 24 hours and returns the longest
+     unbroken stretch above the threshold. Here is that day in Chicago, so you
+     can see where the stretch falls.</p>
+
+  <figure class="curve">
+    <img src="web/img/diurnal.svg"
+         alt="Chicago temperature through 24 hours on 22 July 2025. It crosses
+              25 °C at 09:00, stays above it all afternoon, and drops back at
+              22:00, about two hours after sunset.">
+    <figcaption>Mean of 144 blocks, Chicago, 22 July 2025. The shaded band is
+      the stretch being counted.</figcaption>
+  </figure>
+
+  <p>It runs <b>09:00 to 22:00</b>, so about two of those fourteen hours are
+     after sunset. We were calling this night-time heat, and that was wrong.
+     It is the length of the dangerous part of the day, which ends a couple of
+     hours after dark rather than running through the night. At 3am Chicago
+     sits around 21 °C, four degrees below its own threshold, which is why no
+     block anywhere in the app is above the threshold at 3am.</p>
+
+  <p>The finding is unaffected. Blocks still differ by hours in how long they
+     stay above the line while differing by barely a degree at 3pm, and they
+     differ at both ends of the stretch: some cross up at 09:00 and others at
+     11:00, some drop back at 20:00 and others hold on until 22:00.</p>
 
   <div class="warn">
     <b>So compare within a city, not between them.</b> Because each city has

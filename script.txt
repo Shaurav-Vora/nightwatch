@@ -24,9 +24,9 @@ ACTION   Landing page, top. Hold on the title and the opening line.
 
 NARRATION
   Cities decide where to plant trees and where to open cooling centres using
-  maps of how hot it gets. NIGHTWATCH maps something else: how many hours each
-  city block stays dangerously hot after dark. Phoenix, Houston and Chicago,
-  block by block.
+  maps of how hot it gets. NIGHTWATCH maps something else: how many hours a
+  day each city block spends above its danger threshold. Phoenix, Houston and
+  Chicago, block by block.
 
 
 0:20 - 0:45   THE TWO MAPS
@@ -54,7 +54,7 @@ NARRATION
   Temperature at three in the afternoon. Almost flat. Back to duration.
   [CLICK BACK]
   A different city. In Phoenix, how hot a block gets in the afternoon tells you
-  almost nothing about its night. R-squared is zero point one.
+  almost nothing about how long it stays hot. R-squared is zero point one.
 
 
 1:10 - 1:30   TWO REAL BLOCKS

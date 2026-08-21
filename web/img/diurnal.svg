@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="100%" role="img" aria-label="Temperature through 24 hours in Chicago, crossing the 25 degree threshold at 09:00 and dropping back at 22:00">
+  <rect x="627.6" y="18" width="76.4" height="240" fill="#0e1a2b"/>
+  <rect x="46" y="18" width="171.7" height="240" fill="#0e1a2b"/>
+  <rect x="303.5" y="18" width="371.9" height="240" fill="#f9731622"/>
+  <line x1="46" y1="151.4" x2="704" y2="151.4" stroke="#f97316" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="704" y="144.4" text-anchor="end" font-size="11" fill="#f97316" font-weight="600">danger threshold 25 °C</text>
+  <polyline points="46.0,202.3 74.6,217.1 103.2,225.3 131.8,229.3 160.4,225.9 189.0,223.7 217.7,208.5 246.3,201.2 274.9,179.0 303.5,148.2 332.1,110.3 360.7,65.1 389.3,69.4 417.9,59.2 446.5,67.8 475.1,46.7 503.7,53.9 532.3,63.7 561.0,55.8 589.6,75.4 618.2,116.6 646.8,139.7 675.4,147.2 704.0,170.4" fill="none" stroke="#7dd3fc" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="303.5" cy="148.2" r="4" fill="#0a0e14" stroke="#f97316" stroke-width="2"/>
+  <text x="303.5" y="13" text-anchor="middle" font-size="10.5" fill="#f97316">crosses up 09:00</text>
+  <circle cx="675.4" cy="147.2" r="4" fill="#0a0e14" stroke="#f97316" stroke-width="2"/>
+  <text x="675.4" y="13" text-anchor="middle" font-size="10.5" fill="#f97316">drops back 22:00</text>
+  <line x1="627.6" y1="18" x2="627.6" y2="258" stroke="#64748b" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="632.6" y="31" font-size="10.5" fill="#94a3b8">sunset</text>
+  <text x="46.0" y="275" text-anchor="middle" font-size="10.5" fill="#8792a5">00:00</text>
+  <text x="131.8" y="275" text-anchor="middle" font-size="10.5" fill="#8792a5">03:00</text>
+  <text x="217.7" y="275" text-anchor="middle" font-size="10.5" fill="#8792a5">06:00</text>
+  <text x="303.5" y="275" text-anchor="middle" font-size="10.5" fill="#8792a5">09:00</text>
+  <text x="389.3" y="275" text-anchor="middle" font-size="10.5" fill="#8792a5">12:00</text>
+  <text x="475.1" y="275" text-anchor="middle" font-size="10.5" fill="#8792a5">15:00</text>
+  <text x="561.0" y="275" text-anchor="middle" font-size="10.5" fill="#8792a5">18:00</text>
+  <text x="646.8" y="275" text-anchor="middle" font-size="10.5" fill="#8792a5">21:00</text>
+  <text x="38" y="251.1" text-anchor="end" font-size="10.5" fill="#8792a5">20°</text>
+  <text x="38" y="193.7" text-anchor="end" font-size="10.5" fill="#8792a5">23°</text>
+  <text x="38" y="136.3" text-anchor="end" font-size="10.5" fill="#8792a5">26°</text>
+  <text x="38" y="78.9" text-anchor="end" font-size="10.5" fill="#8792a5">29°</text>
+  <text x="375.0" y="292" text-anchor="middle" font-size="11" fill="#c3ccda">local time</text>
+</svg>

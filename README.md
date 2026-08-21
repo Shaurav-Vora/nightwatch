@@ -23,15 +23,15 @@ you spend above the danger threshold? That answer spans **9.07 hours**.
 |---|---|---|---|
 | Afternoon temperature spread | 1.81 °C | 4.20 °C | 5.56 °C |
 | Hours-above-threshold spread | 9.07 h | 5.56 h | 11.56 h |
-| R² (does 3pm predict the night?) | **0.106** | 0.802 | 0.783 |
+| R² (does 3pm predict duration?) | **0.106** | 0.802 | 0.783 |
 | Blocks measured | 21,453 | 22,333 | 9,606 (1,430 water) |
 | Threshold | 35 °C | 32 °C | 25 °C |
 
 R² is the row that matters, and the only one you can read across cities
 rather than down a column (see the threshold caveat below). In Phoenix,
 knowing a block's afternoon temperature tells you almost nothing about how
-long it stays dangerous after dark. So a conventional heat map of Phoenix
-says very little about the night, and that is the map cities use.
+long it stays above the danger threshold. So a conventional heat map of
+Phoenix says very little about duration, and that is the map cities use.
 
 **Two real blocks in Phoenix both read 99.7 °F at 3pm.** One spends 6.1 hours
 above 35 °C. The other spends 11.2. Five hours apart, identical on a
@@ -64,6 +64,23 @@ duration has room to vary. It lives in `THRESHOLDS` in `duration_test.py`.
 > measured against a different threshold. What *is* comparable across cities
 > is R², which is dimensionless, and the repeat ratios below. Every CSV and GeoJSON
 > export carries its own `threshold_c` so the number cannot travel without it.
+
+### When the counted hours actually fall
+
+One call covers a full 24 hours and returns the longest unbroken stretch above
+the threshold. In Chicago that stretch runs **09:00 to 22:00**, so about two of
+the fourteen hours are after sunset.
+
+We were describing this as night-time heat, and that was wrong. It is the
+length of the dangerous part of the day, ending a couple of hours after dark.
+At 3am Chicago sits near 21 °C, four degrees below its own threshold, which is
+why no block in any city is above the threshold on the 3am layer. The landing
+page carries the hour-by-hour curve showing the two crossing points.
+
+The finding is unaffected. Blocks differ by hours in how long they stay above
+the threshold while differing by barely a degree at 3pm, and they differ at
+both ends of the stretch: some cross up at 09:00 and others at 11:00, some drop
+back at 20:00 and others hold on until 22:00.
 
 Changing the threshold is not a display setting. It is a request parameter, so
 a new threshold means re-harvesting that city from the API and re-running
@@ -283,6 +300,7 @@ credits**. Only a cache miss costs anything.
 | `core_photos.py` | Finds a street-view location inside the core, four headings |
 | `export_cities.py` | Bakes everything into `web/data/*.json` |
 | `preview_maps.py` | Renders the landing-page maps from the baked data |
+| `diurnal.py` | Draws the 24 h curve showing where the counted hours fall |
 
 **The investigation trail** (kept deliberately, this is where the failed
 hypothesis lives):
