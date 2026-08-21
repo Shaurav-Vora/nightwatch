@@ -1784,7 +1784,8 @@ ${CONS.n_always/Math.max(CONS.expected_by_chance,1e-9) >= 8
 <table><tr><th>city</th><th>temperature span</th><th>exposure span</th>
 <th>R²</th><th>blocks</th></tr>${cityRows}</table>
 <p class="cap">Where R² is low, afternoon temperature carries little
-information about night-time exposure; where it is high, it carries most
+information about how long a block stays above the threshold; where it is
+high, it carries most
 of it. Each city is measured against its own threshold
 (${INDEX.cities.map(c=>`${esc(c.short)} ${thrTxt(c.threshold_c)}`).join(', ')}),
 so the exposure column is comparable down a row and not across one. R² is

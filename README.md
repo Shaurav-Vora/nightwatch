@@ -198,7 +198,8 @@ Worth reporting back, and all of it is in `probe_report.json` from day one.
   consecutive dangerous hours is an event, eight scattered ones are not.
 - **`env_params` heat index is a humidity curve, not a diurnal one.** It holds
   one temperature anchor across all 24 hours and peaks around 2am. For a
-  project about night-time heat this is a lethal false friend, because it looks
+  project measuring hours above a threshold this is a lethal false friend,
+  because it looks
   like spectacular confirmation of the thesis and is an artifact. We do not use
   it.
 - **`/streetview` needs a public road.** It failed at the geometric centroid of
