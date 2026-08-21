@@ -49,7 +49,7 @@ We set it per city, midway between that city's own measured 3pm and 3am means:
 | City | 3pm mean | 3am mean | Midpoint | Threshold used |
 |---|---|---|---|---|
 | Phoenix | 38.33 °C | 31.31 °C | 34.82 | **35 °C** (95 °F) |
-| Houston | 36.20 °C | 27.29 °C | 31.75 | **32 °C** (90 °F) |
+| Houston | 36.20 °C | 27.29 °C | 31.75 | **32 °C** (89.6 °F) |
 | Chicago | 29.99 °C | 20.74 °C | 25.36 | **25 °C** (77 °F) |
 
 A single fixed number across all three would measure nothing. At 35 °C,

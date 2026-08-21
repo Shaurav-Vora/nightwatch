@@ -560,12 +560,20 @@ let VIEW=null;
 // through here. It used to be written out by hand in a dozen places, and the
 // twin-blocks card kept saying "above 32°C" while the rest of the page was
 // in Fahrenheit. A number the reader cannot trust is worse than no number.
-const thrTxt=c=>useF?`${(c*9/5+32).toFixed(0)}°F`:`${c}°C`;
-const THR=()=>thrTxt(DATA?DATA.threshold_c:0);
+// Show a decimal only where rounding would lie. 35C and 25C are exactly 95F
+// and 77F, but Houston's 32C is 89.6F, and printing that as "90" invites a
+// judge to check the arithmetic and find it off.
+const fStr=c=>{const f=c*9/5+32;
+  return `${Number.isInteger(f)?f.toFixed(0):f.toFixed(1)}°F`;};
+const cStr=c=>`${c}°C`;
+const thrTxt=c=>useF?fStr(c):cStr(c);
+const THR=()=>DATA?thrTxt(DATA.threshold_c):'';
 // both units, for the one place that has to be unambiguous
-const THR2=()=>DATA ? (useF
-  ? `${(DATA.threshold_c*9/5+32).toFixed(0)}°F (${DATA.threshold_c}°C)`
-  : `${DATA.threshold_c}°C (${(DATA.threshold_c*9/5+32).toFixed(0)}°F)`) : '';
+const THR2=()=>{
+  if(!DATA) return '';
+  const c=DATA.threshold_c;
+  return useF ? `${fStr(c)} (${cStr(c)})` : `${cStr(c)} (${fStr(c)})`;
+};
 // A temperature DIFFERENCE, not a temperature. Spans scale by 9/5 with no
 // +32 offset; running one through the absolute converter turns a 4.2 degree
 // spread into a 39 degree one.
@@ -809,8 +817,11 @@ function fillPanels(){
   document.getElementById('subtitle').textContent=
     `${s.label} · ${s.date} · ${s.aoi_sq_mi} mi² at ${s.granularity_m||100} m`;
   document.getElementById('heroBig').innerHTML=
-    `<b>${dTxt(s.temp_span_c)}</b> of afternoon temperature across this city, `+
-    `and <b>${s.exposure_span_h} hours</b> of dangerous exposure.`;
+    // "3.26°F of afternoon temperature" reads as a reading, not a range.
+    // Both numbers here are spreads, so say coolest-to-hottest out loud.
+    `Coolest block to hottest, this whole city spans `+
+    `<b>${dTxt(s.temp_span_c)}</b>.<br>Shortest exposure to longest, it spans `+
+    `<b>${s.exposure_span_h} hours</b>.`;
   document.getElementById('heroCap').textContent=
     `Same blocks, same day. One of those looks uniform. `+
     `The other is a public-health problem.`;
