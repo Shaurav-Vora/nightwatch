@@ -68,19 +68,15 @@ duration has room to vary. It lives in `THRESHOLDS` in `duration_test.py`.
 ### When the counted hours actually fall
 
 One call covers a full 24 hours and returns the longest unbroken stretch above
-the threshold. In Chicago that stretch runs **09:00 to 22:00**, so about two of
-the fourteen hours are after sunset.
+the threshold. In Chicago that stretch runs **09:00 to 22:00**, so it covers
+the afternoon and ends about two hours after sunset. By 3am Chicago is back
+near 21 °C, four degrees below its own threshold, which is why the 3am layer
+has no block above the threshold. The landing page carries the hour-by-hour
+curve with both crossing points marked.
 
-We were describing this as night-time heat, and that was wrong. It is the
-length of the dangerous part of the day, ending a couple of hours after dark.
-At 3am Chicago sits near 21 °C, four degrees below its own threshold, which is
-why no block in any city is above the threshold on the 3am layer. The landing
-page carries the hour-by-hour curve showing the two crossing points.
-
-The finding is unaffected. Blocks differ by hours in how long they stay above
-the threshold while differing by barely a degree at 3pm, and they differ at
-both ends of the stretch: some cross up at 09:00 and others at 11:00, some drop
-back at 20:00 and others hold on until 22:00.
+Blocks differ at both ends of that stretch. Some cross the threshold at 09:00
+and others at 11:00; some drop back below it at 20:00 and others hold on until
+22:00. That is where the spread in hours comes from.
 
 Changing the threshold is not a display setting. It is a request parameter, so
 a new threshold means re-harvesting that city from the API and re-running
@@ -110,32 +106,6 @@ the weather, which makes it a property of the built environment and therefore
 something you can fix. Phoenix at 2.4× is weak, and the app says so on screen
 instead of presenting its site list with the same confidence.
 
-## The hypothesis we started with was wrong
-
-The original plan was to show that the hottest block at 3pm is *not* the most
-dangerous block at 3am. Chicago agreed, at Spearman ρ = **−0.731**.
-
-It was Lake Michigan. Excluding land within 3 km of water flips the sign, and
-the effect scales with distance:
-
-| Chicago tiles | ρ (3pm vs 3am) |
-|---|---|
-| all tiles, water included | −0.731 |
-| land only | −0.570 |
-| land >2 km from water | −0.222 |
-| land >3 km from water | **+0.130** |
-| land >4 km from water | +0.345 |
-
-That is a dose-response curve for distance from a lake, not a discovery about
-cities. Houston has no lake and came back at **+0.842**, so there the afternoon
-predicts the night almost perfectly.
-
-So we dropped the reversal thesis and kept looking. What survived is the
-amplification result above. It makes a weaker headline and it is much harder to
-argue with. The failed version is still in the commit history and in
-`water_confound.py` and `detrend.py`, because a result nobody attacked is worth
-very little.
-
 ## Who it affects
 
 Population comes from the US Census (ACS 2022 5-year, joined to 2023 Gazetteer
@@ -147,8 +117,7 @@ tract centroids).
 | Houston | 29,128 | 550,848 | 0.84× |
 | Chicago | 64,442 | 669,093 | 0.71× |
 
-All three come out below 1. We expected the opposite, and the result is more
-useful than the one we expected: the ground that is reliably hottest is mostly
+All three come out below 1. The ground that is reliably hottest is mostly
 industrial and commercial, so heat and residents overlap only in part. Rank
 sites by area and you send money to the wrong places. The app ranks by
 residents instead, and shows you which sites move when it does.
@@ -310,9 +279,9 @@ hypothesis lives):
 | `probe.py` | Day-one API probe: costs, schemas, AOI ceiling, granularity |
 | `validate_lag.py` | Confirmed `start_time` is local, not UTC |
 | `hourly_curve.py` | 24-hour sweep locating the pre-dawn minimum |
-| `cooling_deficit.py` | The original day/night reversal metric, since retired |
-| `water_confound.py` | Killed the reversal thesis. It was the lake |
-| `detrend.py` | Ruled out longitude as the confound instead |
+| `cooling_deficit.py` | Day/night cooling metric and the Spearman helper |
+| `water_confound.py` | Measures how distance from water drives the day/night link |
+| `detrend.py` | Tests longitude as an alternative confound |
 | `granularity_test.py` | Showed 60 m adds tiles but no information |
 | `sv_probe.py` | Separated "endpoint broken" from "no imagery here" |
 

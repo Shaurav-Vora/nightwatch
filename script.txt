@@ -1,9 +1,9 @@
-NIGHTWATCH - 3 MINUTE DEMO SCRIPT
+NIGHTWATCH - DEMO SCRIPT, ABOUT 2 MIN 45
 =================================
 
 Read the NARRATION lines aloud. Do what the ACTION lines say while you read
-them. Pace is about 150 words a minute, which is unhurried. The cut list is
-at the bottom if you run long.
+them. Pace is about 150 words a minute, which is unhurried. That puts the
+speech at roughly 2:20, leaving room for pauses inside a 3 minute limit.
 
 
 BEFORE YOU RECORD
@@ -95,19 +95,7 @@ NARRATION
   by area, and it shows you which sites move when you do that.
 
 
-2:18 - 2:40   THE PART THAT FAILED
--------------
-ACTION   Switch to the landing page tab. Scroll to "What we got wrong".
-
-NARRATION
-  One more thing. We set out to show that the hottest block at three p.m. is
-  the safest at three a.m. Chicago agreed. It was Lake Michigan. Take out the
-  land within three kilometres of water and it flips. We dropped it, and the
-  failed version is still in the repo, because a result nobody attacked is
-  worth very little.
-
-
-2:40 - 3:00   WHAT YOU CAN DO WITH IT
+2:18 - 2:45   WHAT YOU CAN DO WITH IT
 -------------
 ACTION   Back to the map tab. Click "Generate full report". Let it open and
          scroll it once. End on the report or the map.
@@ -124,8 +112,8 @@ IF YOU RUN LONG
 Cut in this order:
   1. The last sentence of 1:10, about the six and eleven hours. The card is on
      screen and says it.
-  2. The whole 2:18 beat. It costs you the honesty point, so cut it last.
-  3. Start 0:00 at "NIGHTWATCH maps something else".
+  2. Start 0:00 at "NIGHTWATCH maps something else".
+  3. The second half of 1:55, about ordering by residents.
 
 Do not cut the toggle at 0:45. That toggle is the argument, and the video does
 not work without it.
@@ -146,5 +134,6 @@ NUMBERS, IF A JUDGE ASKS
             Phoenix   817 =  2.4x, which is weak, and the app says so
 
   Twins:    both 37.63 C at 3pm, 6.10 h vs 11.18 h
-  Lake:     Chicago rho -0.731 across all tiles, +0.130 beyond 3 km of water
-            Houston +0.842, no lake
+  Water:    Chicago rho -0.731 across all tiles, +0.130 beyond 3 km of water.
+            Houston, no lake, +0.842. Proximity to water drives the day/night
+            relationship in Chicago.

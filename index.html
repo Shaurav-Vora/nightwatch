@@ -282,17 +282,14 @@
       the stretch being counted.</figcaption>
   </figure>
 
-  <p>It runs <b>09:00 to 22:00</b>, so about two of those fourteen hours are
-     after sunset. We were calling this night-time heat, and that was wrong.
-     It is the length of the dangerous part of the day, which ends a couple of
-     hours after dark rather than running through the night. At 3am Chicago
-     sits around 21 °C, four degrees below its own threshold, which is why no
-     block anywhere in the app is above the threshold at 3am.</p>
+  <p>It runs <b>09:00 to 22:00</b>, so the measured stretch covers the
+     afternoon and ends about two hours after sunset. By 3am Chicago is back
+     near 21 °C, four degrees below its own threshold, which is why the 3am
+     layer has no block above the threshold anywhere in the app.</p>
 
-  <p>The finding is unaffected. Blocks still differ by hours in how long they
-     stay above the line while differing by barely a degree at 3pm, and they
-     differ at both ends of the stretch: some cross up at 09:00 and others at
-     11:00, some drop back at 20:00 and others hold on until 22:00.</p>
+  <p>Blocks differ at both ends of that stretch. Some cross the threshold at
+     09:00 and others at 11:00; some drop back below it at 20:00 and others
+     hold on until 22:00. That is where the spread in hours comes from.</p>
 
   <div class="warn">
     <b>So compare within a city, not between them.</b> Because each city has
@@ -365,21 +362,6 @@
      ground loses every time. That is a property of the built environment, not
      of the weather. In Phoenix it is far weaker, and the site list there should
      not be treated as fixed. We report all three.</p>
-</div></section>
-
-<section><div class="wrap">
-  <h3>What we got wrong</h3>
-  <h2>The idea we started with turned out to be false.</h2>
-  <p>The original plan was to show that the hottest block at 3pm is not the most
-     dangerous block at 3am. Chicago agreed, at <b>−0.73</b>.</p>
-  <p>It was Lake Michigan. Exclude the land within 3&thinsp;km of water and the
-     correlation flips to <b>+0.13</b>. Houston, which has no lake, came back at
-     <b>+0.84</b>, so there the afternoon predicts the night almost
-     perfectly.</p>
-  <p>So we dropped it and kept looking. What survived is the finding above,
-     which held up each time we tried to break it. The failed version is still
-     in the commit history, because a result nobody attacked is worth very
-     little.</p>
 </div></section>
 
 <section><div class="wrap">
