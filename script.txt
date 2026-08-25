@@ -59,8 +59,8 @@ NARRATION
 
 1:10 - 1:30   TWO REAL BLOCKS
 -------------
-ACTION   Scroll the right panel to the twin blocks card. Hold long enough for
-         the coordinates to be readable.
+ACTION   Scroll the right panel to "Two blocks, same afternoon". Hold long
+         enough for the coordinates to be readable.
 
 NARRATION
   What that looks like on the ground. These two blocks both read ninety-nine
@@ -69,33 +69,36 @@ NARRATION
   eleven.
 
 
-1:30 - 1:55   DOES IT REPEAT
+1:30 - 2:00   THE SHORTLIST, AND WHO IS IN IT
+-------------
+ACTION   Scroll to "Hottest areas, for longest". Click the top row and let the
+         map fly and outline it. Then scroll on to "Who lives there".
+         Stay on Phoenix for this beat.
+
+NARRATION
+  This is the output. Joined-up areas that stayed worst on every hot day, with
+  coordinates. They are ordered by how many people live in them, not by size.
+  Look at the last column on each row: the area with the most residents is only
+  the fourth largest, and the largest of the nine ranks fifth for people. Rank
+  by area, which is what a city would otherwise do, and you send the money to
+  a different place.
+
+
+2:00 - 2:22   DOES IT REPEAT
 -------------
 ACTION   Click "Houston" in the bar above the map. Scroll the right panel to
-         the card showing 1,408 and 64.6x.
+         "Does it repeat?", showing 1,408 and 64.6x.
 
 NARRATION
-  The obvious objection is that this was one bad afternoon, so we tested that
-  first, across five hot days between twenty twenty-two and twenty
-  twenty-five. In Houston, fourteen hundred blocks landed in the worst quarter
-  of the city every single time. Chance would give you twenty-two. That is
-  sixty-five times over. This is the built environment, not the weather, which
-  means someone can fix it.
+  The obvious objection is that this is one bad afternoon, so we tested that
+  first, across five hot days between twenty twenty-two and twenty twenty-five.
+  In Houston, fourteen hundred blocks landed in the worst quarter of the city
+  every single time. Chance would give you twenty-two. That is sixty-five times
+  over, so this is the built environment rather than the weather, and someone
+  can fix it.
 
 
-1:55 - 2:18   WHO LIVES THERE
--------------
-ACTION   Scroll to the population card, then the ranked list. Click the top
-         row and let the map fly and outline the site.
-
-NARRATION
-  Then we joined census population. Twenty-nine thousand people live in that
-  core, and the density there is below the city average, because the hottest
-  ground is mostly industrial. So the list is ordered by residents rather than
-  by area, and it shows you which sites move when you do that.
-
-
-2:18 - 2:45   WHAT YOU CAN DO WITH IT
+2:22 - 2:45   WHAT YOU CAN DO WITH IT
 -------------
 ACTION   Back to the map tab. Click "Generate full report". Let it open and
          scroll it once. End on the report or the map.
@@ -113,7 +116,7 @@ Cut in this order:
   1. The last sentence of 1:10, about the six and eleven hours. The card is on
      screen and says it.
   2. Start 0:00 at "NIGHTWATCH maps something else".
-  3. The second half of 1:55, about ordering by residents.
+  3. The last sentence of 1:30, about ranking by area.
 
 Do not cut the toggle at 0:45. That toggle is the argument, and the video does
 not work without it.
