@@ -41,7 +41,7 @@ NARRATION
   that stayed dangerous longest. In Phoenix, not one block is on both lists.
 
 
-0:45 - 1:10   THE TOGGLE
+0:45 - 1:22   THE TOGGLE
 -------------
 ACTION   Click "Open the map". Wait for Phoenix to draw.
          Click "Hours dangerously hot" first, so both views cover the same
@@ -50,20 +50,18 @@ ACTION   Click "Open the map". Wait for Phoenix to draw.
 
 NARRATION
   This is the live version, on one single day so the comparison is fair. Red
-  is the ground that stayed dangerous longest. Now here is the map a city
-  would use today.
+  is the ground that stayed dangerous longest. Here is the map a city would
+  use today.
   [PAUSE on Afternoon heat]
   Temperature at three that same afternoon. The colours look dramatic, so read
-  the scale underneath: ninety-nine to a hundred and two Fahrenheit. Three
-  degrees across the entire city. That is the whole range a heat map has to
-  work with.
+  the scale: ninety-nine to a hundred and two Fahrenheit. Three degrees across
+  the whole city.
   [CLICK BACK]
   And back to duration. Six hours to fourteen, on the same blocks on the same
-  day. How hot a block got that afternoon tells you almost nothing about how
-  long it stayed dangerous.
+  day.
 
 
-1:10 - 1:30   TWO REAL BLOCKS
+1:22 - 1:42   TWO REAL BLOCKS
 -------------
 ACTION   Scroll the right panel to "Two blocks, same afternoon". Hold long
          enough for the coordinates to be readable.
@@ -75,7 +73,7 @@ NARRATION
   eleven.
 
 
-1:30 - 2:00   THE SHORTLIST, AND WHO IS IN IT
+1:42 - 2:14   THE SHORTLIST, AND WHO IS IN IT
 -------------
 ACTION   Scroll to "Hottest areas, for longest". Click the top row and let the
          map fly and outline it. Then scroll on to "Who lives there".
@@ -90,7 +88,7 @@ NARRATION
   a different place.
 
 
-2:00 - 2:22   DOES IT REPEAT
+2:14 - 2:42   DOES IT REPEAT
 -------------
 ACTION   Click "Houston" in the bar above the map. Scroll the right panel to
          "Does it repeat?", showing 1,408 and 64.6x.
@@ -104,7 +102,7 @@ NARRATION
   can fix it.
 
 
-2:22 - 2:45   WHAT YOU CAN DO WITH IT
+2:42 - 3:00   WHAT YOU CAN DO WITH IT
 -------------
 ACTION   Back to the map tab. Click "Generate full report". Let it open and
          scroll it once. End on the report or the map.
@@ -119,10 +117,10 @@ NARRATION
 IF YOU RUN LONG
 ---------------
 Cut in this order:
-  1. The last sentence of 1:10, about the six and eleven hours. The card is on
+  1. The last sentence of 1:22, about the six and eleven hours. The card is on
      screen and says it.
   2. Start 0:00 at "NIGHTWATCH maps something else".
-  3. The last sentence of 1:30, about ranking by area.
+  3. The last sentence of 1:42, about ranking by area.
 
 Do not cut the toggle at 0:45. That toggle is the argument, and the video does
 not work without it.
