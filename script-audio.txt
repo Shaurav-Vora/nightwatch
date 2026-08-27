@@ -20,6 +20,8 @@ the footage afterwards; they are not instructions to speed up or slow down.
 0:00
 -------------------------------------------------------------------------
 
+     (picture: the landing page, top. Title and the opening paragraph)
+
 Cities decide where to plant trees and where to open cooling centres using
 maps of how hot it gets. NIGHTWATCH maps something else: how many hours a day
 each city block spends above its danger threshold. Phoenix, Houston and
@@ -31,6 +33,9 @@ Chicago, block by block.
 -------------------------------------------------------------------------
 0:20
 -------------------------------------------------------------------------
+
+     (picture: the landing page, the two Phoenix maps side by side, both
+      fully on screen)
 
 Here is why that matters. Same city, same afternoon, same blocks, asked two
 ways. On the left, how hot it got. On the right, how long it stayed
@@ -73,6 +78,9 @@ send help.
 1:22
 -------------------------------------------------------------------------
 
+     (picture: the app, right-hand panel, the "Two blocks, same afternoon"
+      card, held long enough to read the coordinates)
+
 What that looks like on the ground. These two blocks both read ninety-nine
 point seven Fahrenheit at three in the afternoon, so a temperature map cannot
 tell them apart. One spends six hours above the danger threshold. The other
@@ -84,6 +92,9 @@ eleven.
 -------------------------------------------------------------------------
 1:42
 -------------------------------------------------------------------------
+
+     (picture: "Hottest areas, for longest". Click the top row so the map
+      flies there and outlines it, then scroll on to "Who lives there")
 
 This is the output. Joined-up areas that stayed worst on every hot day, with
 coordinates, ordered by how many people live in them rather than by size. Look
@@ -98,6 +109,9 @@ instead and you send the money somewhere else.
 2:14
 -------------------------------------------------------------------------
 
+     (picture: Houston, on "Hottest every time" so the stamp lists all five
+      dates, then the "Does it repeat?" card showing 1,408 and 64.6x)
+
 The obvious objection is that this is one bad afternoon, so we tested that
 first, across five hot days between twenty twenty-two and twenty twenty-five.
 In Houston, fourteen hundred blocks landed in the worst quarter of the city
@@ -110,6 +124,9 @@ over. Built environment, not weather, and someone can fix it.
 -------------------------------------------------------------------------
 2:42
 -------------------------------------------------------------------------
+
+     (picture: the download buttons, then "Generate full report" opening the
+      printable page. Scroll it once)
 
 All of it exports. Ranked sites as a spreadsheet, the grid as GeoJSON, and a
 printable report carrying the method and the limitations. Built on
@@ -134,8 +151,8 @@ Numbers, said the way they are written here:
 
 Two places people stumble:
 
-  "on one single day so the comparison is fair" - keep going, it is one
-  clause, not two.
+  "Under three degrees of temperature. Eight hours of exposure." - these are
+  the two halves of the whole argument. Slow down and separate them.
 
   "the largest of the nine ranks fifth for people" - the stress is on fifth.
 
@@ -150,12 +167,12 @@ IF THE READ COMES OUT LONG
 Cut in this order. Each one is a whole sentence, so nothing is left dangling.
 
   1. The last sentence of 1:22, "One spends six hours above the danger
-     threshold. The other eleven." The card is on screen and says it.
+     threshold. The other eleven." The card on screen already says it.
 
   2. The opening clause of 0:00, so it starts at "NIGHTWATCH maps something
      else".
 
-  3. The last sentence of 1:42, "Rank by area, which is what a city would
-     otherwise do, and you send the money to a different place."
+  3. The last sentence of 1:42, "Rank by size instead and you send the money
+     somewhere else."
 
 Do not cut anything from 0:45. That block is the argument.
