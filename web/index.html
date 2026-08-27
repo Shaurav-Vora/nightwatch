@@ -1906,7 +1906,12 @@ function openReport(){
 // who wants the raw grid. The dialog says so plainly rather than
 // pretending an attachment will appear.
 // ---------------------------------------------------------------------
-const MAILTO_MAX=1900;   // several clients truncate beyond ~2000 chars
+// Windows passes a mailto to the shell with roughly a 2,000 character
+// ceiling, and Chrome caps it similarly. The limit applies to the ENCODED
+// url, not to the text you typed: percent-encoding turns every space into
+// %20, so a 1,800 character body became a 3,000 character url and the OS
+// dropped it silently. Measure the url.
+const MAILTO_URL_MAX=1900;
 
 function subjectLine(){
   return `Hours above the danger threshold in ${CITY.short}: `+
@@ -1956,18 +1961,13 @@ function buildBody(maxSites){
 
   if($('incMethod').checked){
     L.push('');
+    // Kept short on purpose. Percent-encoding inflates this by about 75%,
+    // and the full method and limitations travel in the report anyway.
     L.push('METHOD');
-    L.push(`Exposure is the longest unbroken run of hours above `+
-           `${THR()} (FortyGuard /v1/heatmap, `+
-           `analytic_type=persistence), not scattered totals.`);
-    L.push(`Temperatures are 3pm and 3am local time, verified local rather `+
-           `than UTC by sweeping all 24 hours and locating the pre-dawn `+
-           `minimum.`);
-    L.push(`Sites are contiguous areas in the hottest 10% that also average `+
-           `at least 1 h above the city median; single tiles are not `+
-           `ranked, because neighbouring tiles are near-identical.`);
-    L.push(`Caveat: this is a modelled temperature field on one day, not `+
-           `sensor measurements, and it carries no population weighting.`);
+    L.push(`Longest unbroken run of hours above ${THR()}, from FortyGuard `+
+           `/v1/heatmap, analytic_type=persistence.`);
+    L.push(`Modelled field for one day, not sensor readings. Full method and `+
+           `limitations are in the attached report.`);
   }
 
   if($('incLink').checked){
@@ -1986,11 +1986,19 @@ function medianHours(){
 // clients. Phoenix has nine sites and overshot at 1,948, so the dialog opened
 // on a red warning. Drop whole sites until it fits: an email that ends on a
 // clean entry reads better than one cut mid-coordinate.
+function mailtoUrl(to, body){
+  const {parts}=validEmails(to||'');
+  return `mailto:${encodeURIComponent(parts.join(','))}`+
+         `?subject=${encodeURIComponent(subjectLine())}`+
+         `&body=${encodeURIComponent(body)}`;
+}
+
 function bodyThatFits(){
+  const to=($('shTo')&&$('shTo').value)||'';
   let b='';
   for(const n of [8,6,5,4,3,2,1]){
     b=buildBody(n);
-    if(b.length<=MAILTO_MAX) return b;
+    if(mailtoUrl(to,b).length<=MAILTO_URL_MAX) return b;
   }
   return b;
 }
@@ -1998,8 +2006,10 @@ function bodyThatFits(){
 function refreshPreview(){
   const b=bodyThatFits();
   $('shBody').value=b;
-  const over=b.length>MAILTO_MAX;
-  $('shLen').textContent=`${b.length} chars`+(over?', too long for most mail clients':'');
+  const urlLen=mailtoUrl(($('shTo')&&$('shTo').value)||'', b).length;
+  const over=urlLen>MAILTO_URL_MAX;
+  $('shLen').textContent=`${b.length} chars`+
+    (over?`, too long once encoded (${urlLen})`:'');
   $('shLen').style.color=over?'#f87171':'';
   $('shSend').textContent=over?'Open mail client (trimmed)':'Open mail client';
 }
@@ -2013,7 +2023,7 @@ function validEmails(raw){
 function openShare(){
   $('attBlocksN').textContent=
     `${DATA.cells.filter(c=>!isWater(c)).length.toLocaleString()} rows`;
-  $('shErr').textContent='';
+  shSay('');                     // clears the text and resets the colour
   refreshPreview();
   $('shareBg').classList.add('on');
   $('shTo').focus();
@@ -2036,15 +2046,26 @@ $('shCopy').onclick=async()=>{
     setTimeout(()=>$('shCopy').textContent='Copy text',1400);
   }catch(err){
     $('shBody').select();       // clipboard API needs https or localhost
-    $('shErr').textContent='Clipboard blocked. The text is selected, press Ctrl+C.';
+    shSay('Clipboard blocked. The text is selected, press Ctrl+C.', 'warn');
   }
 };
 
+// One place to write into the status line, so the colour cannot get stuck.
+// It used to be set to blue on a successful send and never reset, which
+// meant every later error showed up in the "everything is fine" colour.
+function shSay(msg, kind){
+  const e=$('shErr');
+  e.style.color = kind==='ok' ? '#93c5fd' : kind==='warn' ? '#fbbf24' : '#f87171';
+  e.innerHTML = msg;
+}
+
 $('shSend').onclick=()=>{
+  // A recipient is not required. "mailto:?subject=..." opens a compose
+  // window with an empty To, which is what you want when demonstrating this
+  // or mailing it to yourself. Requiring one made the button look dead.
   const {parts,bad}=validEmails($('shTo').value);
-  if(!parts.length){ $('shErr').textContent='Add at least one recipient.'; return; }
-  if(bad.length){ $('shErr').textContent=`Not a valid address: ${bad[0]}`; return; }
-  $('shErr').textContent='';
+  if(bad.length){ shSay(`Not a valid address: ${bad[0]}`); return; }
+  shSay('');
 
   const wanted=[['attSites',downloadSites],['attBlocks',downloadCSV],
                 ['attGeo',downloadGeoJSON]].filter(([id])=>$(id).checked);
@@ -2052,21 +2073,30 @@ $('shSend').onclick=()=>{
                                                     // drop rapid downloads
 
   let body=$('shBody').value;
-  if(body.length>MAILTO_MAX){
-    body=body.slice(0,MAILTO_MAX-90).replace(/\n[^\n]*$/,'')+
-         '\n\n[trimmed. Full detail is in the attached CSV]';
+  const tail='\n\n[trimmed. Full detail is in the attached CSV]';
+  while(mailtoUrl($('shTo').value, body).length>MAILTO_URL_MAX && body.length>80){
+    body=body.slice(0,Math.max(80,body.length-120)).replace(/\n[^\n]*$/,'');
+    if(!body.endsWith(tail)) body+=tail;
   }
-  const url=`mailto:${encodeURIComponent(parts.join(','))}`+
-            `?subject=${encodeURIComponent(subjectLine())}`+
-            `&body=${encodeURIComponent(body)}`;
-  window.location.href=url;
+  const url=mailtoUrl($('shTo').value, body);
 
-  if(wanted.length){
-    $('shErr').style.color='#93c5fd';
-    $('shErr').textContent=
-      `${wanted.length} file${wanted.length===1?'':'s'} downloading. Attach from your Downloads folder.`;
+  let opened=true;
+  try{ window.location.href=url; }catch(e){ opened=false; }
+
+  const dl = wanted.length
+    ? `${wanted.length} file${wanted.length===1?'':'s'} downloading, attach `+
+      `them from your Downloads folder. `
+    : '';
+
+  // A mailto only does anything if the machine has a mail client registered
+  // for it. On a browser-only machine nothing happens and the button looks
+  // broken, so always offer the way out rather than trying to detect it.
+  if(!opened){
+    shSay(`${dl}This browser blocked the mail link. Use <b>Copy text</b> and `+
+          `paste it into your mail app.`, 'warn');
   } else {
-    setTimeout(closeShare,600);
+    shSay(`${dl}If no mail window opened, this computer has no mail app set `+
+          `up for links. Use <b>Copy text</b> instead.`, 'ok');
   }
 };
 
