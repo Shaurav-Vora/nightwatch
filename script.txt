@@ -14,7 +14,8 @@ BEFORE YOU RECORD
     app will stack.
 [ ] Load both pages once, then reload. Cold tiles look like lag on camera.
 [ ] On the map page, click Skip on the tour. You are the tour.
-[ ] Leave it on Phoenix, layer "Hottest every time", filter at 100%.
+[ ] Leave it on Phoenix, layer "Hottest every time", filter at 100%, and the
+    unit switch in the city bar on °F. Every spoken figure assumes °F.
 [ ] Record at 1080p or better. Move the mouse slower than feels natural.
 
 
@@ -54,8 +55,8 @@ NARRATION
   use today.
   [PAUSE on Afternoon heat]
   Temperature at three that same afternoon. The colours look dramatic, so read
-  the scale: ninety-nine to a hundred and two Fahrenheit. Three degrees across
-  the whole city.
+  the scale: just under a hundred, up to a hundred and two Fahrenheit. Three
+  degrees across the whole city.
   [CLICK BACK]
   And back to duration. Six hours to fourteen, on the same blocks on the same
   day.
@@ -90,8 +91,9 @@ NARRATION
 
 2:14 - 2:42   DOES IT REPEAT
 -------------
-ACTION   Click "Houston" in the bar above the map. Scroll the right panel to
-         "Does it repeat?", showing 1,408 and 64.6x.
+ACTION   Click "Houston" in the bar above the map, then click "Hottest every
+         time" so the map covers all five dates and the stamp lists them.
+         Scroll the right panel to "Does it repeat?", showing 1,408 and 64.6x.
 
 NARRATION
   The obvious objection is that this is one bad afternoon, so we tested that
@@ -104,8 +106,8 @@ NARRATION
 
 2:42 - 3:00   WHAT YOU CAN DO WITH IT
 -------------
-ACTION   Back to the map tab. Click "Generate full report". Let it open and
-         scroll it once. End on the report or the map.
+ACTION   Scroll the right panel to the download buttons. Click "Generate full
+         report". Let it open and scroll it once. End on the report or the map.
 
 NARRATION
   All of it exports. Ranked sites as a spreadsheet, the grid as GeoJSON, and a
