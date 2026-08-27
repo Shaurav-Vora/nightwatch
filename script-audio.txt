@@ -9,8 +9,8 @@ Two seconds is longer than it feels; count it. The one marked THREE is the
 important one, because that is the shot where the afternoon map sits on
 screen and the viewer needs time to look at it before you speak again.
 
-Pace is about 150 words a minute, unhurried. The whole read is 351 words,
-roughly 2 minutes 40 including the pauses.
+Pace is about 150 words a minute, unhurried. The whole read is 387 words,
+roughly 2 minutes 50 including the pauses.
 
 The timestamps on the left are where each block should land. Use them to cut
 the footage afterwards; they are not instructions to speed up or slow down.
@@ -44,20 +44,27 @@ that stayed dangerous longest. In Phoenix, not one block is on both lists.
 0:45
 -------------------------------------------------------------------------
 
-This is the live version, on one single day so the comparison is fair. Red is
-the ground that stayed dangerous longest. Here is the map a city would use
-today.
+     (picture: Phoenix, the "Hours dangerously hot" layer)
 
-     [pause THREE - the afternoon map is on screen and needs looking at]
+This is the app. Phoenix, one day in July. The colour is how many hours
+each block spent above ninety-five Fahrenheit. Red is longest.
 
-Temperature at three that same afternoon. The colours look dramatic, so read
-the scale: just under a hundred, up to a hundred and two Fahrenheit. Three
-degrees across the whole city.
+     [pause TWO - the map switches to "Afternoon heat"]
 
-     [pause TWO - the map switches back]
+     (picture: same city, same day, now coloured by temperature)
 
-And back to hours above that threshold. The same blocks, the same day, and now
-the scale reads six hours to fourteen.
+Now the same blocks, same afternoon, as temperature. This is the map a city
+uses today. It looks dramatic, but read the scale: the whole city fits inside
+three degrees.
+
+     [pause THREE - hold on the temperature map, this is the one the viewer
+      needs time to look at]
+
+     (picture: back to "Hours dangerously hot")
+
+And back to hours. Under three degrees of temperature. Eight hours of
+exposure. Same blocks, same afternoon. Only one of those tells you where to
+send help.
 
      [pause TWO]
 
@@ -79,11 +86,10 @@ eleven.
 -------------------------------------------------------------------------
 
 This is the output. Joined-up areas that stayed worst on every hot day, with
-coordinates. They are ordered by how many people live in them, not by size.
-Look at the last column on each row: the area with the most residents is only
-the fourth largest, and the largest of the nine ranks fifth for people. Rank
-by area, which is what a city would otherwise do, and you send the money to a
-different place.
+coordinates, ordered by how many people live in them rather than by size. Look
+at the last column: the area with the most residents is only the fourth
+largest, and the largest of the nine ranks fifth for people. Rank by size
+instead and you send the money somewhere else.
 
      [pause TWO]
 
@@ -96,8 +102,7 @@ The obvious objection is that this is one bad afternoon, so we tested that
 first, across five hot days between twenty twenty-two and twenty twenty-five.
 In Houston, fourteen hundred blocks landed in the worst quarter of the city
 every single time. Chance would give you twenty-two. That is sixty-five times
-over, so this is the built environment rather than the weather, and someone
-can fix it.
+over. Built environment, not weather, and someone can fix it.
 
      [pause TWO]
 

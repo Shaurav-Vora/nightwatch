@@ -50,16 +50,20 @@ ACTION   Click "Open the map". Wait for Phoenix to draw.
          Then click back to "Hours dangerously hot".
 
 NARRATION
-  This is the live version, on one single day so the comparison is fair. Red
-  is the ground that stayed dangerous longest. Here is the map a city would
-  use today.
-  [PAUSE on Afternoon heat]
-  Temperature at three that same afternoon. The colours look dramatic, so read
-  the scale: just under a hundred, up to a hundred and two Fahrenheit. Three
-  degrees across the whole city.
-  [CLICK BACK]
-  And back to hours above that threshold. The same blocks, the same day, and
-  now the scale reads six hours to fourteen.
+  [screen: Phoenix, "Hours dangerously hot"]
+  This is the app. Phoenix, one day in July. The colour is how many hours
+  each block spent above ninety-five Fahrenheit. Red is longest.
+
+  [click "Afternoon heat". Say the next line as it appears, then hold three
+   seconds so the viewer can look at it]
+  Now the same blocks, same afternoon, as temperature. This is the map a city
+  uses today. It looks dramatic, but read the scale: the whole city fits inside
+  three degrees.
+
+  [click back to "Hours dangerously hot"]
+  And back to hours. Under three degrees of temperature. Eight hours of
+  exposure. Same blocks, same afternoon. Only one of those tells you where to
+  send help.
 
 
 1:22 - 1:42   TWO REAL BLOCKS
@@ -82,11 +86,10 @@ ACTION   Scroll to "Hottest areas, for longest". Click the top row and let the
 
 NARRATION
   This is the output. Joined-up areas that stayed worst on every hot day, with
-  coordinates. They are ordered by how many people live in them, not by size.
-  Look at the last column on each row: the area with the most residents is only
-  the fourth largest, and the largest of the nine ranks fifth for people. Rank
-  by area, which is what a city would otherwise do, and you send the money to
-  a different place.
+  coordinates, ordered by how many people live in them rather than by size. Look
+  at the last column: the area with the most residents is only the fourth
+  largest, and the largest of the nine ranks fifth for people. Rank by size
+  instead and you send the money somewhere else.
 
 
 2:14 - 2:42   DOES IT REPEAT
@@ -100,8 +103,7 @@ NARRATION
   first, across five hot days between twenty twenty-two and twenty twenty-five.
   In Houston, fourteen hundred blocks landed in the worst quarter of the city
   every single time. Chance would give you twenty-two. That is sixty-five times
-  over, so this is the built environment rather than the weather, and someone
-  can fix it.
+  over. Built environment, not weather, and someone can fix it.
 
 
 2:42 - 3:00   WHAT YOU CAN DO WITH IT
