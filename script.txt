@@ -73,10 +73,11 @@ ACTION   Scroll the right panel to "Two blocks, same afternoon". Hold long
          enough for the coordinates to be readable.
 
 NARRATION
-  What that looks like on the ground. These two blocks both read ninety-nine
-  point seven Fahrenheit at three in the afternoon, so a temperature map cannot
-  tell them apart. One spends six hours above the danger threshold. The other
-  eleven. Five hours apart, at the same temperature.
+  The app searches Phoenix for two blocks that read the same temperature at
+  three in the afternoon. These two both read ninety-nine point seven
+  Fahrenheit, so a temperature map cannot tell them apart. One spends six hours
+  above the danger threshold, the other eleven. Five hours, at the same
+  temperature.
 
 
 1:42 - 2:14   THE SHORTLIST, AND WHO IS IN IT
@@ -86,9 +87,9 @@ ACTION   Scroll to "Hottest areas, for longest". Click the top row and let the
          Stay on Phoenix for this beat.
 
 NARRATION
-  This is the output. Joined-up areas that stayed worst on every hot day, with
-  coordinates, ordered by residents rather than by size. The top one holds three
-  thousand four hundred people and is only the fourth largest. The largest of
+  This is the output. Joined-up patches of blocks that stayed worst on every
+  hot day, with coordinates, ordered by residents rather than by size. The top
+  one holds three thousand four hundred people and is only the fourth largest. The largest of
   the nine holds seven hundred and ninety-seven. Rank by size and you start in
   the wrong place.
 
@@ -102,7 +103,7 @@ ACTION   Click "Houston" in the bar above the map, then click "Hottest every
 NARRATION
   The obvious objection is one bad afternoon, so we tested five hot days
   between twenty twenty-two and twenty twenty-five.
-  In Houston, fourteen hundred blocks landed in the worst quarter of the city
+  In Houston, fourteen hundred blocks landed in the hottest quarter of the city
   every single time. Chance would give you twenty-two. That is sixty-five times
   over. That is not weather. That is the built environment, and a city can
   change it.
@@ -123,7 +124,7 @@ NARRATION
 IF YOU RUN LONG
 ---------------
 Cut in this order:
-  1. "Five hours apart, at the same temperature." at 1:22. The card on screen
+  1. "Five hours, at the same temperature." at 1:22. The card on screen
      already shows both figures.
   2. Start 0:00 at "NIGHTWATCH maps something else".
   3. "Rank by size and you start in the wrong place." at 1:42.
