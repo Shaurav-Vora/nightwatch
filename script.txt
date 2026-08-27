@@ -1,4 +1,4 @@
-NIGHTWATCH - DEMO SCRIPT, ABOUT 2 MIN 45
+NIGHTWATCH - DEMO SCRIPT, ABOUT 2 MIN 55
 =================================
 
 Read the NARRATION lines aloud. Do what the ACTION lines say while you read
@@ -36,10 +36,11 @@ ACTION   Scroll to the pair of Phoenix maps. Let both sit on screen while you
          talk. Point at the left one, then the right one.
 
 NARRATION
-  Here is why that matters. Same city, same afternoon, same blocks, asked two
-  ways. On the left, how hot it got. On the right, how long it stayed
-  dangerous. Take the hundred hottest blocks at three p.m., and the hundred
-  that stayed dangerous longest. In Phoenix, not one block is on both lists.
+  Here is why that matters. Same blocks, same afternoon, asked two ways. On the
+  left, how hot it got. On the right, how long it stayed dangerous. Take the
+  hundred hottest at three p.m. and the hundred worst for duration: in Phoenix
+  not one block is on both lists. Choose sites from the left map and you miss
+  all hundred on the right.
 
 
 0:45 - 1:22   THE TOGGLE
@@ -56,14 +57,14 @@ NARRATION
 
   [click "Afternoon heat". Say the next line as it appears, then hold three
    seconds so the viewer can look at it]
-  Now the same blocks, same afternoon, as temperature. This is the map a city
-  uses today. It looks dramatic, but read the scale: the whole city fits inside
-  three degrees.
+  Now the same blocks, same afternoon, as temperature. The map a city uses
+  today. It looks dramatic, but read the scale: the whole city fits inside three
+  degrees.
 
   [click back to "Hours dangerously hot"]
   And back to hours. Under three degrees of temperature. Eight hours of
-  exposure. Same blocks, same afternoon. Only one of those tells you where to
-  send help.
+  exposure. The temperature map cannot separate these blocks. The hours map
+  separates them by more than double.
 
 
 1:22 - 1:42   TWO REAL BLOCKS
@@ -75,7 +76,7 @@ NARRATION
   What that looks like on the ground. These two blocks both read ninety-nine
   point seven Fahrenheit at three in the afternoon, so a temperature map cannot
   tell them apart. One spends six hours above the danger threshold. The other
-  eleven.
+  eleven. Five hours apart, at the same temperature.
 
 
 1:42 - 2:14   THE SHORTLIST, AND WHO IS IN IT
@@ -86,10 +87,10 @@ ACTION   Scroll to "Hottest areas, for longest". Click the top row and let the
 
 NARRATION
   This is the output. Joined-up areas that stayed worst on every hot day, with
-  coordinates, ordered by how many people live in them rather than by size. Look
-  at the last column: the area with the most residents is only the fourth
-  largest, and the largest of the nine ranks fifth for people. Rank by size
-  instead and you send the money somewhere else.
+  coordinates, ordered by residents rather than by size. The top one holds three
+  thousand four hundred people and is only the fourth largest. The largest of
+  the nine holds seven hundred and ninety-seven. Rank by size and you start in
+  the wrong place.
 
 
 2:14 - 2:42   DOES IT REPEAT
@@ -99,11 +100,12 @@ ACTION   Click "Houston" in the bar above the map, then click "Hottest every
          Scroll the right panel to "Does it repeat?", showing 1,408 and 64.6x.
 
 NARRATION
-  The obvious objection is that this is one bad afternoon, so we tested that
-  first, across five hot days between twenty twenty-two and twenty twenty-five.
+  The obvious objection is one bad afternoon, so we tested five hot days
+  between twenty twenty-two and twenty twenty-five.
   In Houston, fourteen hundred blocks landed in the worst quarter of the city
   every single time. Chance would give you twenty-two. That is sixty-five times
-  over. Built environment, not weather, and someone can fix it.
+  over. That is not weather. That is the built environment, and a city can
+  change it.
 
 
 2:42 - 3:00   WHAT YOU CAN DO WITH IT
@@ -121,10 +123,10 @@ NARRATION
 IF YOU RUN LONG
 ---------------
 Cut in this order:
-  1. The last sentence of 1:22, about the six and eleven hours. The card is on
-     screen and says it.
+  1. "Five hours apart, at the same temperature." at 1:22. The card on screen
+     already shows both figures.
   2. Start 0:00 at "NIGHTWATCH maps something else".
-  3. The last sentence of 1:42, about ranking by area.
+  3. "Rank by size and you start in the wrong place." at 1:42.
 
 Do not cut the toggle at 0:45. That toggle is the argument, and the video does
 not work without it.

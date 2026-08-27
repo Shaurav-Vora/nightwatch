@@ -9,8 +9,8 @@ Two seconds is longer than it feels; count it. The one marked THREE is the
 important one, because that is the shot where the afternoon map sits on
 screen and the viewer needs time to look at it before you speak again.
 
-Pace is about 150 words a minute, unhurried. The whole read is 387 words,
-roughly 2 minutes 50 including the pauses.
+Pace is about 150 words a minute, unhurried. The whole read is 392 words,
+roughly 2 minutes 55 including the pauses.
 
 The timestamps on the left are where each block should land. Use them to cut
 the footage afterwards; they are not instructions to speed up or slow down.
@@ -37,10 +37,11 @@ Chicago, block by block.
      (picture: the landing page, the two Phoenix maps side by side, both
       fully on screen)
 
-Here is why that matters. Same city, same afternoon, same blocks, asked two
-ways. On the left, how hot it got. On the right, how long it stayed
-dangerous. Take the hundred hottest blocks at three p.m., and the hundred
-that stayed dangerous longest. In Phoenix, not one block is on both lists.
+Here is why that matters. Same blocks, same afternoon, asked two ways. On the
+left, how hot it got. On the right, how long it stayed dangerous. Take the
+hundred hottest at three p.m. and the hundred worst for duration: in Phoenix
+not one block is on both lists. Choose sites from the left map and you miss
+all hundred on the right.
 
      [pause TWO]
 
@@ -58,9 +59,9 @@ each block spent above ninety-five Fahrenheit. Red is longest.
 
      (picture: same city, same day, now coloured by temperature)
 
-Now the same blocks, same afternoon, as temperature. This is the map a city
-uses today. It looks dramatic, but read the scale: the whole city fits inside
-three degrees.
+Now the same blocks, same afternoon, as temperature. The map a city uses
+today. It looks dramatic, but read the scale: the whole city fits inside three
+degrees.
 
      [pause THREE - hold on the temperature map, this is the one the viewer
       needs time to look at]
@@ -68,8 +69,8 @@ three degrees.
      (picture: back to "Hours dangerously hot")
 
 And back to hours. Under three degrees of temperature. Eight hours of
-exposure. Same blocks, same afternoon. Only one of those tells you where to
-send help.
+exposure. The temperature map cannot separate these blocks. The hours map
+separates them by more than double.
 
      [pause TWO]
 
@@ -84,7 +85,7 @@ send help.
 What that looks like on the ground. These two blocks both read ninety-nine
 point seven Fahrenheit at three in the afternoon, so a temperature map cannot
 tell them apart. One spends six hours above the danger threshold. The other
-eleven.
+eleven. Five hours apart, at the same temperature.
 
      [pause TWO]
 
@@ -97,10 +98,10 @@ eleven.
       flies there and outlines it, then scroll on to "Who lives there")
 
 This is the output. Joined-up areas that stayed worst on every hot day, with
-coordinates, ordered by how many people live in them rather than by size. Look
-at the last column: the area with the most residents is only the fourth
-largest, and the largest of the nine ranks fifth for people. Rank by size
-instead and you send the money somewhere else.
+coordinates, ordered by residents rather than by size. The top one holds three
+thousand four hundred people and is only the fourth largest. The largest of
+the nine holds seven hundred and ninety-seven. Rank by size and you start in
+the wrong place.
 
      [pause TWO]
 
@@ -112,11 +113,12 @@ instead and you send the money somewhere else.
      (picture: Houston, on "Hottest every time" so the stamp lists all five
       dates, then the "Does it repeat?" card showing 1,408 and 64.6x)
 
-The obvious objection is that this is one bad afternoon, so we tested that
-first, across five hot days between twenty twenty-two and twenty twenty-five.
+The obvious objection is one bad afternoon, so we tested five hot days
+between twenty twenty-two and twenty twenty-five.
 In Houston, fourteen hundred blocks landed in the worst quarter of the city
 every single time. Chance would give you twenty-two. That is sixty-five times
-over. Built environment, not weather, and someone can fix it.
+over. That is not weather. That is the built environment, and a city can
+change it.
 
      [pause TWO]
 
@@ -166,13 +168,13 @@ IF THE READ COMES OUT LONG
 
 Cut in this order. Each one is a whole sentence, so nothing is left dangling.
 
-  1. The last sentence of 1:22, "One spends six hours above the danger
-     threshold. The other eleven." The card on screen already says it.
+  1. The last sentence of 1:22, "Five hours apart, at the same temperature."
+     The card on screen already shows both figures.
 
   2. The opening clause of 0:00, so it starts at "NIGHTWATCH maps something
      else".
 
-  3. The last sentence of 1:42, "Rank by size instead and you send the money
-     somewhere else."
+  3. The last sentence of 1:42, "Rank by size and you start in the wrong
+     place."
 
 Do not cut anything from 0:45. That block is the argument.
