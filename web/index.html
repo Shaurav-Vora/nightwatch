@@ -706,7 +706,15 @@ function render(){
     d.style.background=`rgb(${c[0]|0},${c[1]|0},${c[2]|0})`;leg.appendChild(d);}
   document.getElementById('legLo').textContent=say(lo);
   document.getElementById('legHi').textContent=say(hi);
-  document.getElementById('thVal').textContent=say(cut);
+  // On "Hottest every time" the value is a share of hot days, so say(cut)
+  // put "33%" directly beside a label already reading "the worst 49%". Two
+  // unrelated percentages side by side. Say it in days instead.
+  const cutDays = (layerName==='persistent' && CONS)
+    ? Math.round(cut*CONS.dates.length) : null;
+  document.getElementById('thVal').textContent =
+    cutDays===null ? say(cut)
+    : cutDays<=0 ? 'any hot day'
+    : `${cutDays} of ${CONS.dates.length} hot days`;
 
   // Say what the number IS, every time. Without the noun, "6.3°C" on the
   // cooling layer reads as a temperature when it is a temperature DROP.
@@ -760,16 +768,6 @@ function render(){
   document.getElementById('thLabel').textContent =
     nv===v.length ? 'showing every block' : `showing the worst ${actual}%`;
 
-  let meaning='';
-  if(layerName==='persistent' && CONS){
-    const days=Math.round(cut*CONS.dates.length);   // cut is a 0..1 fraction
-    meaning = days>=CONS.dates.length
-      ? ` That is the blocks in the hottest quarter on <b>all `+
-        `${CONS.dates.length}</b> hot days.`
-      : days<=0 ? ''
-      : ` That is the blocks in the hottest quarter on <b>at least ${days}</b> `+
-        `of the ${CONS.dates.length} hot days.`;
-  }
   // Water has no consistency value, so it cannot appear on "Hottest every
   // time" whatever the checkbox says. Disabling it beats ignoring the click.
   const wRow=document.getElementById('waterRow'), wBox=document.getElementById('water');
@@ -786,9 +784,18 @@ function render(){
       `show ${waterN.toLocaleString()} water tiles`;
   }
 
-  document.getElementById('thCount').innerHTML=
-    `<b>${nv.toLocaleString()}</b> of ${v.length.toLocaleString()} blocks, `+
-    `those ${cfg.flip?'at or below':'at or above'} <b>${say(cut)}</b>.`+meaning;
+  document.getElementById('thCount').innerHTML =
+    cutDays!==null
+      ? `<b>${nv.toLocaleString()}</b> of ${v.length.toLocaleString()} blocks: `+
+        (cutDays<=0
+          ? `every block, however rarely it was among the hottest.`
+          : cutDays>=CONS.dates.length
+          ? `those in the hottest quarter of the city on <b>all `+
+            `${CONS.dates.length}</b> hot days.`
+          : `those in the hottest quarter of the city on <b>at least `+
+            `${cutDays}</b> of the ${CONS.dates.length} hot days.`)
+      : `<b>${nv.toLocaleString()}</b> of ${v.length.toLocaleString()} blocks, `+
+        `those ${cfg.flip?'at or below':'at or above'} <b>${say(cut)}</b>.`;
 }
 // The date changes meaning with the layer: four layers show one day, and
 // "Always worst" spans several. Saying it on the map removes the guess.
