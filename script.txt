@@ -44,17 +44,23 @@ NARRATION
 0:45 - 1:10   THE TOGGLE
 -------------
 ACTION   Click "Open the map". Wait for Phoenix to draw.
-         Click "Afternoon heat". Hold two seconds.
-         Click back to "Hottest every time".
+         Click "Hours dangerously hot" first, so both views cover the same
+         single day. Then click "Afternoon heat" and hold two seconds.
+         Then click back to "Hours dangerously hot".
 
 NARRATION
-  This is the live version. Red is the ground that stays dangerous longest.
-  Now here is the map a city would use today.
+  This is the live version, on one single day so the comparison is fair. Red
+  is the ground that stayed dangerous longest. Now here is the map a city
+  would use today.
   [PAUSE on Afternoon heat]
-  Temperature at three in the afternoon. Almost flat. Back to duration.
+  Temperature at three that same afternoon. The colours look dramatic, so read
+  the scale underneath: ninety-nine to a hundred and two Fahrenheit. Three
+  degrees across the entire city. That is the whole range a heat map has to
+  work with.
   [CLICK BACK]
-  A different city. In Phoenix, how hot a block gets in the afternoon tells you
-  almost nothing about how long it stays hot. R-squared is zero point one.
+  And back to duration. Six hours to fourteen, on the same blocks on the same
+  day. How hot a block got that afternoon tells you almost nothing about how
+  long it stayed dangerous.
 
 
 1:10 - 1:30   TWO REAL BLOCKS

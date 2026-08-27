@@ -710,9 +710,15 @@ function render(){
 
   // Say what the number IS, every time. Without the noun, "6.3°C" on the
   // cooling layer reads as a temperature when it is a temperature DROP.
+  // lo and hi are the 2nd and 98th percentiles, so a couple of outliers
+  // cannot wash out the whole ramp. That makes them narrower than the true
+  // min-to-max span quoted above, and both numbers are on screen at once.
   document.getElementById('spanNote').innerHTML=
     `Colours run from <b>${say(lo)}</b> to <b>${say(hi)}</b> `+
-    `${cfg.noun||''}, across ${v.length.toLocaleString()} blocks.`;
+    `${cfg.noun||''}, across ${v.length.toLocaleString()} blocks. `+
+    `<span style="color:#7c8ba1">The ends are clipped to the middle 96% so `+
+    `that a few outliers cannot flatten everything else, so this range is `+
+    `slightly narrower than the full spread above.</span>`;
 
   drawStamp(cfg);
 
