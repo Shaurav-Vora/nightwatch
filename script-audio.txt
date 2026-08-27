@@ -1,0 +1,156 @@
+NIGHTWATCH - AUDIO SCRIPT
+=========================
+
+Read straight through. Nothing here is a stage direction, so you can record
+it in one take without looking at the app.
+
+The bracketed pauses are where the video will cut, so hold them properly.
+Two seconds is longer than it feels; count it. The one marked THREE is the
+important one, because that is the shot where the afternoon map sits on
+screen and the viewer needs time to look at it before you speak again.
+
+Pace is about 150 words a minute, unhurried. The whole read is 351 words,
+roughly 2 minutes 40 including the pauses.
+
+The timestamps on the left are where each block should land. Use them to cut
+the footage afterwards; they are not instructions to speed up or slow down.
+
+
+-------------------------------------------------------------------------
+0:00
+-------------------------------------------------------------------------
+
+Cities decide where to plant trees and where to open cooling centres using
+maps of how hot it gets. NIGHTWATCH maps something else: how many hours a day
+each city block spends above its danger threshold. Phoenix, Houston and
+Chicago, block by block.
+
+     [pause TWO]
+
+
+-------------------------------------------------------------------------
+0:20
+-------------------------------------------------------------------------
+
+Here is why that matters. Same city, same afternoon, same blocks, asked two
+ways. On the left, how hot it got. On the right, how long it stayed
+dangerous. Take the hundred hottest blocks at three p.m., and the hundred
+that stayed dangerous longest. In Phoenix, not one block is on both lists.
+
+     [pause TWO]
+
+
+-------------------------------------------------------------------------
+0:45
+-------------------------------------------------------------------------
+
+This is the live version, on one single day so the comparison is fair. Red is
+the ground that stayed dangerous longest. Here is the map a city would use
+today.
+
+     [pause THREE - the afternoon map is on screen and needs looking at]
+
+Temperature at three that same afternoon. The colours look dramatic, so read
+the scale: just under a hundred, up to a hundred and two Fahrenheit. Three
+degrees across the whole city.
+
+     [pause TWO - the map switches back]
+
+And back to hours above that threshold. The same blocks, the same day, and now
+the scale reads six hours to fourteen.
+
+     [pause TWO]
+
+
+-------------------------------------------------------------------------
+1:22
+-------------------------------------------------------------------------
+
+What that looks like on the ground. These two blocks both read ninety-nine
+point seven Fahrenheit at three in the afternoon, so a temperature map cannot
+tell them apart. One spends six hours above the danger threshold. The other
+eleven.
+
+     [pause TWO]
+
+
+-------------------------------------------------------------------------
+1:42
+-------------------------------------------------------------------------
+
+This is the output. Joined-up areas that stayed worst on every hot day, with
+coordinates. They are ordered by how many people live in them, not by size.
+Look at the last column on each row: the area with the most residents is only
+the fourth largest, and the largest of the nine ranks fifth for people. Rank
+by area, which is what a city would otherwise do, and you send the money to a
+different place.
+
+     [pause TWO]
+
+
+-------------------------------------------------------------------------
+2:14
+-------------------------------------------------------------------------
+
+The obvious objection is that this is one bad afternoon, so we tested that
+first, across five hot days between twenty twenty-two and twenty twenty-five.
+In Houston, fourteen hundred blocks landed in the worst quarter of the city
+every single time. Chance would give you twenty-two. That is sixty-five times
+over, so this is the built environment rather than the weather, and someone
+can fix it.
+
+     [pause TWO]
+
+
+-------------------------------------------------------------------------
+2:42
+-------------------------------------------------------------------------
+
+All of it exports. Ranked sites as a spreadsheet, the grid as GeoJSON, and a
+printable report carrying the method and the limitations. Built on
+FortyGuard's API, three cities, fifty-three thousand blocks. Heat maps measure
+how hot. This measures how long.
+
+     [stop recording a beat after the last word, do not clip it]
+
+
+=========================================================================
+SAYING IT
+=========================================================================
+
+Numbers, said the way they are written here:
+
+  "three p.m."                  three pee em, not fifteen hundred
+  "ninety-nine point seven"     not ninety nine seven
+  "twenty twenty-two"           the year, not two thousand and twenty two
+  "sixty-five times over"       the ratio is 64.6, so sixty-five is right
+  "fifty-three thousand"        53,392 blocks across the three cities
+  "GeoJSON"                     gee-oh-jay-son
+
+Two places people stumble:
+
+  "on one single day so the comparison is fair" - keep going, it is one
+  clause, not two.
+
+  "the largest of the nine ranks fifth for people" - the stress is on fifth.
+
+If you fluff a line, stop, breathe, and take that whole block again from its
+timestamp. Do not patch mid-sentence; the join always shows.
+
+
+=========================================================================
+IF THE READ COMES OUT LONG
+=========================================================================
+
+Cut in this order. Each one is a whole sentence, so nothing is left dangling.
+
+  1. The last sentence of 1:22, "One spends six hours above the danger
+     threshold. The other eleven." The card is on screen and says it.
+
+  2. The opening clause of 0:00, so it starts at "NIGHTWATCH maps something
+     else".
+
+  3. The last sentence of 1:42, "Rank by area, which is what a city would
+     otherwise do, and you send the money to a different place."
+
+Do not cut anything from 0:45. That block is the argument.
