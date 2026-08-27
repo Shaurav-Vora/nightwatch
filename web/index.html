@@ -967,6 +967,27 @@ function drawTwins(){
   const t=DATA.twins;
   if(!t){box.innerHTML='<div class="hd">no matched pair found</div>';return;}
   const F=c=>useF?(c*9/5+32).toFixed(1)+'°F':c.toFixed(1)+'°C';
+
+  // Two blocks on their own invite "you picked the two that suited you", and
+  // the pair also looks odd beside the map key: the key runs to 14.2 h while
+  // the hotter twin stops at 11.2. Both are right. The key is the whole city
+  // at any temperature; the pair is one temperature. Saying how many other
+  // blocks share that reading answers the question and kills the objection.
+  const band=DATA.cells.filter(c=>!isWater(c) && Math.abs(c[3]-t.temp_c)<=0.05);
+  let peers='';
+  if(band.length>2){
+    const e=band.map(c=>c[2]).sort((a,b)=>a-b);
+    peers=`<br><br>${band.length.toLocaleString()} blocks read this same `+
+          `temperature that afternoon, and their exposure runs `+
+          `<b>${e[0].toFixed(1)}</b> to <b>${e[e.length-1].toFixed(1)} hours</b>. `+
+          // with only a handful in the band, "not a lucky pick" would be
+          // exactly the sort of claim the sample size cannot support
+          (band.length>=50
+            ? `These two are the ends of that spread, not a lucky pick.`
+            : `That is a small group, so treat this pair as an illustration `+
+              `rather than evidence.`);
+  }
+
   const row=(o,cls,lbl)=>
     `<div class="twin ${cls}"><div class="h">${o.exposure_h.toFixed(1)}<span style="font-size:12px;font-weight:400"> hours</span></div>`+
     `<div class="d"><b>${lbl}</b><br>${o.lat.toFixed(4)}, ${o.lon.toFixed(4)}`+
@@ -976,7 +997,7 @@ function drawTwins(){
     row(t.low,'cool','shorter exposure')+
     row(t.high,'hot','longer exposure')+
     `<div class="ft">${t.gap_h.toFixed(1)} hours apart, `+
-    `above ${THR()}, from the same afternoon reading.</div>`;
+    `above ${THR()}, from the same afternoon reading.${peers}</div>`;
 }
 
 // A CHART, not a map. It previously used the map's colour ramp and had no
