@@ -74,9 +74,9 @@ ACTION   Scroll the right panel to "Two blocks, same afternoon". Hold long
          enough for the coordinates to be readable.
 
 NARRATION
-  The app searches Phoenix for two blocks that read the same temperature at
-  three in the afternoon. These two both read ninety-nine point seven
-  Fahrenheit, so a temperature map cannot tell them apart. One spends six hours
+  The app finds two blocks that read the same temperature at three in the
+  afternoon. These two both read ninety-nine point seven Fahrenheit, so a
+  temperature map cannot tell them apart. One spends six hours
   above the danger threshold, the other eleven. Five hours, at the same
   temperature.
 
@@ -102,11 +102,11 @@ ACTION   Click "Houston" in the bar above the map, then click "Hottest every
          Scroll the right panel to "Does it repeat?", showing 1,408 and 64.6x.
 
 NARRATION
-  The obvious objection is one bad afternoon, so we tested five hot days
-  between twenty twenty-two and twenty twenty-five.
-  In Houston, fourteen hundred blocks landed in the hottest quarter of the city
-  every single time. Chance would give you twenty-two. That is sixty-five times
-  over. Not weather. The built environment, and a city can change it.
+  You might think we picked one bad afternoon. So we ran it again on five hot
+  days between twenty twenty-two and twenty twenty-five. In Houston, fourteen
+  hundred blocks came out worst on all five. Chance alone would give you
+  twenty-two. The same ground is worst every time, because of how it is built.
+  Building can be changed.
 
 
 2:42 - 3:00   WHAT YOU CAN DO WITH IT

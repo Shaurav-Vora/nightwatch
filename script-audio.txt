@@ -83,9 +83,9 @@ map cannot.
      (picture: the app, right-hand panel, the "Two blocks, same afternoon"
       card, held long enough to read the coordinates)
 
-The app searches Phoenix for two blocks that read the same temperature at
-three in the afternoon. These two both read ninety-nine point seven
-Fahrenheit, so a temperature map cannot tell them apart. One spends six hours
+The app finds two blocks that read the same temperature at three in the
+afternoon. These two both read ninety-nine point seven Fahrenheit, so a
+temperature map cannot tell them apart. One spends six hours
 above the danger threshold, the other eleven. Five hours, at the same
 temperature.
 
@@ -115,11 +115,11 @@ place.
      (picture: Houston, on "Hottest every time" so the stamp lists all five
       dates, then the "Does it repeat?" card showing 1,408 and 64.6x)
 
-The obvious objection is one bad afternoon, so we tested five hot days
-between twenty twenty-two and twenty twenty-five.
-In Houston, fourteen hundred blocks landed in the hottest quarter of the city
-every single time. Chance would give you twenty-two. That is sixty-five times
-over. Not weather. The built environment, and a city can change it.
+You might think we picked one bad afternoon. So we ran it again on five hot
+days between twenty twenty-two and twenty twenty-five. In Houston, fourteen
+hundred blocks came out worst on all five. Chance alone would give you
+twenty-two. The same ground is worst every time, because of how it is built.
+Building can be changed.
 
      [pause TWO]
 
@@ -148,7 +148,6 @@ Numbers, said the way they are written here:
   "three in the afternoon"      say it in full, it reads better aloud
   "ninety-nine point seven"     not ninety nine seven
   "twenty twenty-two"           the year, not two thousand and twenty two
-  "sixty-five times over"       the ratio is 64.6, so sixty-five is right
   "fifty-three thousand"        53,392 blocks across the three cities
   "GeoJSON"                     gee-oh-jay-son
 
