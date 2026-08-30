@@ -139,11 +139,45 @@ committed; `.env.example` shows the variable name only.
 
 ## AI tools used
 
-> Claude (Anthropic) was used throughout, as a pair programmer and editor: for
-> the Python harvest and analysis scripts, the frontend, and for drafting and
-> repeatedly correcting the written material. Every figure that appears in the
-> app, the README or the video was recomputed from the shipped data files and
-> checked against the interface before being stated.
+Add any other tool you used. Disclosure is not penalised, so err towards more.
+
+> **Claude (Anthropic)**, used through the Claude desktop app, as a pair
+> programmer and editor across the whole build.
+>
+> **Code.** The Python side: the API client with its submit-then-poll loop and
+> a SQLite disk cache keyed on a hash of the request body, the UTC-to-local
+> conversion and its 24 unit tests, the per-city threshold selection, the
+> multi-date consistency counting and its chance baseline, the census join, the
+> flood-fill that groups blocks into sites, and the export scripts. The
+> frontend: one self-contained HTML file with deck.gl over MapLibre, five map
+> layers, the ranked-site panel, the CSV and GeoJSON exports, and the printable
+> report with inline SVG charts.
+>
+> **Writing.** Drafts of the landing page, the README and the video script.
+>
+> **What I kept.** Choosing what to measure and what to cut, reading
+> FortyGuard's documentation and designing the harvest to fit the credit
+> budget, and verification. Every figure in the app, the README and the video
+> was recomputed from the shipped data files and checked against the running
+> interface before it was stated.
+>
+> That last step earned its place. AI drafts repeatedly produced claims that
+> sounded right and were not: a comparison between two ranked areas that the
+> numbers contradicted, a line calling a map "almost flat" while it rendered
+> deep red to deep blue, and an early framing of the whole project as
+> night-time heat when the measured window actually runs from mid-morning to
+> about two hours after sunset. Each was caught by checking the data or the
+> screen rather than by rereading the text, and each correction is in the
+> commit history.
+
+### Short version, if the field is small
+
+> Claude (Anthropic), as a pair programmer and editor: the Python harvest and
+> analysis scripts, the deck.gl frontend, and drafts of the README and video
+> script. I chose what to measure, designed the harvest around the credit
+> budget, and verified every figure against the shipped data before it was
+> stated. That check caught several confident but wrong AI-drafted claims,
+> which are corrected in the commit history.
 
 ## Links
 
