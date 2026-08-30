@@ -72,12 +72,12 @@ Use the long one unless the field is short. Both say the same thing.
 The form asks who makes a decision *differently*, so name the decision, not
 the job titles.
 
-> Heat officers and urban planners siting shade, cool roofs and cooling
-> centres, and the public health teams advising them which neighbourhoods to
-> reach first. Today they prioritise by peak afternoon temperature or by the
-> size of an area; with NIGHTWATCH they prioritise by hours above the danger
-> threshold and by how many people live there, which in Phoenix selects an
-> entirely different hundred blocks.
+> The people who choose where a city puts shade, cool roofs and cooling
+> centres: heat officers, urban planners, and the public health teams who
+> advise them on which neighbourhoods to help first. Today they rank by peak
+> afternoon temperature or by the size of an area; NIGHTWATCH ranks by hours
+> above the danger threshold and by how many people live there, which in
+> Phoenix picks an entirely different hundred blocks.
 
 ## Location and time period
 
