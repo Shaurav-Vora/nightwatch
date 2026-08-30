@@ -215,6 +215,111 @@ Worth reporting back, and all of it is in `probe_report.json` from day one.
   at 15.9% in flat Houston, so we report the land-cover comparison as a null
   result rather than leaning on it.
 
+## One real API call, request and response
+
+This is the call the whole project rests on: the longest unbroken run of hours
+above 35 °C, over the Phoenix AOI, for 22 July 2025. `POST /v1/heatmap` with
+the header `api-key: <your key>`.
+
+**Request**
+
+```json
+{
+  "analytic_type": "persistence",
+  "direction": "above",
+  "threshold": 35.0,
+  "granularity": 100,
+  "date_time": { "filter_type": 3, "start_date": "2025-07-22" },
+  "polygon_aoi": {
+    "type": "FeatureCollection",
+    "features": [{
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-112.16, 33.40], [-112.00, 33.40],
+                         [-112.00, 33.53], [-112.16, 33.53],
+                         [-112.16, 33.40]]]
+      }
+    }]
+  }
+}
+```
+
+Every call is submit-then-poll. The response above returns an `activity_id`,
+and `GET /v1/status/{activity_id}` is polled until the status is `Completed`.
+This one took **37 seconds** and returned 21,453 tiles.
+
+**Response** (abridged: `map_data.features` holds all 21,453 tiles)
+
+```json
+{
+  "stats_data": {
+    "activity_id": "23de1207-f9fe-4ce9-a529-c586622b1db0",
+    "analytic_type": "persistence",
+    "units": "hour",
+    "n_cells": 21453,
+    "min": 5.3268,
+    "max": 14.3971,
+    "mean": 10.906822640190184
+  },
+  "map_data": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "id": "0",
+        "type": "Feature",
+        "properties": { "tile_id": 0, "value": 7.1612 },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[-112.12782905, 33.39955034],
+                           [-112.12675479, 33.39956010],
+                           [-112.12676642, 33.40046110],
+                           [-112.12784069, 33.40045134],
+                           [-112.12782905, 33.39955034]]]
+        }
+      }
+    ]
+  }
+}
+```
+
+`properties.value` is hours, per `stats_data.units`. That `min` of 5.33 and
+`max` of 14.40 is where the 9.07-hour spread at the top of this README comes
+from, after water tiles are excluded.
+
+Note the schema difference that costs people a day: `persistence`,
+`exceedance` and `time_of_measure` return `properties.value`, while `tcm`
+returns `properties.average_temperature` with no `value` field at all. Code
+written against one finds nothing in the other.
+
+## What does not work yet
+
+Stated plainly, because a judge will find these anyway.
+
+- **Only three cities are pre-baked.** The pipeline takes any US polygon, but
+  Phoenix, Houston and Chicago are the three we spent credits on. There is no
+  UI for adding a fourth; it needs an entry in `city_test.py` and a re-harvest.
+- **Street-level photographs exist for Houston only.** Chicago and Phoenix were
+  searched, 14 candidate blocks each, and `/streetview` returned no imagery for
+  any of them. The panel hides itself rather than showing an empty box. Costing
+  nothing, since failed calls are free.
+- **The satellite land-cover comparison is a null result and is reported as
+  one.** Ten classes, none significant at n=15 per group, and the segmentation
+  returned "mountain" at 15.9% in flat Houston, which we do not believe. It is
+  in the report as a negative finding, not as evidence.
+- **`/heat_intelligence` is untouched.** It returns a PDF and we had no use for
+  it that the report does not already cover.
+- **Population is a nearest-centroid join, not a polygon intersection.** Good
+  enough to rank areas of hundreds of blocks, wrong for any single block.
+- **The threshold is not adjustable in the browser.** It is an API request
+  parameter, so changing it means re-harvesting. The slider filters what is
+  displayed; it does not re-run the analysis.
+- **No mobile layout below 1180 px.** The three columns stack and the map gets
+  62vh, which works but was not designed for.
+- **The app is read-only.** There is no way to upload your own AOI, draw a
+  polygon, or pick a date from the interface.
+
 ## Limitations
 
 Several of these cut against us.
