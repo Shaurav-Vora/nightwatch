@@ -67,23 +67,17 @@ Use the long one unless the field is short. Both say the same thing.
 
 **Secondary (up to 2):** Interactive Maps · Data Analysis
 
-## Who it is for, and the problem
+## Who this is for
 
-> Cities decide where to plant trees and open cooling centres using maps of how
-> hot it gets. Across a single city that number barely moves. In Phoenix the
-> entire afternoon spread from the coolest block to the hottest is 1.81 °C,
-> which is nothing you can act on, so a conventional heat map gives a heat
-> office almost nothing to prioritise with.
->
-> Ask the same blocks how many hours a day they spend above a danger threshold
-> and the answer spans 9.07 hours. The two questions do not pick the same
-> ground: take the hundred hottest blocks at 3pm and the hundred that stay
-> dangerous longest, and in Phoenix not one block is on both lists.
->
-> NIGHTWATCH is built for whoever decides where a city's cooling budget goes.
-> It finds the joined-up areas that stayed worst across every hot day measured,
-> ranks them by resident count rather than by area, and exports the list with
-> coordinates as CSV and GeoJSON.
+The form asks who makes a decision *differently*, so name the decision, not
+the job titles.
+
+> Heat officers and urban planners siting shade, cool roofs and cooling
+> centres, and the public health teams advising them which neighbourhoods to
+> reach first. Today they prioritise by peak afternoon temperature or by the
+> size of an area; with NIGHTWATCH they prioritise by hours above the danger
+> threshold and by how many people live there, which in Phoenix selects an
+> entirely different hundred blocks.
 
 ## Location and time period
 
