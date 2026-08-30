@@ -2,12 +2,167 @@
 
 **The heat maps cities use today measure the wrong thing.**
 
-Live: **https://shaurav-vora.github.io/nightwatch/**
+An interactive map of how many hours a day each city block spends above its
+danger threshold, for Phoenix, Houston and Chicago. It finds the
+neighbourhoods that stay dangerous longest, shows the same ones come out worst
+on hot day after hot day, and ranks them by how many people live there.
 
-Cities decide where to plant trees and open cooling centres using maps of *how
-hot* it gets. Across a single city that number barely moves. *How long* a block
-stays dangerous moves by hours, and the same ground comes out worst every
-time.
+**Live demo: https://shaurav-vora.github.io/nightwatch/** (nothing to install)
+
+Built on the FortyGuard temperature API for FortyGuard Hackathon '26.
+
+---
+
+## Contents
+
+**Start here**
+- [For judges: the two-minute version](#for-judges-the-two-minute-version)
+- [Setup guide](#setup-guide)
+
+**What it found**
+- [The finding](#the-finding)
+- [The threshold, and why it differs per city](#the-threshold-and-why-it-differs-per-city)
+- [Does it repeat, or was it one bad day?](#does-it-repeat-or-was-it-one-bad-day)
+- [Who it affects](#who-it-affects)
+
+**How it works**
+- [Architecture](#architecture)
+- [What we found out about the API](#what-we-found-out-about-the-api)
+- [One real API call, request and response](#one-real-api-call-request-and-response)
+- [What each script does](#what-each-script-does)
+- [Repository layout](#repository-layout)
+
+**Where it falls short**
+- [What does not work yet](#what-does-not-work-yet)
+- [Limitations](#limitations)
+
+---
+
+## For judges: the two-minute version
+
+**Nothing to install, nothing to sign into.**
+Open **https://shaurav-vora.github.io/nightwatch/** in any browser, including a
+private window. It is a static site, so it will not have gone to sleep.
+
+### If you have thirty seconds
+
+Read the top of the landing page and look at the two Phoenix maps side by side.
+Same blocks, same afternoon, asked two ways. They do not agree, and the caption
+gives you the number: of the hundred hottest blocks at 3pm and the hundred that
+stay dangerous longest, **not one block is on both lists**.
+
+### If you have two minutes
+
+Click **Open the map**. A guided tour starts on its own; skip it if you would
+rather explore. Then:
+
+| # | Do this | What it shows |
+|---|---|---|
+| 1 | Click **Hours dangerously hot**, then **Afternoon heat**, then back | The whole argument. Same blocks, same day. Temperature spans under 3 °F; hours span 6 to 14. |
+| 2 | Look at the **Danger threshold** box, top left | 95 °F in Phoenix, and why it differs per city. Every "hours" figure counts time above it. |
+| 3 | Scroll the right panel to **Two blocks, same afternoon** | Two real blocks at the same 3pm temperature, five hours apart in exposure, with coordinates. |
+| 4 | Scroll to **Hottest areas, for longest** and click the top row | The output. The map flies there and outlines the actual blocks. Note the "would rank by area" column. |
+| 5 | Scroll to **Does it repeat?** | The honesty check. Houston 64.6× chance; Phoenix only 2.4×, and the panel says so. |
+| 6 | Click **Generate full report** | A self-contained printable page with the method and the limitations. |
+| 7 | Switch to **Houston** in the bar above the map | Street-level photographs from inside the persistent core, with FortyGuard's segmentation. |
+
+### The three things worth checking hardest
+
+1. **Every export carries its own `threshold_c`, city and date**, because the
+   hour figures are only comparable within a city. The app says so wherever it
+   compares cities.
+2. **Phoenix's repeat result is weak** at 2.4× chance. The app reports it as
+   weak rather than presenting its site list with the same confidence as
+   Houston's.
+3. **[What does not work yet](#what-does-not-work-yet)** is a real list, not a
+   formality.
+
+---
+
+## Setup guide
+
+You do not need any of this to assess the project; the live demo is the whole
+thing. This is for running it from scratch.
+
+### 1. Prerequisites
+
+- **Python 3.10 or newer.** `python --version` to check.
+- **A browser.** No Node, no build step, no bundler.
+- **No API key is needed** to run the site or the tests. The datasets are
+  committed. A key is only needed to re-harvest from the API.
+
+### 2. Clone and install
+
+```bash
+git clone https://github.com/Shaurav-Vora/nightwatch.git
+cd nightwatch
+
+python -m venv .venv
+.venv\Scripts\activate            # Windows
+source .venv/bin/activate          # macOS / Linux
+
+pip install -r requirements.txt
+```
+
+Four dependencies: `requests`, `python-dotenv`, `pytest`, `tzdata`. No
+geopandas, no numpy. Spearman, OLS, the flood fill and the census join are all
+written out in plain Python.
+
+### 3. Run the tests
+
+```bash
+pytest
+```
+
+Expect **24 passed**. They cover the UTC-to-local conversion, which is the one
+piece of arithmetic that would silently corrupt every result if it were wrong.
+No API key required.
+
+### 4. Serve the site
+
+```bash
+python -m http.server 8000
+```
+
+Then open **http://localhost:8000/**.
+
+Do not open `index.html` from the file system. The app fetches JSON, and
+browsers block that over `file://`. You will get an empty map and a console
+error.
+
+### 5. Rebuild the datasets (optional)
+
+```bash
+python export_cities.py
+```
+
+This rebuilds every file in `web/data/` from the SQLite disk cache at **zero
+credits**. The cache is keyed on a hash of the request body, so nothing is
+re-fetched unless the request changes.
+
+### 6. Re-harvest from the API (optional, costs credits)
+
+Only if you want to add a city or change a threshold.
+
+```bash
+cp .env.example .env       # then put your key in FORTYGUARD_API_KEY
+python probe.py            # confirms cost per call before anything expensive
+```
+
+`.env` is gitignored and has never been committed.
+
+To add a city, add an entry to `CITIES` in `city_test.py` and a threshold to
+`THRESHOLDS` in `duration_test.py`, then run `multidate.py`, `consistency.py`,
+`population.py` and `export_cities.py` in that order.
+
+### Troubleshooting
+
+| Symptom | Cause |
+|---|---|
+| Empty map, console 404s | Opened over `file://`. Use `python -m http.server`. |
+| `ZoneInfoNotFoundError` | `tzdata` missing. It is in `requirements.txt`; reinstall. |
+| `export_cities.py` says "cache miss" | The disk cache is absent. That path needs an API key. |
+| Census join fails | `CENSUS_API_KEY` missing. Free and instant, and only `population.py` needs it. |
 
 ---
 
@@ -125,33 +280,6 @@ sites by area and you send money to the wrong places. The app ranks by
 residents instead, and shows you which sites move when it does.
 
 ---
-
-## Running the demo
-
-Nothing to install. Open **https://shaurav-vora.github.io/nightwatch/**. The
-opening section puts the same Phoenix blocks side by side, asked two ways, and
-the rest of the page carries the threshold, the evidence and the caveats.
-Click through to the map and a guided tour opens on its own.
-
-The path through the app, roughly ninety seconds:
-
-1. **Phoenix loads by default** because its R² is the lowest, which is the
-   strongest form of the argument.
-2. **Switch to "Afternoon heat", then back to "Hottest every time".** That
-   toggle is the whole insight: the first is the map cities use today.
-3. **Drag the filter left** to strip everything but the worst-hit blocks. On
-   the default layer it steps in whole days, because a block is either in the
-   hottest quarter on a given day or it is not, and the label reports the
-   share actually on screen.
-4. **Click a row in the ranked list.** The map flies there and outlines the
-   actual blocks, not a circle approximating them.
-5. **Generate full report** opens a self-contained printable page with inline
-   SVG charts. It works offline and prints to PDF.
-6. **Switch to Houston** for the 64.6× repeat figure and the street-level
-   photographs with FortyGuard's segmentation over them.
-
-Everything on screen is exportable: all blocks as CSV, ranked sites as CSV,
-and the grid as GeoJSON for QGIS or ArcGIS.
 
 ## Architecture
 
@@ -293,6 +421,54 @@ Note the schema difference that costs people a day: `persistence`,
 returns `properties.average_temperature` with no `value` field at all. Code
 written against one finds nothing in the other.
 
+## What each script does
+
+**The pipeline** (these produce what the site serves):
+
+| Script | Purpose |
+|---|---|
+| `city_test.py` | AOI definitions and the per-city fetch helpers |
+| `duration_test.py` | Holds `THRESHOLDS`, the per-city danger temperature |
+| `multidate.py` | Re-runs the measurement across five dates |
+| `consistency.py` | Counts blocks in the worst quartile every time, vs chance |
+| `population.py` | Census join, appends residents per block |
+| `amplification.py` | Temperature span vs exposure span, R², slope |
+| `explain_core.py` | Land-cover comparison inside vs outside the core |
+| `core_photos.py` | Finds a street-view location inside the core, four headings |
+| `export_cities.py` | Bakes everything into `web/data/*.json` |
+| `preview_maps.py` | Renders the landing-page maps from the baked data |
+| `diurnal.py` | Draws the 24 h curve showing where the counted hours fall |
+
+**The investigation trail** (kept deliberately, this is where the failed
+hypothesis lives):
+
+| Script | What it settled |
+|---|---|
+| `probe.py` | Day-one API probe: costs, schemas, AOI ceiling, granularity |
+| `validate_lag.py` | Confirmed `start_time` is local, not UTC |
+| `hourly_curve.py` | 24-hour sweep locating the pre-dawn minimum |
+| `cooling_deficit.py` | Day/night cooling metric and the Spearman helper |
+| `water_confound.py` | Measures how distance from water drives the day/night link |
+| `detrend.py` | Tests longitude as an alternative confound |
+| `granularity_test.py` | Showed 60 m adds tiles but no information |
+| `sv_probe.py` | Separated "endpoint broken" from "no imagery here" |
+
+Note that `cooling_deficit.py` and `detrend.py` are imported by `city_test.py`,
+so the trail is load-bearing, not dead weight.
+
+## Repository layout
+
+```
+index.html              landing page, the argument
+web/index.html          the app, self-contained
+web/data/               baked datasets and street-view imagery
+nightwatch/             client, disk cache, geometry, timezone conversion
+tests/                  24 tests, all on the timezone conversion
+probe_report.json       day-one API probe results
+```
+
+---
+
 ## What does not work yet
 
 Stated plainly, because a judge will find these anyway.
@@ -339,75 +515,6 @@ Several of these cut against us.
   did not have the credits to run one.
 - We say heat duration **correlates with excess mortality in the
   epidemiological literature**. We do not claim a body count.
-
----
-
-## Running it yourself
-
-```bash
-git clone https://github.com/Shaurav-Vora/nightwatch.git
-cd nightwatch
-python -m venv .venv && .venv\Scripts\activate      # macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env                                 # add FORTYGUARD_API_KEY
-pytest                                               # 24 tests, no API key needed
-```
-
-Serve the site locally (the app fetches JSON, so `file://` will not work):
-
-```bash
-python -m http.server 8000
-# then open http://localhost:8000/
-```
-
-`python export_cities.py` rebuilds every dataset from the disk cache at **zero
-credits**. Only a cache miss costs anything.
-
-### What each script does
-
-**The pipeline** (these produce what the site serves):
-
-| Script | Purpose |
-|---|---|
-| `city_test.py` | AOI definitions and the per-city fetch helpers |
-| `duration_test.py` | Holds `THRESHOLDS`, the per-city danger temperature |
-| `multidate.py` | Re-runs the measurement across five dates |
-| `consistency.py` | Counts blocks in the worst quartile every time, vs chance |
-| `population.py` | Census join, appends residents per block |
-| `amplification.py` | Temperature span vs exposure span, R², slope |
-| `explain_core.py` | Land-cover comparison inside vs outside the core |
-| `core_photos.py` | Finds a street-view location inside the core, four headings |
-| `export_cities.py` | Bakes everything into `web/data/*.json` |
-| `preview_maps.py` | Renders the landing-page maps from the baked data |
-| `diurnal.py` | Draws the 24 h curve showing where the counted hours fall |
-
-**The investigation trail** (kept deliberately, this is where the failed
-hypothesis lives):
-
-| Script | What it settled |
-|---|---|
-| `probe.py` | Day-one API probe: costs, schemas, AOI ceiling, granularity |
-| `validate_lag.py` | Confirmed `start_time` is local, not UTC |
-| `hourly_curve.py` | 24-hour sweep locating the pre-dawn minimum |
-| `cooling_deficit.py` | Day/night cooling metric and the Spearman helper |
-| `water_confound.py` | Measures how distance from water drives the day/night link |
-| `detrend.py` | Tests longitude as an alternative confound |
-| `granularity_test.py` | Showed 60 m adds tiles but no information |
-| `sv_probe.py` | Separated "endpoint broken" from "no imagery here" |
-
-Note that `cooling_deficit.py` and `detrend.py` are imported by `city_test.py`,
-so the trail is load-bearing, not dead weight.
-
-### Layout
-
-```
-index.html              landing page, the argument
-web/index.html          the app, self-contained
-web/data/               baked datasets and street-view imagery
-nightwatch/             client, disk cache, geometry, timezone conversion
-tests/                  24 tests, all on the timezone conversion
-probe_report.json       day-one API probe results
-```
 
 ---
 
