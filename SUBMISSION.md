@@ -20,6 +20,47 @@ Fill in the bracketed bits, paste the rest.
 > danger threshold, for Phoenix, Houston and Chicago, ranked by how many people
 > live there.
 
+## Project description
+
+Use the long one unless the field is short. Both say the same thing.
+
+### Long (about 270 words)
+
+> NIGHTWATCH is an interactive map of how many hours a day each city block
+> spends above its danger threshold, built on FortyGuard's temperature API, for
+> Phoenix, Houston and Chicago.
+>
+> Cities pick where to plant trees and open cooling centres using maps of peak
+> temperature. Across a single city that number barely moves. In Phoenix the
+> entire afternoon spread, from the coolest 100-metre block to the hottest, is
+> 1.81 °C, which gives a heat office nothing to prioritise with. Ask the same
+> 21,453 blocks how long they stay above a danger threshold and the answer
+> spans 9.07 hours.
+>
+> The two questions do not pick the same ground. Take the hundred hottest
+> blocks at 3pm and the hundred that stay dangerous longest: in Phoenix not one
+> block is on both lists. R² between afternoon temperature and duration is
+> 0.106, so the map cities already have explains about a tenth of what matters.
+>
+> What it produces is a shortlist. Joined-up patches of blocks that stayed in
+> the hottest quarter of their city on every hot day measured, ranked by how
+> many people live in them rather than by area, with coordinates, exportable as
+> CSV and GeoJSON alongside a printable report carrying the method and the
+> limitations.
+>
+> The result is tested rather than asserted. Across five hot days between 2022
+> and 2025, 1,408 Houston blocks came out worst every single time against 22
+> expected by chance. Phoenix reaches only 2.4 times chance, and the app says
+> so on screen instead of presenting its site list with the same confidence.
+
+### Short (about 60 words)
+
+> An interactive map of how many hours a day each city block spends above its
+> danger threshold, for Phoenix, Houston and Chicago. Peak temperature varies
+> by 1.81 °C across Phoenix; hours above the threshold vary by 9.07. The two
+> measures pick different blocks entirely. NIGHTWATCH ranks the worst areas by
+> resident count and exports them with coordinates.
+
 ## Track
 
 **Primary:** Government & Environment (heat vulnerability mapping)
